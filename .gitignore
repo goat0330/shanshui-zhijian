@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Data — never commit official or derived data
+data/raw/
+data/processed/
+data/external/
+
+# Environment
+.venv/
+.env
+*.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# ML artifacts
+mlruns/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.h5
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large files
+*.zip
+*.tar.gz
+*.mp4
+*.avi
+*.mov
