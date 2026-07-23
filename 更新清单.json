@@ -1,0 +1,23 @@
+{
+  "package": "山水智鉴_第二轮调研完整更新包.zip",
+  "created": "2026-07-23",
+  "files": [
+    "README.md",
+    "competition/README.md",
+    "docs/00_项目总纲.md",
+    "docs/01_赛题与实验.md",
+    "docs/02_产品与业务方案.md",
+    "docs/03_技术架构与开源底座.md",
+    "docs/04_证据与风险台账.md",
+    "docs/05_竞赛交付/IAIC_方案工作稿.md",
+    "docs/05_竞赛交付/智慧城市_商业计划书工作稿.md",
+    "docs/05_竞赛交付/智慧城市_项目简表工作稿.md",
+    "docs/05_竞赛交付/智慧城市_项目说明书工作稿.md",
+    "references/01_市场与采购项目审计.md",
+    "references/02_开源仓库源码审计.md",
+    "references/README.md",
+    "山水智鉴_项目驾驶舱.md",
+    "更新说明.md"
+  ],
+  "markdown_files": 16
+}
