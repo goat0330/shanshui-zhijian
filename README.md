@@ -86,6 +86,41 @@
 | `docs/04_证据与风险台账.md` | 市场证据、产品假设、可宣称和禁止宣称 |
 | `references/` | 十个市场项目及五个开源项目的详细审计 |
 
+## 协同开发
+
+> **GitHub**: https://github.com/goat0330/shanshui-zhijian
+
+### 分支策略（Git Flow 简化版）
+
+```
+main（受保护）—— 只接受 develop PR，需 1 人 Review
+└── develop ──── 日常集成分支
+    ├── feature/rs-pipeline       # 遥感检测管线
+    ├── feature/backend-services   # FastAPI + TiTiler
+    ├── feature/frontend           # 前端模板
+    ├── feature/core-schemas       # Pydantic 数据模型
+    ├── feature/iaic-integration   # IAIC 算法赛适配
+    ├── feature/smart-city         # 智慧城市产品赛方案
+    └── feature/tests              # 测试
+```
+
+### 基本协作流程
+
+```text
+1. 开发前：git checkout develop → git pull
+2. 切到自己的 feature 分支开发
+3. 完成后：git add . → git commit -m "说明" → git push
+4. 在 GitHub 上提 Pull Request → develop（轻量审核）
+5. develop 稳定后 PR → main（需另一个人 Review + Approve）
+```
+
+| 命令 | 含义 |
+|------|------|
+| `git pull` | 把远程最新代码拉到本地 |
+| `git add .` | 暂存所有改动 |
+| `git commit -m "xxx"` | 提交到本地 |
+| `git push` | 推送到 GitHub |
+
 ## 当前 Gate
 
 官方数据开放前必须完成：
