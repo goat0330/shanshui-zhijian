@@ -31,6 +31,11 @@ def write_geotiff(
     if bands and len(bands) != count:
         raise ValueError(f"波段名数量 ({len(bands)}) 与数组维度 ({count}) 不匹配")
 
+    # uint8 时 nodata 设为 255, float32 时设为 -9999
+    actual_nodata = 255 if dtype == "uint8" else nodata
+    if dtype == "uint8":
+        array = np.clip(array, 0, 255).astype(np.uint8)
+
     with rasterio.open(
         path,
         "w",
@@ -41,7 +46,7 @@ def write_geotiff(
         dtype=dtype,
         crs=crs,
         transform=transform,
-        nodata=nodata,
+        nodata=actual_nodata,
         compress="lzw",
     ) as dst:
         for i in range(count):
@@ -49,7 +54,7 @@ def write_geotiff(
             if bands:
                 dst.set_band_description(i + 1, bands[i])
 
-    print(f"  ✅ GeoTIFF 写出: {path}")
+    print(f"   GeoTIFF 写出: {path}")
 
 
 def write_geojson(
@@ -66,7 +71,7 @@ def write_geojson(
     }
     with open(path, "w", encoding="utf-8") as f:
         json.dump(fc, f, ensure_ascii=False, indent=2)
-    print(f"  ✅ GeoJSON 写出: {path} ({len(features)} features)")
+    print(f"   GeoJSON 写出: {path} ({len(features)} features)")
 
 
 def write_jsonl(
@@ -80,7 +85,7 @@ def write_jsonl(
     with open(path, "w", encoding="utf-8") as f:
         for rec in records:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    print(f"  ✅ JSONL 写出: {path} ({len(records)} records)")
+    print(f"   JSONL 写出: {path} ({len(records)} records)")
 
 
 def write_preview(
@@ -105,4 +110,5 @@ def write_preview(
 
     import imageio.v3 as iio
     iio.imwrite(str(path), rgb)
-    print(f"  ✅ 预览图写出: {path}")
+    print(f"   预览图写出: {path}")
+

@@ -42,9 +42,9 @@ def detect_change(
     loss_pixels = int(water_loss.sum())
     total_changed = gain_pixels + loss_pixels
 
-    print(f"  🔄 水体增加: {gain_pixels} 像元")
-    print(f"  🔄 水体减少: {loss_pixels} 像元")
-    print(f"  🔄 变化总计: {total_changed} 像元")
+    print(f"   水体增加: {gain_pixels} 像元")
+    print(f"   水体减少: {loss_pixels} 像元")
+    print(f"   变化总计: {total_changed} 像元")
 
     return {
         "water_gain": water_gain.astype(np.uint8),
@@ -57,3 +57,4 @@ def detect_change(
             "total_changed": total_changed,
         },
     }
+

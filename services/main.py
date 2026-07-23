@@ -17,8 +17,9 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
+from starlette.templating import _TemplateResponse as TemplateResponse
+import jinja2
 import uvicorn
 
 # ── 路径 ──────────────────────────────────────────────────────────
@@ -36,7 +37,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 STATIC_DIR.mkdir(exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(str(TEMPLATES_DIR)), autoescape=True)
 
 # ── 内存存储 (V0 不使用数据库) ──────────────────────────────────
 _alerts: list[dict] = []
@@ -209,31 +210,30 @@ async def get_replay():
 
 @app.get("/", response_class=HTMLResponse)
 async def map_page(request: Request):
-    return templates.TemplateResponse("map.html", {"request": request})
+    template = jinja_env.get_template("map.html")
+    html = template.render({"request": request})
+    return HTMLResponse(html)
 
 
 @app.get("/review", response_class=HTMLResponse)
 async def review_page(request: Request):
-    return templates.TemplateResponse("review.html", {"request": request, "alerts": _alerts})
+    template = jinja_env.get_template("review.html")
+    html = template.render({"request": request, "alerts": _alerts})
+    return HTMLResponse(html)
 
 
 @app.get("/events", response_class=HTMLResponse)
 async def events_page(request: Request):
-    return templates.TemplateResponse("events.html", {
-        "request": request,
-        "events": _events,
-        "work_orders": _work_orders,
-    })
+    template = jinja_env.get_template("events.html")
+    html = template.render({"request": request, "events": _events, "work_orders": _work_orders})
+    return HTMLResponse(html)
 
 
 @app.get("/replay", response_class=HTMLResponse)
 async def replay_page(request: Request):
-    return templates.TemplateResponse("replay.html", {
-        "request": request,
-        "alerts": _alerts,
-        "events": _events,
-        "work_orders": _work_orders,
-    })
+    template = jinja_env.get_template("replay.html")
+    html = template.render({"request": request, "alerts": _alerts, "events": _events, "work_orders": _work_orders})
+    return HTMLResponse(html)
 
 
 if __name__ == "__main__":

@@ -53,3 +53,4 @@ def compute_all_indices(ri: RasterInput) -> dict[str, np.ndarray]:
         "mndwi": compute_mndwi(ri),
         "ndvi": compute_ndvi(ri),
     }
+

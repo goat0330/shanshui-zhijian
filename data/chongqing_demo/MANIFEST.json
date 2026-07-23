@@ -37,7 +37,7 @@
       "composite": "median"
     },
     "dem": {
-      "gee_id": "COPERNICUS/DEM/GLO30",
+      "gee_id": "COPERNICUS/DEM/GLO30_2024_1",
       "resolution_m": 30,
       "type": "static"
     },
@@ -55,7 +55,7 @@
     }
   },
   "processing": {
-    "crs": "EPSG:4526",
+    "crs": "EPSG:4545",
     "model": "ndwi_otsu_change_baseline",
     "model_version": "0.1.0",
     "change_min_area_m2": 500,

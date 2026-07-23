@@ -97,7 +97,7 @@ def predict(
         threshold: 使用的Otsu阈值
     """
     threshold = local_otsu_threshold(ndwi, grid_size=grid_size)
-    print(f"  💧 Otsu 阈值: {threshold:.4f}")
+    print(f"  [Water] Otsu threshold: {threshold:.4f}")
 
     water_mask = apply_water_mask(
         ndwi, threshold,
@@ -107,6 +107,7 @@ def predict(
     )
 
     water_ratio = water_mask.sum() / water_mask.size * 100
-    print(f"  💧 水体占比: {water_ratio:.1f}%")
+    print(f"  [Water] water ratio: {water_ratio:.1f}%")
 
     return water_mask, threshold
+

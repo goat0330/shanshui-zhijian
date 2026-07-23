@@ -79,9 +79,10 @@ def validate_alignment(inputs: list[RasterInput], label: str = "") -> bool:
             print(f"  ⚠️  {label}[{i}] CRS 不一致: {ri.crs} vs {ref.crs}")
             ok = False
         if ri.width != ref.width or ri.height != ref.height:
-            print(f"  ⚠️  {label}[{i}] 尺寸不一致: {ri.width}x{ri.height} vs {ref.width}x{ref.height}")
+            print(f"  [!] {label}[{i}] 尺寸不一致: {ri.width}x{ri.height} vs {ref.width}x{ref.height}")
             ok = False
         if ri.transform != ref.transform:
-            print(f"  ⚠️  {label}[{i}] transform 不一致")
+            print(f"  [!] {label}[{i}] transform 不一致")
             ok = False
     return ok
+

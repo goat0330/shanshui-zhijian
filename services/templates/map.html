@@ -34,69 +34,35 @@ const map = new maplibregl.Map({
   style: {
     version: 8,
     sources: {
-      osm: {
-        type: 'raster',
-        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-        tileSize: 256,
-        attribution: '© OpenStreetMap',
-      },
+      osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256 },
     },
-    layers: [{ id: 'osm', type: 'raster', source: 'osm', minzoom: 0, maxzoom: 19 }],
+    layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
   },
   center: [106.575, 29.565],
   zoom: 13,
 });
 
-// 加载 COG 图层 (通过 TiTiler)
-const cogLayers = {
-  t1: { url: '/api/v1/cog/tilejson.json?layer=s2_t1', visible: true },
-  t2: { url: '/api/v1/cog/tilejson.json?layer=s2_t2', visible: false },
-  water: { url: '/api/v1/cog/tilejson.json?layer=water_mask_t2', visible: false },
-  change: { url: '/api/v1/cog/tilejson.json?layer=water_change_score', visible: false },
-};
-
 map.on('load', () => {
-  Object.entries(cogLayers).forEach(([id, cfg]) => {
-    map.addSource(id, { type: 'raster', tiles: [cfg.url], tileSize: 256 });
-    map.addLayer({ id, type: 'raster', source: id, layout: { visibility: cfg.visible ? 'visible' : 'none' } });
+  // NDWI T1 预览图 (静态PNG叠加)
+  const layers = [
+    { id: 'ndwi_t1', url: '/static/preview_ndwi_t1.png', bounds: [106.554, 29.547, 106.596, 29.583], label: 'NDWI T1', visible: true },
+    { id: 'ndwi_t2', url: '/static/preview_ndwi_t2.png', bounds: [106.554, 29.547, 106.596, 29.583], label: 'NDWI T2', visible: false },
+    { id: 'change', url: '/static/preview_change_mask.png', bounds: [106.554, 29.547, 106.596, 29.583], label: 'Change Mask', visible: false },
+  ];
+  
+  layers.forEach(l => {
+    map.addSource(l.id, { type: 'image', url: l.url, coordinates: [
+      [l.bounds[0], l.bounds[3]], [l.bounds[2], l.bounds[3]],
+      [l.bounds[2], l.bounds[1]], [l.bounds[0], l.bounds[1]],
+    ]});
+    map.addLayer({ id: l.id, type: 'raster', source: l.id, paint: { 'raster-opacity': 0.6 }, layout: { visibility: l.visible ? 'visible' : 'none' } });
   });
 });
 
-// 图层控制
 document.querySelectorAll('.layer-control input').forEach(cb => {
   cb.addEventListener('change', () => {
     const layer = map.getLayer(cb.dataset.layer);
     if (layer) map.setLayoutProperty(cb.dataset.layer, 'visibility', cb.checked ? 'visible' : 'none');
   });
 });
-
-// 加载变化候选图斑
-fetch('/api/v1/alerts')
-  .then(r => r.json())
-  .then(alerts => {
-    const features = alerts.filter(a => a.geometry).map(a => ({
-      type: 'Feature',
-      geometry: a.geometry,
-      properties: { alert_id: a.alert_id, category: a.category, confidence: a.confidence },
-    }));
-    if (features.length === 0) return;
-    map.addSource('candidates', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features },
-    });
-    map.addLayer({
-      id: 'candidates-fill',
-      type: 'fill',
-      source: 'candidates',
-      paint: { 'fill-color': '#ff4444', 'fill-opacity': 0.4, 'fill-outline-color': '#ff0000' },
-    });
-    map.addLayer({
-      id: 'candidates-line',
-      type: 'line',
-      source: 'candidates',
-      paint: { 'line-color': '#ff0000', 'line-width': 2 },
-    });
-  });
 </script>
-</body>
-</html>

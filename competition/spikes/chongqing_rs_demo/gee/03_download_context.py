@@ -20,12 +20,12 @@ import ee
 from geocode import init_gee, load_region, heartbeat, download_image
 
 # ── 配置 ──────────────────────────────────────────────────────────
-AOI_PATH = str(Path(__file__).resolve().parents[2] / "data" / "chongqing_demo" / "aoi.geojson")
-OUTPUT_DIR = Path(__file__).resolve().parents[2] / "data" / "chongqing_demo" / "raw"
+AOI_PATH = str(Path(__file__).resolve().parents[4] / "data" / "chongqing_demo" / "aoi.geojson")
+OUTPUT_DIR = Path(__file__).resolve().parents[4] / "data" / "chongqing_demo" / "raw"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 SCALE = 10
-CRS = "EPSG:4526"
+CRS = "EPSG:4326"  # 先下 WGS84, Pipeline 里重投影
 
 
 def main():
@@ -38,9 +38,11 @@ def main():
     # ── DEM ──────────────────────────────────────────────────────
     with heartbeat("Processing DEM"):
         dem = (
-            ee.Image("COPERNICUS/DEM/GLO30")
+            ee.ImageCollection("COPERNICUS/DEM/GLO30_2024_1")
+            .mosaic()
             .select("DEM")
             .clip(aoi)
+            .float()
         )
         download_image(dem, str(OUTPUT_DIR / "dem_glo30.tif"), region=aoi, scale=30, crs=CRS)
         print("✅ DEM saved")

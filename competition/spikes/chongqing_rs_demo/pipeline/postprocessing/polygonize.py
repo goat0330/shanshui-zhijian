@@ -78,7 +78,7 @@ def polygonize_change_mask(
             }
             features_list.append(feat)
 
-    print(f"  📦 多边形化: {len(features_list)} 个图斑 (过滤前 {num_features} 个连通域)")
+    print(f"   多边形化: {len(features_list)} 个图斑 (过滤前 {num_features} 个连通域)")
     return features_list
 
 
@@ -100,3 +100,4 @@ def assign_change_type(
         feat["properties"]["data_level"] = "public_observation_and_model_derived"
 
     return features
+
