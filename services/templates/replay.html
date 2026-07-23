@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山水智鉴 — Replay 全流程回放</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f5; padding: 20px; }
+  h1 { font-size: 20px; margin-bottom: 16px; }
+  h2 { font-size: 16px; margin: 20px 0 10px; color: #333; }
+  .timeline { position: relative; padding-left: 30px; }
+  .timeline::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: #ddd; }
+  .node { position: relative; margin-bottom: 16px; padding: 12px 16px; background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  .node::before { content: ''; position: absolute; left: -24px; top: 16px; width: 12px; height: 12px; border-radius: 50%; background: #3b82f6; border: 2px solid white; box-shadow: 0 0 0 2px #3b82f6; }
+  .node .phase { font-size: 12px; color: #3b82f6; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .node .title { font-size: 15px; font-weight: 600; margin: 4px 0; }
+  .node .detail { font-size: 13px; color: #555; }
+  .node .meta { font-size: 11px; color: #888; margin-top: 4px; }
+  .empty { color: #888; font-size: 14px; }
+  .nav { margin-bottom: 16px; }
+  .nav a { color: #2563eb; text-decoration: none; font-size: 13px; margin-right: 12px; }
+  .nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="nav">
+  <a href="/">← 地图</a>
+  <a href="/review">核验工作台</a>
+  <a href="/events">事件与工单</a>
+</div>
+<h1>Replay — 全流程回放</h1>
+<p style="color:#666;font-size:14px;margin-bottom:16px;">从数据获取到复核关闭的完整时间线</p>
+<div id="replay-content"></div>
+
+<script>
+async function loadReplay() {
+  const r = await fetch('/api/v1/replay');
+  const data = await r.json();
+  renderTimeline(data);
+}
+
+function renderTimeline(data) {
+  const container = document.getElementById('replay-content');
+  const nodes = [];
+
+  // Phase 1: 数据获取
+  nodes.push({ phase: '数据获取', title: 'GEE 数据下载', detail: 'Sentinel-2 L2A (T1/T2) + DEM + WorldCover + JRC', meta: '真实遥感数据' });
+
+  // Phase 2: Pipeline 运行
+  nodes.push({ phase: '算法处理', title: 'Pipeline 运行', detail: 'NDWI→Otsu→水体掩膜→变化检测→多边形化', meta: 'ndwi_otsu_change_baseline v0.1.0' });
+
+  // Phase 3: DetectionResult
+  const drCount = data.alerts.length;
+  nodes.push({ phase: '模型输出', title: `DetectionResult (${drCount} 条)`, detail: '标准 JSON 格式, score_type=rule_based', meta: '唯一跨链接口' });
+
+  // Phase 4: 告警
+  nodes.push({ phase: '告警生成', title: `AnomalyAlert (${data.alerts.length} 条)`, detail: '经 AlertEngine 规则去重后进入核验队列', meta: `${data.alerts.filter(a=>a.status==='pending').length} 待核验` });
+
+  // Phase 5: 人工核验
+  const confirmed = data.alerts.filter(a => a.status === 'confirmed').length;
+  const rejected = data.alerts.filter(a => a.status === 'rejected').length;
+  nodes.push({ phase: '人工核验', title: `已确认 ${confirmed} / 已驳回 ${rejected}`, detail: rejected > 0 ? `驳回原因: 已选择结构化原因` : '暂无核验记录', meta: '演练角色: demo_user' });
+
+  // Phase 6: 治理事件
+  nodes.push({ phase: '治理事件', title: `GovernanceEvent (${data.events.length} 个)`, detail: '人工确认后自动创建', meta: '状态: ' + data.events.map(e=>e.status).join(', ') });
+
+  // Phase 7: 工单
+  const woCount = data.work_orders.length;
+  const woDone = data.work_orders.filter(o => o.status === 'completed').length;
+  nodes.push({ phase: '处置工单', title: `WorkOrder (${woCount} 个, ${woDone} 已完成)`, detail: '交办→到场→处理→完成→复核', meta: '演练角色: demo_dispatcher' });
+
+  // Phase 8: Replay 本身
+  nodes.push({ phase: '回放完成', title: 'Replay — 全流程闭环', detail: '从原始影像到复核关闭的所有步骤均已记录', meta: '数据均可追溯版本和参数' });
+
+  container.innerHTML = '<div class="timeline">' + nodes.map(n => `
+    <div class="node">
+      <div class="phase">${n.phase}</div>
+      <div class="title">${n.title}</div>
+      <div class="detail">${n.detail}</div>
+      <div class="meta">${n.meta}</div>
+    </div>
+  `).join('') + '</div>';
+}
+
+loadReplay();
+</script>
+</body>
+</html>

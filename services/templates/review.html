@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山水智鉴 — 异常核验工作台</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f5; padding: 20px; }
+  h1 { font-size: 20px; margin-bottom: 16px; }
+  .alert-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; gap: 16px; }
+  .alert-info { flex: 1; }
+  .alert-info h3 { font-size: 16px; margin-bottom: 6px; }
+  .alert-info p { font-size: 13px; color: #666; margin-bottom: 4px; }
+  .evidence-imgs { display: flex; gap: 8px; margin: 8px 0; }
+  .evidence-imgs .tile { width: 120px; height: 90px; background: #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; background-size: cover; background-position: center; }
+  .actions { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+  .btn { padding: 6px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+  .btn-confirm { background: #22c55e; color: white; }
+  .btn-reject { background: #ef4444; color: white; }
+  .btn-reject:hover, .btn-confirm:hover { opacity: 0.85; }
+  select { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+  .badge-confirmed { background: #dcfce7; color: #166534; }
+  .badge-rejected { background: #fee2e2; color: #991b1b; }
+  .status-bar { margin-bottom: 12px; padding: 10px; background: #fff; border-radius: 8px; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  .nav { margin-bottom: 16px; }
+  .nav a { color: #2563eb; text-decoration: none; font-size: 13px; margin-right: 12px; }
+  .nav a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="nav">
+  <a href="/">← 返回地图</a>
+  <a href="/events">事件与工单</a>
+  <a href="/replay">Replay 回放</a>
+</div>
+<h1>异常核验工作台</h1>
+<div class="status-bar">
+  待核验: <strong id="pending-count">0</strong> 条
+  | 已确认: <strong id="confirmed-count">0</strong>
+  | 已驳回: <strong id="rejected-count">0</strong>
+</div>
+<div id="alert-list"></div>
+
+<script>
+async function loadAlerts() {
+  const r = await fetch('/api/v1/alerts');
+  const alerts = await r.json();
+  renderAlerts(alerts);
+  updateStats(alerts);
+}
+
+function updateStats(alerts) {
+  const pending = alerts.filter(a => a.status === 'pending').length;
+  const confirmed = alerts.filter(a => a.status === 'confirmed').length;
+  const rejected = alerts.filter(a => a.status === 'rejected').length;
+  document.getElementById('pending-count').textContent = pending;
+  document.getElementById('confirmed-count').textContent = confirmed;
+  document.getElementById('rejected-count').textContent = rejected;
+}
+
+function renderAlerts(alerts) {
+  const container = document.getElementById('alert-list');
+  container.innerHTML = '';
+  if (alerts.length === 0) {
+    container.innerHTML = '<p style="color:#888;">暂无告警。请先运行 Pipeline 并调用 POST /api/v1/detections 导入。</p>';
+    return;
+  }
+  alerts.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'alert-card';
+    card.innerHTML = `
+      <div class="alert-info">
+        <h3>${a.alert_id} <span class="badge badge-${a.status}">${statusLabel(a.status)}</span></h3>
+        <p>类别: ${a.category || 'candidate'} | 置信度: ${(a.confidence * 100).toFixed(0)}% | 分数类型: rule_based</p>
+        <p>创建: ${a.created_at || '-'}</p>
+        ${a.reject_reason ? `<p>驳回原因: ${a.reject_reason}</p>` : ''}
+        <div class="evidence-imgs">
+          <div class="tile">T1 切片</div>
+          <div class="tile">T2 切片</div>
+          <div class="tile">变化图</div>
+        </div>
+        ${a.status === 'pending' ? `
+        <div class="actions">
+          <button class="btn btn-confirm" onclick="review('${a.alert_id}', 'confirm')">确认异常</button>
+          <button class="btn btn-reject" onclick="review('${a.alert_id}', 'reject')">驳回</button>
+          <select id="reason-${a.alert_id}">
+            <option value="误识别">误识别</option>
+            <option value="重复告警">重复告警</option>
+            <option value="非治理对象">非治理对象</option>
+            <option value="证据不足">证据不足</option>
+            <option value="自然水位变化">自然水位变化</option>
+            <option value="阴影/桥梁干扰">阴影/桥梁干扰</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>` : ''}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function statusLabel(s) {
+  return { pending: '待核验', confirmed: '已确认', rejected: '已驳回' }[s] || s;
+}
+
+async function review(alertId, action) {
+  const reason = document.getElementById(`reason-${alertId}`)?.value || '';
+  const params = new URLSearchParams({ action, reviewer: 'demo_user' });
+  if (action === 'reject') params.append('reason', reason);
+  const r = await fetch(`/api/v1/alerts/${alertId}/review?${params}`, { method: 'POST' });
+  if (r.ok) {
+    loadAlerts();
+  } else {
+    alert('操作失败: ' + await r.text());
+  }
+}
+
+loadAlerts();
+</script>
+</body>
+</html>

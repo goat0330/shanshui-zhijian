@@ -10,6 +10,12 @@ build/
 data/raw/
 data/processed/
 data/external/
+data/chongqing_demo/raw/
+data/chongqing_demo/cog/
+data/chongqing_demo/labels/
+
+# Pipeline outputs
+competition/spikes/chongqing_rs_demo/products/
 
 # Environment
 .venv/
@@ -27,6 +33,9 @@ mlruns/
 *.onnx
 *.ckpt
 *.h5
+
+# GeoAgent project memory (internal notes, not for public)
+geocode_memory.md
 
 # OS
 .DS_Store
