@@ -56,6 +56,11 @@ from pipeline.processing.preprocessor import reproject_to_target, resample_to_gr
 from pipeline.models.baseline_water_sar import predict_vh as sar_water_predict
 from pipeline.detection.change import detect_change
 from pipeline.postprocessing.polygonize import polygonize_change_mask
+from tools.multi_temporal_background import (
+    compute_median_background, compute_mad, compute_valid_count,
+    compute_water_occurrence, compute_robust_zscore,
+    classify_multitemporal_change, ensure_no_nan_inf,
+)
 
 
 def _sha256_hex(path: Path) -> str:
@@ -111,8 +116,38 @@ def _failed(
     )
 
 
+class _FallbackToPair(Exception):
+    """内部异常：多时相历史景数不足，回退双时相模式。"""
+    pass
+
+
+def _is_multi_temporal_mode(spec: TaskSpec) -> bool:
+    """检测是否为多时相模式：input_slots 中声明了 HISTORY 或 CURRENT 角色。"""
+    declared = {s.role for s in spec.input_slots}
+    return AssetRole.HISTORY in declared or AssetRole.CURRENT in declared
+
+
+def _parse_mt_policy(context: RunContext) -> dict:
+    """从 RunContext.tool_config 提取多时相策略参数。"""
+    tc = context.tool_config or {}
+    mt = tc.get("multi_temporal", {})
+    return {
+        "insufficient_history_policy": mt.get("insufficient_history_policy", "fallback_to_pair"),
+        "min_history_scenes": mt.get("min_history_scenes", 6),
+        "max_history_scenes": mt.get("max_history_scenes", 24),
+        "min_current_scenes": mt.get("min_current_scenes", 1),
+        "max_current_scenes": mt.get("max_current_scenes", 3),
+        "valid_count_threshold": mt.get("valid_count_threshold", 3),
+        "mad_epsilon": mt.get("mad_epsilon", 0.001),
+        "zscore_threshold": mt.get("zscore_threshold", 3.0),
+        "water_occurrence_threshold": mt.get("water_occurrence_threshold", 0.3),
+        "min_area_m2": mt.get("min_area_m2", 500),
+        "pixel_area_m2": mt.get("pixel_area_m2", 100),
+    }
+
+
 class SarTemporalChangeTool(PerceptionTool):
-    """Sentinel-1 SAR 双时相变化检测工具 (RS-01A.2)。"""
+    """Sentinel-1 SAR 双时相变化检测工具 (RS-01A.2 + RS-01B-2 多时相)。"""
 
     def __init__(self, registry: AssetRegistry | None = None):
         self._registry = registry
@@ -186,7 +221,455 @@ class SarTemporalChangeTool(PerceptionTool):
         errors.extend(self._validate_bindings(task, spec))
         return errors
 
+    # ── 多时相解析 ──────────────────────────────────────────────
+
+    def _resolve_multi_temporal(
+        self, task: InferenceTask, spec: TaskSpec,
+    ) -> tuple[list[TaskAssetBinding], list[TaskAssetBinding]]:
+        """解析多时相资产绑定，按 sequence_index + acquisition_time 排序。
+
+        Returns:
+            (history_bindings, current_bindings) - 排序后的绑定列表
+        """
+        history = [b for b in task.asset_bindings if b.role == AssetRole.HISTORY]
+        current = [b for b in task.asset_bindings if b.role == AssetRole.CURRENT]
+
+        def _sort_key(b: TaskAssetBinding) -> str:
+            """排序键: sequence_index 优先，然后是 acquisition_time。"""
+            seq = b.sequence_index if b.sequence_index is not None else 0
+            try:
+                ref = self._registry.resolve(b.asset_ref)
+                t = ref.acquisition_time or ""
+            except KeyError:
+                t = ""
+            return f"{seq:04d}_{t}"
+
+        history.sort(key=_sort_key)
+        current.sort(key=_sort_key)
+        return history, current
+
     # ── 主运行 ──────────────────────────────────────────────────
+
+    def _execute_multi_temporal(
+        self, task: InferenceTask, spec: TaskSpec, context: RunContext,
+        result_id: str, started_at: str, policy: SarValidationPolicy,
+    ) -> PerceptionResult:
+        """多时相稳健背景变化检测 (RS-01B-2)。
+
+        流程:
+        1. 解析 HISTORY + CURRENT 资产
+        2. 检查历史景数，不足则返回 NO_DATA 或抛出用于 fallback
+        3. 逐景通过 RS-01B-1 质量门禁
+        4. 构建历史 VH 堆栈 + 当前 VH 堆栈
+        5. 计算背景统计 (median, MAD, valid_count)
+        6. 历史水体检测 → water_occurrence
+        7. 当前水体检测
+        8. 鲁棒 Z-Score + 变化分类
+        9. 多边形化 + Observations
+        10. 写出 10 产物 + 注册 AssetRef
+        """
+        mt_policy = _parse_mt_policy(context)
+        has_current = any(b.role == AssetRole.CURRENT for b in task.asset_bindings)
+
+        # 1. 解析资产
+        history_bindings, current_bindings = self._resolve_multi_temporal(task, spec)
+
+        n_history = len(history_bindings)
+        n_current = len(current_bindings) if has_current else 1
+
+        # 2. 历史景数检查
+        if n_history < mt_policy["min_history_scenes"]:
+            policy_choice = mt_policy["insufficient_history_policy"]
+            if policy_choice == "no_data":
+                return _failed(result_id, task, spec, context,
+                               "history_check", "insufficient_history",
+                               f"历史景数 {n_history} < 最小 {mt_policy['min_history_scenes']} (policy=no_data)",
+                               started_at)
+            # fallback_to_pair → 抛异常让 run() 去执行 pair 流程
+            raise _FallbackToPair(
+                f"历史景数 {n_history} < 最小 {mt_policy['min_history_scenes']}, 回退双时相"
+            )
+
+        # 3. 质量门禁 (逐景)
+        all_bindings = history_bindings + current_bindings
+        ref_binding = history_bindings[0]
+
+        try:
+            ref_asset = self._registry.resolve(ref_binding.asset_ref)
+        except KeyError as e:
+            return _failed(result_id, task, spec, context,
+                           "resolve_reference", "missing_asset", str(e), started_at)
+
+        for i, b in enumerate(all_bindings):
+            try:
+                scene_asset = self._registry.resolve(b.asset_ref)
+            except KeyError as e:
+                return _failed(result_id, task, spec, context,
+                               "resolve_scene", "missing_asset",
+                               f"scene[{i}] {b.asset_ref}: {e}", started_at)
+            if b.asset_ref == ref_binding.asset_ref:
+                continue  # 跳过自身
+            try:
+                scene_data = read_geotiff(scene_asset.uri, bands=["vv", "vh"])
+            except Exception as e:
+                return _failed(result_id, task, spec, context,
+                               "read_scene", type(e).__name__,
+                               f"scene[{i}] {scene_asset.uri}: {e}", started_at)
+
+            if policy.mode != PolicyMode.TRUST:
+                meta_ref = SarMetadata.from_asset_ref(ref_asset, ref_asset.uri)
+                meta_scene = SarMetadata.from_asset_ref(scene_asset, scene_asset.uri)
+                ref_data = read_geotiff(ref_asset.uri, bands=["vv", "vh"])
+                qm = compute_input_quality(
+                    ref_data.array, scene_data.array,
+                    ref_data.bands, scene_data.bands,
+                )
+                validation = validate_sar_input(
+                    meta_ref, meta_scene,
+                    ref_data.bands, scene_data.bands,
+                    qm, policy,
+                    ref_data.width, ref_data.height,
+                    scene_data.width, scene_data.height,
+                )
+                if validation.rejected:
+                    return _failed(result_id, task, spec, context,
+                                   "quality_gate", "scene_rejected",
+                                   f"scene[{i}] {b.asset_ref}: {validation.rejection_reason}",
+                                   started_at)
+
+        # 4. 构建历史 VH 堆栈
+        ref_raster = reproject_to_target(read_geotiff(ref_asset.uri, bands=["vv", "vh"]))
+        vh_idx = ref_raster.bands.index("vh")
+        history_arrays = []
+        history_water = []
+
+        for i, b in enumerate(history_bindings):
+            asset = self._registry.resolve(b.asset_ref)
+            ri = read_geotiff(asset.uri, bands=["vv", "vh"])
+            ri = reproject_to_target(ri)
+            if ri.width != ref_raster.width or ri.height != ref_raster.height:
+                ri = resample_to_grid(ri, ref_raster)
+            vh = ri.array[vh_idx].copy()
+            # 标记 NoData 为 NaN
+            vh[np.isclose(vh, ri.nodata, atol=1e-3)] = np.nan
+            vh[~np.isfinite(vh)] = np.nan
+            history_arrays.append(vh)
+
+            # 历史水体掩膜
+            wm, _ = sar_water_predict(np.where(np.isfinite(vh), vh, -9999.0))
+            history_water.append(wm)
+
+        vh_history_stack = np.stack(history_arrays, axis=0)  # (N, H, W)
+        water_history_stack = np.stack(history_water, axis=0)  # (N, H, W)
+
+        # 5. 构建当前 VH
+        current_arrays = []
+        for i, b in enumerate(current_bindings):
+            asset = self._registry.resolve(b.asset_ref)
+            ri = read_geotiff(asset.uri, bands=["vv", "vh"])
+            ri = reproject_to_target(ri)
+            if ri.width != ref_raster.width or ri.height != ref_raster.height:
+                ri = resample_to_grid(ri, ref_raster)
+            vh = ri.array[vh_idx].copy()
+            vh[np.isclose(vh, ri.nodata, atol=1e-3)] = np.nan
+            vh[~np.isfinite(vh)] = np.nan
+            current_arrays.append(vh)
+
+        current_vh_median = np.nanmedian(np.stack(current_arrays, axis=0), axis=0).astype(np.float32)
+        is_single_current = len(current_arrays) == 1
+
+        # 6. 背景统计
+        baseline_vh_median = compute_median_background(vh_history_stack)
+        baseline_vh_mad = compute_mad(vh_history_stack, baseline_vh_median,
+                                       epsilon=mt_policy["mad_epsilon"])
+        history_valid_count = compute_valid_count(vh_history_stack)
+        historical_water_occurrence = compute_water_occurrence(
+            water_history_stack.astype(np.float32)
+        )
+
+        # 7. 当前水体
+        current_vh_clean = np.where(np.isfinite(current_vh_median), current_vh_median, -9999.0)
+        current_water_mask, current_thresh = sar_water_predict(current_vh_clean)
+
+        # 8. 鲁棒 Z-Score + 变化分类
+        robust_zscore = compute_robust_zscore(
+            current_vh_median, baseline_vh_median, baseline_vh_mad,
+        )
+        robust_zscore[np.isnan(current_vh_median)] = 0.0
+        robust_zscore = ensure_no_nan_inf(robust_zscore)
+
+        change_result = classify_multitemporal_change(
+            current_water_mask, historical_water_occurrence, robust_zscore,
+            history_valid_count,
+            zscore_threshold=mt_policy["zscore_threshold"],
+            water_occurrence_threshold=mt_policy["water_occurrence_threshold"],
+            min_valid_count=mt_policy["valid_count_threshold"],
+        )
+
+        # 9. 保证无 NaN/Inf
+        for key in ["baseline_vh_median", "baseline_vh_mad", "history_valid_count",
+                     "historical_water_occurrence", "current_vh_median"]:
+            arr = locals().get(key)
+            if isinstance(arr, np.ndarray):
+                if key == "history_valid_count":
+                    arr = np.where(np.isfinite(arr), arr, 0).astype(np.uint16)
+                else:
+                    arr = ensure_no_nan_inf(arr.astype(np.float32))
+                locals()[key] = arr
+
+        # Re-bind after potential NaN fix
+        baseline_vh_median = ensure_no_nan_inf(baseline_vh_median)
+        baseline_vh_mad = ensure_no_nan_inf(baseline_vh_mad)
+        history_valid_count = np.where(
+            np.isfinite(history_valid_count), history_valid_count, 0
+        ).astype(np.uint16)
+        historical_water_occurrence = ensure_no_nan_inf(historical_water_occurrence)
+        current_vh_median = ensure_no_nan_inf(current_vh_median)
+
+        # 10. 多边形化 (每种变化类型)
+        all_features: list[dict] = []
+        ref_crs_str = str(ref_raster.crs).upper()
+        pixel_area = mt_policy["pixel_area_m2"]
+
+        for ct_mask, ct_label in [
+            (change_result["water_gain_mask"], "water_gain"),
+            (change_result["water_loss_mask"], "water_loss"),
+            (change_result["sar_anomaly_mask"], "sar_backscatter_anomaly"),
+        ]:
+            if ct_mask.sum() == 0:
+                continue
+            feats = polygonize_change_mask(
+                ct_mask, ref_raster.transform, ref_raster.crs,
+                min_area_m2=mt_policy["min_area_m2"],
+                pixel_area_m2=pixel_area,
+            )
+            for feat in feats:
+                feat["properties"]["change_type"] = ct_label
+                # 计算图斑内统计量
+                geom = feat["geometry"]
+                if geom and geom.get("type") == "Polygon":
+                    coords = geom["coordinates"][0]
+                    xs = [p[0] for p in coords]
+                    ys = [p[1] for p in coords]
+                    # 像素坐标近似
+                    inv_t = ~ref_raster.transform
+                    rows = []
+                    cols = []
+                    for x, y in zip(xs, ys):
+                        c, r = inv_t * (x, y)
+                        rows.append(int(round(r)))
+                        cols.append(int(round(c)))
+                    rows = np.clip(rows, 0, ref_raster.height - 1)
+                    cols = np.clip(cols, 0, ref_raster.width - 1)
+                    if len(rows) > 0 and len(cols) > 0:
+                        # 取边界框内统计量
+                        r_min, r_max = max(0, min(rows)), min(ref_raster.height, max(rows) + 1)
+                        c_min, c_max = max(0, min(cols)), min(ref_raster.width, max(cols) + 1)
+                        region_z = robust_zscore[r_min:r_max, c_min:c_max]
+                        region_wo = historical_water_occurrence[r_min:r_max, c_min:c_max]
+                        feat["properties"]["robust_z_mean"] = round(float(np.nanmean(region_z)), 4)
+                        feat["properties"]["robust_z_max"] = round(float(np.nanmax(np.abs(region_z))), 4)
+                        feat["properties"]["water_occurrence_mean"] = round(float(np.nanmean(region_wo)), 4)
+            all_features.extend(feats)
+
+        # mixed: 同一图斑同时为 gain 和 loss (由 polygonize 合并后判)
+        # (保留但概率极低)
+
+        features_4326 = _to_epsg4326(all_features, ref_raster.crs)
+
+        # 11. 输出目录
+        root_output = Path(context.output_dir) if context.output_dir else Path.cwd()
+        task_output = root_output / context.run_id / task.task_id
+        task_output.mkdir(parents=True, exist_ok=True)
+
+        # 12. 写出 10 个栅格产物
+        paths: dict[str, Path] = {}
+
+        # 先用 _safe_raster 写辅助函数
+        def _write_raster(name: str, arr: np.ndarray, dtype: str = "float32") -> Path:
+            p = task_output / f"{name}.tif"
+            actual_dtype = dtype
+            actual_nodata = -9999.0
+            if dtype == "uint16":
+                actual_dtype = "float32"  # write_geotiff 不支持 uint16 负值 nodata
+                arr = arr.astype(np.float32)
+            elif dtype == "uint8":
+                arr_out = arr.astype(np.uint8)
+            else:
+                arr_out = arr.astype(np.float32)
+            if dtype == "uint8":
+                arr_out = arr.astype(np.uint8)
+            else:
+                arr_out = arr.astype(np.float32)
+            write_geotiff(arr_out, p, ref_raster.crs, ref_raster.transform,
+                          bands=[name], dtype=actual_dtype)
+            paths[name] = p
+            return p
+
+        _write_raster("baseline_vh_median", baseline_vh_median)
+        _write_raster("baseline_vh_mad", baseline_vh_mad)
+        _write_raster("history_valid_count", history_valid_count, dtype="uint16")
+        _write_raster("historical_water_occurrence", historical_water_occurrence)
+        _write_raster("current_vh_median", current_vh_median)
+        _write_raster("current_water_mask", current_water_mask, dtype="uint8")
+        _write_raster("robust_zscore", robust_zscore)
+        _write_raster("water_gain_mask", change_result["water_gain_mask"], dtype="uint8")
+        _write_raster("water_loss_mask", change_result["water_loss_mask"], dtype="uint8")
+        _write_raster("final_change_mask", change_result["final_change_mask"], dtype="uint8")
+
+        cand_path = task_output / "candidates.geojson"
+        write_geojson(features_4326, cand_path)
+        paths["candidates"] = cand_path
+
+        report_path = task_output / "run_report.json"
+        total_area = sum(f["properties"].get("area_m2", 0) for f in features_4326)
+        report = {
+            "run_id": context.run_id, "task_id": task.task_id,
+            "task_spec_ref": task.task_spec_ref,
+            "mode": "multi_temporal",
+            "raster_crs": ref_crs_str,
+            "geojson_crs": "EPSG:4326",
+            "n_history_scenes": n_history,
+            "n_current_scenes": n_current,
+            "current_mode": "single" if is_single_current else "multi",
+            "change_stats": change_result["stats"],
+            "polygon_count": len(features_4326),
+            "total_area_m2": total_area,
+            "mt_policy": mt_policy,
+            "output_dir": str(task_output),
+        }
+        with open(report_path, "w", encoding="utf-8") as f:
+            json.dump(report, f, ensure_ascii=False, indent=2)
+        paths["run_report"] = report_path
+
+        # 13. 注册派生资产
+        ct_map = {"water_gain": 1, "water_loss": 2, "sar_backscatter_anomaly": 3}
+
+        if hasattr(ref_raster.transform, '__iter__'):
+            t = ref_raster.transform
+            transform_list = [float(t.a), float(t.b), float(t.c),
+                              float(t.d), float(t.e), float(t.f)]
+        else:
+            transform_list = list(ref_raster.transform)[:6]
+
+        derived: list[AssetRef] = []
+        raster_names = [
+            "baseline_vh_median", "baseline_vh_mad", "history_valid_count",
+            "historical_water_occurrence", "current_vh_median", "current_water_mask",
+            "robust_zscore", "water_gain_mask", "water_loss_mask", "final_change_mask",
+        ]
+        for name in raster_names:
+            p = paths[name]
+            asset_id = f"{task.task_id}_{name}"
+            ref = AssetRef(
+                asset_id=asset_id, uri=str(p),
+                media_type="image/tiff; application=geotiff",
+                modality=Modality.MASK if "mask" in name else Modality.SAR,
+                spatial=SpatialMetadata(
+                    reliability="georeferenced", crs=ref_crs_str,
+                    transform=transform_list,
+                    width=ref_raster.width, height=ref_raster.height,
+                ),
+                bands=[name], checksum=_sha256_hex(p),
+            )
+            self._registry.register(ref)
+            derived.append(ref)
+
+        ref_cand = AssetRef(
+            asset_id=f"{task.task_id}_candidates", uri=str(cand_path),
+            media_type="application/geo+json", modality=Modality.VECTOR,
+            checksum=_sha256_hex(cand_path),
+        )
+        ref_report_asset = AssetRef(
+            asset_id=f"{task.task_id}_run_report", uri=str(report_path),
+            media_type="application/json", modality=Modality.METADATA,
+            checksum=_sha256_hex(report_path),
+        )
+        for r in [ref_cand, ref_report_asset]:
+            self._registry.register(r)
+            derived.append(r)
+
+        # 14. Observations
+        source_asset_ids = [self._registry.resolve(b.asset_ref).asset_id
+                            for b in all_bindings]
+        observations: list[Observation] = []
+        for feat in features_4326:
+            props = feat.get("properties", {})
+            a = props.get("area_m2", 0)
+            ct = props.get("change_type", "candidate")
+            observations.append(Observation(
+                observation_id=f"obs-{task.task_id}-{props.get('feature_id', 'p')}",
+                perception_result_ref=result_id,
+                source_asset_refs=source_asset_ids,
+                source_task_type=TaskType.TEMPORAL_CHANGE_DETECTION,
+                observation_type=(
+                    ObservationType.SAR_BACKSCATTER_CHANGE if ct == "sar_backscatter_anomaly"
+                    else ObservationType.CHANGE_POLYGON
+                ),
+                label=f"sar_mt_{ct}",
+                score=min(1.0, a / 50000.0) if a > 0 else 0.5,
+                score_type=ScoreType.RULE_BASED,
+                geometry=feat.get("geometry"),
+                geometry_crs="EPSG:4326",
+                quality={
+                    "area_m2": a,
+                    "change_type": ct,
+                    "pixel_count": props.get("pixel_count", 0),
+                    "robust_z_mean": props.get("robust_z_mean", 0),
+                    "robust_z_max": props.get("robust_z_max", 0),
+                    "water_occurrence_mean": props.get("water_occurrence_mean", 0),
+                    "history_scene_count": n_history,
+                    "current_scene_count": n_current,
+                },
+                model_run_ref=context.run_id,
+            ))
+
+        # 15. 更新报告
+        with open(report_path, "r", encoding="utf-8") as f:
+            rpt = json.load(f)
+        rpt["status"] = "succeeded_with_observations" if observations else "succeeded_empty"
+        rpt["derived_assets"] = [r.asset_id for r in derived]
+        rpt["observation_ids"] = [o.observation_id for o in observations]
+        with open(report_path, "w", encoding="utf-8") as f:
+            json.dump(rpt, f, ensure_ascii=False, indent=2)
+
+        # 16. 质量报告
+        quality_report = None
+        if is_single_current:
+            quality_report = QualityReport(
+                valid_pixel_ratio=1.0,
+                recommendations=["single_current_scene: reliability_reduced"],
+                reasons=["current_mode=single: 可靠性降低"],
+            )
+
+        status = (ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS
+                  if observations else ExecutionStatus.SUCCEEDED_EMPTY)
+
+        return PerceptionResult(
+            perception_result_id=result_id,
+            inference_task_ref=task.task_id,
+            task_spec_ref=task.task_spec_ref,
+            run_id=context.run_id,
+            status=status,
+            observations=observations,
+            artifact_refs=[r.asset_id for r in derived],
+            quality_report=quality_report,
+            diagnostics={
+                "mode": "multi_temporal",
+                "n_history": n_history,
+                "n_current": n_current,
+                "current_mode": "single" if is_single_current else "multi",
+                "change_stats": change_result["stats"],
+                "polygon_count": len(features_4326),
+                "total_area_m2": total_area,
+                "raster_crs": ref_crs_str,
+                "geojson_crs": "EPSG:4326",
+            },
+            started_at=started_at,
+            finished_at=datetime.now().isoformat(),
+        )
+
+    # ── pair 双时相 (提取自原 run 逻辑, 供 fallback) ────────────
 
     def run(self, task: InferenceTask, spec: TaskSpec, context: RunContext) -> PerceptionResult:
         result_id = f"pr-{task.task_id}"
@@ -208,7 +691,23 @@ class SarTemporalChangeTool(PerceptionTool):
                 diagnostics={"validation_errors": errors},
                 started_at=started_at, finished_at=datetime.now().isoformat())
 
-        # 2. 解析资产
+        # 2. 多时相路由 (RS-01B-2)
+        if _is_multi_temporal_mode(spec):
+            # 解析策略 (重用在下面 pair 流程中也会用到)
+            policy = SarValidationPolicy.default_warn()
+            if spec.validation_policy:
+                try:
+                    policy = SarValidationPolicy(**spec.validation_policy)
+                except Exception:
+                    pass
+            try:
+                return self._execute_multi_temporal(
+                    task, spec, context, result_id, started_at, policy,
+                )
+            except _FallbackToPair:
+                pass  # 回落至双时相
+
+        # 3. 双时相解析 (原有逻辑)
         try:
             before_binding = next(b for b in task.asset_bindings if b.role == AssetRole.BEFORE)
             after_binding = next(b for b in task.asset_bindings if b.role == AssetRole.AFTER)
