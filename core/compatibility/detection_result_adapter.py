@@ -11,7 +11,7 @@ from datetime import datetime
 from core.schemas.contracts import ExecutionStatus, TaskType, ObservationType, ScoreType
 from core.schemas.contracts.task import InferenceTask, RunContext
 from core.schemas.contracts.perception import Observation, QualityReport, PerceptionResult
-from core.schemas.contracts.prediction import PredictionRecord
+from core.schemas.contracts.prediction import PredictionRecord, ChangePrediction
 
 
 class DetectionResultAdapter:
@@ -70,20 +70,20 @@ class DetectionResultAdapter:
         inference_task: InferenceTask,
     ) -> PredictionRecord:
         """按整条 InferenceTask 生成一条 PredictionRecord。"""
-        obs = perception_result.observations
-        # 构造 payload
-        payload = {
-            "prediction_type": "change_detection",
-            "change_pixels": len(obs),
-            "polygons_ref": perception_result.artifact_refs[0] if perception_result.artifact_refs else None,
-        }
+        diag = perception_result.diagnostics or {}
+        total_pixels = diag.get("total_changed_pixels", 0)
+        polygons_ref = perception_result.artifact_refs[-1] if len(perception_result.artifact_refs) > 1 else None
+
+        payload = None
+        if perception_result.status == ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS:
+            payload = ChangePrediction(change_pixels=int(total_pixels), polygons_ref=polygons_ref)
+        elif perception_result.status == ExecutionStatus.SUCCEEDED_EMPTY:
+            payload = ChangePrediction(change_pixels=0)
 
         return PredictionRecord(
             record_id=f"pred-{inference_task.task_id}",
             inference_task_ref=inference_task.task_id,
             perception_result_ref=perception_result.perception_result_id,
             execution_status=perception_result.status.value,
-            prediction_type="change_detection",
             payload=payload,
-            model_run_ref=perception_result.run_id,
         )

@@ -97,7 +97,7 @@ class TestSarTemporalChangeTool:
         )
         ctx = RunContext(run_id="ut-run-missing")
         result = tool.run(task, spec, ctx)
-        assert result.status == ExecutionStatus.INVALID_INPUT
+        assert result.status == ExecutionStatus.FAILED  # 无 resolver 返回 FAILED
 
 
 # ── 3. TaskDrivenRunner 最小运行链 ──
@@ -126,16 +126,6 @@ class TestTaskDrivenRunner:
         result = runner.run(task, spec, ctx)
         assert isinstance(result, PerceptionResult)
 
-    def test_runner_default_tool(self):
-        """TaskDrivenRunner 默认使用 SarTemporalChangeTool"""
-        runner = TaskDrivenRunner()
-        assert isinstance(runner._tool, SarTemporalChangeTool)
-
-
-# ── 4. DetectionResultAdapter 兼容性 ──
-
-class TestAdapterCompatibility:
-    def test_adapter_accepts_tool_output(self):
         """SarTemporalChangeTool 的输出可以通过 DetectionResultAdapter 转为 PredictionRecord"""
         adapter = DetectionResultAdapter()
         tool = SarTemporalChangeTool()

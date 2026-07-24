@@ -1,5 +1,5 @@
 """
-RS-00 契约 — 公共枚举与类型
+RS-00 / RS-01A — 契约枚举与导出
 """
 
 from enum import Enum

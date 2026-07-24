@@ -59,12 +59,10 @@ PredictionPayload = Annotated[
 # ── PredictionRecord ────────────────────────────────────────────
 
 class PredictionRecord(BaseModel):
-    """比赛评测链预测记录。一条 InferenceTask 对应一条。"""
+    """比赛评测链预测记录。一条 InferenceTask 对应一条。payload 使用判别联合。"""
     schema_version: str = "rs-contract.v0.2"
     record_id: str = Field(..., min_length=1)
     inference_task_ref: str = Field(..., min_length=1, description="关联 InferenceTask ID（1:1）")
     perception_result_ref: str | None = None
     execution_status: str = Field(..., description="继承自 PerceptionResult.status")
-    prediction_type: str = Field(..., description="change_detection / classification / detection / segmentation / anomaly_scoring")
-    payload: dict = Field(..., description="PredictionPayload（判别联合序列化后）")
-    model_run_ref: str | None = None
+    payload: PredictionPayload | None = Field(None, discriminator="prediction_type")

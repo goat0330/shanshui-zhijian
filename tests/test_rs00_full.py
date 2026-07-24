@@ -187,15 +187,13 @@ class TestA4MapperExporterValidator:
             record_id="pred-001",
             inference_task_ref="task-001",
             execution_status="succeeded_with_observations",
-            prediction_type="change_detection",
-            payload={},
+            payload=ChangePrediction(change_pixels=0),
         )
         pr2 = PredictionRecord(
             record_id="pred-002",
             inference_task_ref="task-001",
             execution_status="succeeded_empty",
-            prediction_type="change_detection",
-            payload={},
+            payload=ChangePrediction(change_pixels=0),
         )
         bundle = exporter.export([pr1, pr2])
         report = validator.validate(bundle)
@@ -263,7 +261,7 @@ class TestA5DetectionResultAdapter:
         # 一个 InferenceTask 对应一个 PredictionRecord
         assert pr.inference_task_ref == "task-cq-001"
         assert pr.execution_status == "succeeded_with_observations"
-        assert pr.prediction_type == "change_detection"
+        assert pr.payload.prediction_type == "change_detection"
 
     def test_empty_dr_list(self):
         adapter = DetectionResultAdapter()
