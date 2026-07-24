@@ -24,6 +24,7 @@ class Observation(BaseModel):
     score: float = Field(..., ge=0.0, le=1.0)
     score_type: ScoreType
     geometry: dict | None = None
+    geometry_crs: str | None = Field(None, description="geometry 的 CRS，如 EPSG:4326")
     bbox: list[float] | None = Field(None, min_length=4, max_length=4)
     temporal: dict | None = None
     quality: dict | None = None
@@ -33,11 +34,41 @@ class Observation(BaseModel):
 
 
 class QualityReport(BaseModel):
-    """质量报告。"""
+    """RS-01B-1 扩展质量报告。
+
+    包含:
+    - 输入质量指标
+    - 轨道/极化/分辨率兼容性
+    - 拒绝原因和警告
+    """
+    # 输入质量
     valid_pixel_ratio: float = Field(0.0, ge=0.0, le=1.0)
-    cloud_ratio: float | None = Field(None, ge=0.0, le=1.0)
+    nodata_ratio: float = Field(0.0, ge=0.0, le=1.0)
+    finite_pixel_ratio: float = Field(0.0, ge=0.0, le=1.0)
+    spatial_overlap_ratio: float = Field(0.0, ge=0.0, le=1.0)
+    constant_pixel_ratio: float = Field(0.0, ge=0.0, le=1.0, description="常量像素比 (可能是无数据或饱和)")
+
+    # 配准
     registration_quality: float | None = Field(None, ge=0.0, le=1.0)
+
+    # 传感器
     sensor_comparability: bool | None = None
+    cloud_ratio: float | None = Field(None, ge=0.0, le=1.0)
+
+    # 动态范围
+    vv_dynamic_range: tuple[float, float] | None = None
+    vh_dynamic_range: tuple[float, float] | None = None
+
+    # RS-01B-1 兼容性
+    orbit_match: bool | None = Field(None, description="是否同轨")
+    polarization_compatible: bool | None = Field(None, description="极化是否兼容")
+    resolution_compatible: bool | None = Field(None, description="分辨率是否兼容")
+
+    # 拒绝与警告
+    rejection_reason: str | None = Field(None, description="拒绝原因 (strict 模式)")
+    recommendations: list[str] = Field(default_factory=list, description="建议/警告")
+
+    # 原因列表 (向后兼容)
     reasons: list[str] = Field(default_factory=list)
 
 

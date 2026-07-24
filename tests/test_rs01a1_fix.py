@@ -35,7 +35,7 @@ from core.schemas.contracts.prediction import (
 )
 from core.protocols.perception_tool import PerceptionTool
 from core.protocols.task_runner import TaskDrivenRunner
-from core.protocols.asset_resolver import InMemoryAssetResolver
+from core.protocols.asset_resolver import AssetRegistry
 from tools.sar_temporal_change_tool import SarTemporalChangeTool
 from core.compatibility.detection_result_adapter import DetectionResultAdapter
 from competition.adapters.competition_input_adapter import CompetitionInputAdapter
@@ -101,8 +101,8 @@ class TestSyntheticData:
             AssetRef(asset_id="syn_after", uri=str(self.t2_path),
                      media_type="image/tiff; application=geotiff", modality=Modality.SAR),
         ]
-        resolver = InMemoryAssetResolver(assets)
-        tool = SarTemporalChangeTool(resolver=resolver)
+        resolver = AssetRegistry(assets)
+        tool = SarTemporalChangeTool(registry=resolver)
         task = InferenceTask(
             task_id="syn-test-001", sample_id="syn-001", task_order=0,
             task_spec_ref="sar-temporal-change-v1@1.0.0",
@@ -128,7 +128,7 @@ class TestSyntheticData:
 
     def test_tool_produces_artifact_files(self):
         """工具必须在 output_dir 中产生真实产物文件"""
-        tool = SarTemporalChangeTool(resolver=InMemoryAssetResolver([
+        tool = SarTemporalChangeTool(registry=AssetRegistry([
             AssetRef(asset_id="syn_before", uri=str(self.t1_path),
                      media_type="image/tiff; application=geotiff", modality=Modality.SAR),
             AssetRef(asset_id="syn_after", uri=str(self.t2_path),
@@ -144,16 +144,17 @@ class TestSyntheticData:
         )
         spec = TaskSpec(task_spec_id="sar-temporal-change-v1", version="1.0.0",
                          task_type="temporal_change_detection",
-                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1)])
+                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1), InputSlotSpec(role=AssetRole.AFTER, modalities=[Modality.SAR], min_items=1, max_items=1)])
         ctx = RunContext(run_id="syn-art-run", output_dir=str(self.output_dir))
         result = tool.run(task, spec, ctx)
 
-        # 产物文件必须存在
-        files = ["syn-artifact_water_t1.tif", "syn-artifact_water_t2.tif",
-                 "syn-artifact_change_mask.tif", "syn-artifact_candidates.geojson",
-                 "syn-artifact_run_report.json"]
+        # 产物文件必须存在 (新路径: output_dir/run_id/task_id/)
+        prod_dir = self.output_dir / "syn-art-run" / "syn-artifact"
+        files = ["water_t1.tif", "water_t2.tif",
+                 "change_mask.tif", "candidates.geojson",
+                 "run_report.json"]
         for fname in files:
-            fp = self.output_dir / fname
+            fp = prod_dir / fname
             assert fp.exists(), f"产物文件不存在: {fp}"
 
         # artifact_refs 非空
@@ -167,7 +168,7 @@ class TestSyntheticData:
     def test_detection_result_adapter_with_synthetic(self):
         """旧适配器在合成数据上也能产生 PredictionRecord"""
         adapter = DetectionResultAdapter()
-        tool = SarTemporalChangeTool(resolver=InMemoryAssetResolver([
+        tool = SarTemporalChangeTool(registry=AssetRegistry([
             AssetRef(asset_id="syn_before", uri=str(self.t1_path),
                      media_type="image/tiff; application=geotiff", modality=Modality.SAR),
             AssetRef(asset_id="syn_after", uri=str(self.t2_path),
@@ -183,7 +184,7 @@ class TestSyntheticData:
         )
         spec = TaskSpec(task_spec_id="sar-temporal-change-v1", version="1.0.0",
                          task_type="temporal_change_detection",
-                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1)])
+                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1), InputSlotSpec(role=AssetRole.AFTER, modalities=[Modality.SAR], min_items=1, max_items=1)])
         ctx = RunContext(run_id="syn-ad-run", output_dir=str(self.output_dir))
         result = tool.run(task, spec, ctx)
         pr = adapter.to_prediction_record(result, task)
@@ -209,8 +210,8 @@ class TestRealDataRegression:
             AssetRef(asset_id="real_t2", uri=str(self.RAW_DIR / "s1_t2.tif"),
                      media_type="image/tiff; application=geotiff", modality=Modality.SAR),
         ]
-        resolver = InMemoryAssetResolver(assets)
-        tool = SarTemporalChangeTool(resolver=resolver)
+        resolver = AssetRegistry(assets)
+        tool = SarTemporalChangeTool(registry=resolver)
         task = InferenceTask(
             task_id="real-reg-001", sample_id="real-001", task_order=0,
             task_spec_ref="sar-temporal-change-v1@1.0.0",
@@ -221,7 +222,7 @@ class TestRealDataRegression:
         )
         spec = TaskSpec(task_spec_id="sar-temporal-change-v1", version="1.0.0",
                          task_type="temporal_change_detection",
-                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1)])
+                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1), InputSlotSpec(role=AssetRole.AFTER, modalities=[Modality.SAR], min_items=1, max_items=1)])
         tmpdir = Path(tempfile.mkdtemp())
         ctx = RunContext(run_id="real-reg-run", output_dir=str(tmpdir))
         result = tool.run(task, spec, ctx)
@@ -237,7 +238,7 @@ class TestAssetResolver:
 
     def test_in_memory_resolver(self):
         assets = [AssetRef(asset_id="a1", uri="x.tif", media_type="image/tiff", modality=Modality.SAR)]
-        r = InMemoryAssetResolver(assets)
+        r = AssetRegistry(assets)
         assert r.contains("a1")
         assert not r.contains("a2")
         assert r.resolve("a1").uri == "x.tif"
@@ -250,15 +251,19 @@ class TestSpecValidation:
 
     def test_validation_passes(self):
         """正确配置应通过校验"""
-        assets = [AssetRef(asset_id="s1", uri="x.tif", media_type="image/tiff", modality=Modality.SAR)]
-        resolver = InMemoryAssetResolver(assets)
-        tool = SarTemporalChangeTool(resolver=resolver)
+        assets = [AssetRef(asset_id="s1", uri="x.tif", media_type="image/tiff", modality=Modality.SAR),
+                   AssetRef(asset_id="s2", uri="y.tif", media_type="image/tiff", modality=Modality.SAR)]
+        resolver = AssetRegistry(assets)
+        tool = SarTemporalChangeTool(registry=resolver)
         task = InferenceTask(task_id="t", sample_id="s", task_order=0,
             task_spec_ref="test-v1@1.0.0",
-            asset_bindings=[TaskAssetBinding(asset_ref="s1", role=AssetRole.BEFORE)])
+            asset_bindings=[
+                TaskAssetBinding(asset_ref="s1", role=AssetRole.BEFORE),
+                TaskAssetBinding(asset_ref="s2", role=AssetRole.AFTER),
+            ])
         spec = TaskSpec(task_spec_id="test-v1", version="1.0.0",
                          task_type="temporal_change_detection",
-                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1)])
+                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1), InputSlotSpec(role=AssetRole.AFTER, modalities=[Modality.SAR], min_items=1, max_items=1)])
         errors = tool.validate_spec(task, spec)
         assert errors == []
 
@@ -270,7 +275,7 @@ class TestSpecValidation:
             asset_bindings=[TaskAssetBinding(asset_ref="s1", role=AssetRole.BEFORE)])
         spec = TaskSpec(task_spec_id="test-v1", version="1.0.0",
                          task_type="temporal_change_detection",
-                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1)])
+                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1), InputSlotSpec(role=AssetRole.AFTER, modalities=[Modality.SAR], min_items=1, max_items=1)])
         errors = tool.validate_spec(task, spec)
         assert len(errors) >= 1
         assert "不匹配" in errors[0]
@@ -293,28 +298,28 @@ class TestSpecValidation:
     def test_validation_rejects_wrong_modality(self):
         """错误的 modality 应被拒绝"""
         assets = [AssetRef(asset_id="s1", uri="x.tif", media_type="image/tiff", modality=Modality.OPTICAL)]
-        resolver = InMemoryAssetResolver(assets)
-        tool = SarTemporalChangeTool(resolver=resolver)
+        resolver = AssetRegistry(assets)
+        tool = SarTemporalChangeTool(registry=resolver)
         task = InferenceTask(task_id="t", sample_id="s", task_order=0,
             task_spec_ref="test-v1@1.0.0",
             asset_bindings=[TaskAssetBinding(asset_ref="s1", role=AssetRole.BEFORE)])
         spec = TaskSpec(task_spec_id="test-v1", version="1.0.0",
                          task_type="temporal_change_detection",
-                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1)])
+                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1), InputSlotSpec(role=AssetRole.AFTER, modalities=[Modality.SAR], min_items=1, max_items=1)])
         errors = tool.validate_spec(task, spec)
         assert any("modality" in e for e in errors)
 
     def test_validation_returns_invalid_input(self):
         """校验失败时工具返回 INVALID_INPUT（需要 resolver 以避免提前 FAILED）"""
         assets = [AssetRef(asset_id="s1", uri="x.tif", media_type="image/tiff", modality=Modality.SAR)]
-        resolver = InMemoryAssetResolver(assets)
-        tool = SarTemporalChangeTool(resolver=resolver)
+        resolver = AssetRegistry(assets)
+        tool = SarTemporalChangeTool(registry=resolver)
         task = InferenceTask(task_id="t", sample_id="s", task_order=0,
             task_spec_ref="wrong@1.0.0",
             asset_bindings=[TaskAssetBinding(asset_ref="s1", role=AssetRole.BEFORE)])
         spec = TaskSpec(task_spec_id="test-v1", version="1.0.0",
                          task_type="temporal_change_detection",
-                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1)])
+                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1), InputSlotSpec(role=AssetRole.AFTER, modalities=[Modality.SAR], min_items=1, max_items=1)])
         ctx = RunContext(run_id="r")
         result = tool.run(task, spec, ctx)
         assert result.status == ExecutionStatus.INVALID_INPUT
@@ -331,7 +336,7 @@ class TestTaskDrivenRunnerInjection:
     def test_runner_accepts_injected_tool(self):
         """可以注入 SarTemporalChangeTool"""
         assets = [AssetRef(asset_id="a1", uri="x.tif", media_type="image/tiff", modality=Modality.SAR)]
-        tool = SarTemporalChangeTool(resolver=InMemoryAssetResolver(assets))
+        tool = SarTemporalChangeTool(registry=AssetRegistry(assets))
         runner = TaskDrivenRunner(tool=tool)
         assert runner._tool is tool
 
@@ -397,11 +402,11 @@ class TestMapperPayload:
         t1 = make_synthetic_sar_tiff(tmpdir / "t1.tif", 32, 32, water_rect=(0, 0, 8, 8))
         t2 = make_synthetic_sar_tiff(tmpdir / "t2.tif", 32, 32, water_rect=(0, 0, 16, 16))
         out = tmpdir / "out"
-        resolver = InMemoryAssetResolver([
+        resolver = AssetRegistry([
             AssetRef(asset_id="b", uri=str(t1), media_type="image/tiff; application=geotiff", modality=Modality.SAR),
             AssetRef(asset_id="a", uri=str(t2), media_type="image/tiff; application=geotiff", modality=Modality.SAR),
         ])
-        tool = SarTemporalChangeTool(resolver=resolver)
+        tool = SarTemporalChangeTool(registry=resolver)
         runner = TaskDrivenRunner(tool=tool)
         task = InferenceTask(task_id="syn-full", sample_id="syn", task_order=0,
             task_spec_ref="sar-temporal-change-v1@1.0.0",
@@ -411,7 +416,7 @@ class TestMapperPayload:
             ])
         spec = TaskSpec(task_spec_id="sar-temporal-change-v1", version="1.0.0",
                          task_type="temporal_change_detection",
-                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1)])
+                         input_slots=[InputSlotSpec(role=AssetRole.BEFORE, modalities=[Modality.SAR], min_items=1, max_items=1), InputSlotSpec(role=AssetRole.AFTER, modalities=[Modality.SAR], min_items=1, max_items=1)])
         ctx = RunContext(run_id="syn-full-run", output_dir=str(out))
         result = runner.run(task, spec, ctx)
         assert result.status == ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS

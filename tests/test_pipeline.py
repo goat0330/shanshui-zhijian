@@ -1,5 +1,12 @@
 """Pipeline 单元测试"""
 
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import numpy as np
 from rasterio.crs import CRS
 from rasterio.transform import from_bounds
