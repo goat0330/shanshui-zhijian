@@ -1,133 +1,161 @@
 # 山水智鉴
 
-> 一个主项目、一套共享代码资产、两个竞赛版本、两套验收口径。
+> 面向水域异常感知、证据核验与治理系统集成的开放中间件。  
+> 一个主项目、一套共享数据与模型资产、两条独立业务链、两个竞赛版本。
 
-## 项目定位
+## 1. 项目定位
 
-山水智鉴面向高点视频、遥感影像、赛事指定模型、自研模型及第三方算法，提供统一的异常结果接入、证据编排、人工核验和反馈评测能力。
+山水智鉴接入高点视频、遥感影像、赛事指定模型、自研模型及第三方算法，将模型观测组织为可追溯候选和证据，并支持人工研判、外部治理系统集成与算法评测。
 
-```text
-任意模型
-→ ModelAdapter
-→ DetectionResult
-→ EvidenceBundle
-→ AnomalyAlert
-→ 人工核验
-→ GovernanceEvent / 外部业务系统
-→ Replay / Eval
-```
+项目不重复建设摄像头硬件、无人机平台、完整河长制平台或单一“万能模型”。
 
-项目不重复建设无人机硬件平台、完整河长制平台或单一识别模型。当前产品形态为：
+### 产品治理链
 
 ```text
-开放治理事件中间件
-＋
-异常证据核验工作台
-＋
-面向既有平台的 API 集成能力
+Source
+→ Asset
+→ Observation
+→ DetectionCandidate
+→ AnomalyEvent
+→ ReviewDecision
+→ AlertDelivery
+→ IncidentCase / 外部治理系统
 ```
 
-## 两个比赛
+### 比赛评测链
 
-| 比赛 | 项目作用 | 主要验收 |
-|---|---|---|
-| IAIC 行业智能体创新挑战赛 | 验证水域异常识别与指定基座模型适配 | 官方数据、推理 JSON、平台评分、消融和代码 |
-| 中国研究生智慧城市大赛 | 将算法扩展为完整水域治理产品 | 产品方案、原型、业务闭环、商业模式和答辩 |
+```text
+CompetitionInput
+→ InferenceTask
+→ PredictionRecord
+→ SubmissionBundle
+→ SubmissionAttempt
+```
 
-## 当前阶段
+两条链可以共享输入资产、模型运行、预处理代码、权重、数据版本和运行日志，但产品事件不得反向改变比赛预测记录。
 
-**市场与源码审计已经完成，进入技术决策冻结与实现前 Spike。**
+## 2. 当前状态
 
-当前不再继续横向寻找完整平台，优先验证三件事：
+最新 `develop` 状态已经形成重庆两江遥感 V0：
 
-1. 遥感 Pipeline 与 Mock 提交链；
-2. COG + TiTiler 遥感成果服务；
-3. DetectionResult → EvidenceBundle → AnomalyAlert → 人工核验。
+```text
+GEE 数据
+→ Sentinel-1 双时相 SAR 水体变化检测
+→ 变化候选图斑
+→ DetectionResult 兼容输出
+→ 人工确认/驳回
+→ 事件与演示工单
+→ Replay
+→ SQLite 持久化
+```
 
-## 六项里程碑
+当前已经验证的是“数据能够进入系统并形成可核验候选”，尚未验证的是正式赛题精度、高点视频闭环和生产级可靠性。
 
-| 里程碑 | 状态 |
+| 能力 | 状态 |
 |---|---|
-| 项目定位与双赛关系 | 已完成 |
-| 市场与采购调研 | 已完成 |
-| 开源仓库静态与文件级审计 | 已完成 |
-| 实现前技术 Spike | 待启动 |
-| 代理 Baseline 与 Mock 提交链 | 待启动 |
-| 官方数据接入与首次提交 | 等待 2026-08-01 |
+| GEE 多源数据下载 | 已完成 |
+| Sentinel-1 双时相变化 Pipeline | 已完成 V0 |
+| CRS、地理重投影、三态语义 | 已完成 |
+| FastAPI + SQLite + 演示页面 | 已完成 V0 |
+| 人工验证集与量化精度 | 待完成 |
+| 真实 COG → TiTiler → MapLibre | 待修复 |
+| Competition Adapter / SubmissionBundle | 待完成 |
+| Observation → Candidate → Event 正式领域链 | 待迁移 |
+| 高点视频最小纵切 | 待实现 |
+| PostgreSQL/PostGIS、权限、Outbox | 产品化阶段 |
 
-## 仓库结构
+详细状态见 [`docs/06_架构设计/00_当前状态.md`](docs/06_架构设计/00_当前状态.md)。
+
+## 3. 当前唯一 P0
+
+1. 建立 20—50 个样区的人工验证集，并形成可复现指标；
+2. 修复真实 COG、TiTiler TileJSON 与 MapLibre 图层链；
+3. 冻结 `Asset / Observation / DetectionCandidate / PredictionRecord / Evidence` 最小契约；
+4. 完成 Mock Competition Adapter、PredictionRecord 和 SubmissionBundle；
+5. 将公开 `main` 与实际 `develop` 状态同步；
+6. 保留现有工单页作为演示资产，不继续扩展完整工单中心。
+
+## 4. 仓库结构
 
 ```text
-8.1开始_山水智鉴比赛/
-├── README.md
-├── 山水智鉴_项目驾驶舱.md
-├── pyproject.toml
+shanshui-zhijian/
+├── competition/                  # 比赛评测链
+│   └── spikes/chongqing_rs_demo/ # 重庆遥感 V0
+├── core/
+│   └── schemas/                  # 当前 Schema 与后续领域契约
+├── services/                     # FastAPI、TiTiler、SQLite 与演示页面
+├── data/                         # 目录与样例说明；原始数据和数据库不提交
 ├── docs/
 │   ├── 00_项目总纲.md
 │   ├── 01_赛题与实验.md
 │   ├── 02_产品与业务方案.md
 │   ├── 03_技术架构与开源底座.md
 │   ├── 04_证据与风险台账.md
-│   └── 05_竞赛交付/
-├── competition/
-├── data/
-└── references/
+│   ├── 05_竞赛交付/
+│   ├── 06_架构设计/              # 架构师设计原文与索引
+│   └── 07_实施管理/              # 迁移、遥感路线、Issue 与协作规范
+├── references/                   # 市场、采购与开源审计
+├── tests/
+├── 山水智鉴_项目驾驶舱.md
+└── CONTRIBUTING.md
 ```
 
-## 文档职责
+## 5. 架构文档入口
 
-| 文件 | 职责 |
-|---|---|
-| `山水智鉴_项目驾驶舱.md` | 项目负责人维护状态、决策、风险和下一 Gate |
-| `docs/00_项目总纲.md` | 项目唯一顶层事实源 |
-| `docs/01_赛题与实验.md` | 赛题、数据、Baseline、评测和消融 |
-| `docs/02_产品与业务方案.md` | 产品能力、用户、对象、人机边界和 MVP |
-| `docs/03_技术架构与开源底座.md` | 架构、技术栈、源码参考和依赖边界 |
-| `docs/04_证据与风险台账.md` | 市场证据、产品假设、可宣称和禁止宣称 |
-| `references/` | 十个市场项目及五个开源项目的详细审计 |
+- [`docs/06_架构设计/01_总体分层架构.md`](docs/06_架构设计/01_总体分层架构.md)
+- [`docs/06_架构设计/02_领域模型与接口契约.md`](docs/06_架构设计/02_领域模型与接口契约.md)
+- [`docs/06_架构设计/03_前后端工程框架.md`](docs/06_架构设计/03_前后端工程框架.md)
+- [`docs/06_架构设计/04_高点视频感知框架.md`](docs/06_架构设计/04_高点视频感知框架.md)
+- [`docs/06_架构设计/05_边云协同与数据流.md`](docs/06_架构设计/05_边云协同与数据流.md)
+- [`docs/07_实施管理/01_遥感能力提升路线图.md`](docs/07_实施管理/01_遥感能力提升路线图.md)
 
-## 协同开发
+## 6. 两个比赛
 
-> **GitHub**: https://github.com/goat0330/shanshui-zhijian
+| 比赛 | 项目作用 | 主要验收 |
+|---|---|---|
+| IAIC 行业智能体创新挑战赛 | 验证指定任务下的识别、适配、提交和消融 | 官方数据、合法提交、平台评分、Bad Case、代码 |
+| 中国研究生智慧城市大赛 | 将已验证算法扩展为完整产品与治理价值 | 产品方案、业务闭环、原型、实施和商业材料 |
 
-### 分支策略（Git Flow 简化版）
+比赛链不依赖产品前端、人工审核结果和工单状态。产品链可以使用比赛模型，但必须通过适配器生成独立的 Observation 和 Candidate。
 
-```
-main（受保护）—— 只接受 develop PR，需 1 人 Review
-└── develop ──── 日常集成分支
-    ├── feature/rs-pipeline       # 遥感检测管线
-    ├── feature/backend-services   # FastAPI + TiTiler
-    ├── feature/frontend           # 前端模板
-    ├── feature/core-schemas       # Pydantic 数据模型
-    ├── feature/iaic-integration   # IAIC 算法赛适配
-    ├── feature/smart-city         # 智慧城市产品赛方案
-    └── feature/tests              # 测试
-```
+## 7. 事实边界
 
-### 基本协作流程
+可以宣称：
 
-```text
-1. 开发前：git checkout develop → git pull
-2. 切到自己的 feature 分支开发
-3. 完成后：git add . → git commit -m "说明" → git push
-4. 在 GitHub 上提 Pull Request → develop（轻量审核）
-5. develop 稳定后 PR → main（需另一个人 Review + Approve）
-```
+- 已跑通重庆两江 Sentinel-1 双时相变化检测 V0；
+- 已形成可进入人工核验的真实变化候选；
+- 已完成 SQLite 持久化和演示 E2E；
+- 已形成八层目标架构及双链领域模型。
 
-| 命令 | 含义 |
-|------|------|
-| `git pull` | 把远程最新代码拉到本地 |
-| `git add .` | 暂存所有改动 |
-| `git commit -m "xxx"` | 提交到本地 |
-| `git push` | 推送到 GitHub |
+不能宣称：
 
-## 当前 Gate
+- 507 条候选等于 507 个真实异常；
+- 当前结果已经达到正式赛题精度；
+- 已完成高点视频识别；
+- 已形成生产级治理平台；
+- 已完成真实 COG 瓦片服务闭环。
 
-官方数据开放前必须完成：
+## 8. 当前 Gate
 
-- 技术栈 V1 冻结；
-- Mock 数据到 JSON 校验链可运行；
-- 遥感 Pipeline 骨架可运行；
-- COG + TiTiler Spike 可运行；
-- 人工核验最小链可运行；
-- 四份竞赛工作稿形成 V0。
+### Gate F0｜契约冻结
+
+- 双链边界写入顶层文档；
+- 最小领域对象字段确定；
+- 生命周期、质量和错误状态分离；
+- Mock Schema 具备契约测试。
+
+### Gate F1｜遥感可验证
+
+- 人工验证集可重复加载；
+- 指标脚本输出固定报告；
+- 真实 COG 由 TiTiler 加载；
+- 同一配置重复运行结果一致。
+
+### Gate F2｜评测链可提交
+
+- 官方或 Mock 输入不丢样本；
+- PredictionRecord 顺序与 ID 稳定；
+- 空结果可表达；
+- SubmissionBundle 通过 Schema 和 golden test。
+
+完整 Gate 见 [`docs/07_实施管理/00_架构迁移计划.md`](docs/07_实施管理/00_架构迁移计划.md)。
