@@ -1,0 +1,35 @@
+{
+  "fixture_type": "t1_t2_pair",
+  "description": "同一光学传感器两期对比",
+  "schema_version": "rs-contract.v0.2",
+  "assets": [
+    {
+      "asset_id": "s2_t1",
+      "uri": "data/raw/s2_t1.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "optical",
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4326"},
+      "bands": ["B2","B3","B4","B8"],
+      "acquisition_time": "2026-05-15T00:00:00Z"
+    },
+    {
+      "asset_id": "s2_t2",
+      "uri": "data/raw/s2_t2.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "optical",
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4326"},
+      "bands": ["B2","B3","B4","B8"],
+      "acquisition_time": "2026-06-15T00:00:00Z"
+    }
+  ],
+  "inference_task": {
+    "task_id": "task-cq-003",
+    "sample_id": "cq-003",
+    "task_order": 2,
+    "task_spec_ref": "temporal-change-detection-v1@1.0.0",
+    "asset_bindings": [
+      {"asset_ref": "s2_t1", "role": "before"},
+      {"asset_ref": "s2_t2", "role": "after"}
+    ]
+  }
+}

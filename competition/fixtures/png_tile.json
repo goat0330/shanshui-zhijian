@@ -1,0 +1,41 @@
+{
+  "fixture_type": "png_tile",
+  "description": "PNG 切片 + 外部配准文件",
+  "schema_version": "rs-contract.v0.2",
+  "assets": [
+    {
+      "asset_id": "tile_001",
+      "uri": "data/tiles/tile_001.png",
+      "media_type": "image/png",
+      "modality": "optical",
+      "spatial": {
+        "reliability": "pixel_only",
+        "width": 512,
+        "height": 512
+      },
+      "bands": ["R","G","B"],
+      "acquisition_time": "2026-06-10T00:00:00Z"
+    },
+    {
+      "asset_id": "tile_001_crs",
+      "uri": "data/tiles/tile_001.geojson",
+      "media_type": "application/geo+json",
+      "modality": "metadata",
+      "spatial": {
+        "reliability": "georeferenced",
+        "crs": "EPSG:4326",
+        "bounds": [106.56, 29.56, 106.57, 29.57]
+      }
+    }
+  ],
+  "inference_task": {
+    "task_id": "task-cq-002",
+    "sample_id": "cq-002",
+    "task_order": 1,
+    "task_spec_ref": "object-detection-v1@1.0.0",
+    "asset_bindings": [
+      {"asset_ref": "tile_001", "role": "current"},
+      {"asset_ref": "tile_001_crs", "role": "spatial_metadata"}
+    ]
+  }
+}

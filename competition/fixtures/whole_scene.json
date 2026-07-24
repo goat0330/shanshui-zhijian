@@ -1,0 +1,32 @@
+{
+  "fixture_type": "whole_scene_geotiff",
+  "description": "单景光学 GeoTIFF",
+  "schema_version": "rs-contract.v0.2",
+  "assets": [
+    {
+      "asset_id": "s2_t1",
+      "uri": "data/raw/s2_t1.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "optical",
+      "spatial": {
+        "reliability": "georeferenced",
+        "crs": "EPSG:4326",
+        "transform": [0.0001, 0.0, 106.554, 0.0, -0.0001, 29.583],
+        "bounds": [106.554, 29.547, 106.596, 29.583],
+        "width": 436,
+        "height": 406
+      },
+      "bands": ["B2","B3","B4","B8","B11","B12"],
+      "acquisition_time": "2026-05-15T00:00:00Z"
+    }
+  ],
+  "inference_task": {
+    "task_id": "task-cq-001",
+    "sample_id": "cq-001",
+    "task_order": 0,
+    "task_spec_ref": "optical-water-extract-v1@1.0.0",
+    "asset_bindings": [
+      {"asset_ref": "s2_t1", "role": "current"}
+    ]
+  }
+}
