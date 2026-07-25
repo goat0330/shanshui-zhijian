@@ -1,0 +1,134 @@
+# G0.3-B — CI 门禁（无 continue-on-error / || true）
+# 不运行真实数据集成测试，仅运行合成测试、契约测试和比赛链
+name: CI — G0.3-B
+
+on:
+  push:
+    branches: [develop, main, 'feature/**', 'fix/**']
+  pull_request:
+    branches: [develop, main]
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # ── 0: Lint ──────────────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install ruff
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+      - name: Run ruff check
+        run: ruff check --output-format=github . --ignore=E402,F401
+
+  # ── 1: Contracts ─────────────────────────────────────────
+  contracts:
+    name: Contracts (A1)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic>=2.0 pytest>=8
+      - name: Run contract tests
+        run: python -m pytest tests/test_rs00_contracts.py -v --tb=short
+
+  # ── 2: SAR Metadata ──────────────────────────────────────
+  metadata:
+    name: SAR Metadata (B0)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic>=2.0 pytest>=8
+      - name: Run B0 metadata tests
+        run: python -m pytest tests/test_b0_sar_metadata.py -v --tb=short
+
+  # ── 3: Run Manifest ──────────────────────────────────────
+  run-manifest:
+    name: Run Manifest (B1)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic>=2.0 pytest>=8 numpy>=1.24
+      - name: Run B1 manifest tests
+        run: python -m pytest tests/test_b1_run_manifest.py -v --tb=short
+
+  # ── 4: Golden Byte Tests ────────────────────────────────
+  golden-byte:
+    name: Golden Byte (B3)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic>=2.0 pytest>=8
+      - name: Run golden byte tests
+        run: python -m pytest tests/test_golden_bytes.py -v --tb=short
+
+  # ── 5: Competition Chain ─────────────────────────────────
+  competition-chain:
+    name: Competition Chain (B3)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic>=2.0 pytest>=8 numpy>=1.24
+      - name: Run B3 competition chain tests
+        run: python -m pytest tests/test_competition_chain.py tests/test_rs00_full.py -v --tb=short
+
+  # ── 6: Regression Pipeline Gate ──────────────────────────
+  pipeline-gate:
+    name: Pipeline Gate
+    runs-on: ubuntu-22.04
+    needs: [contracts, metadata, run-manifest, golden-byte, competition-chain]
+    if: github.ref_name == 'develop' || github.ref_name == 'main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic>=2.0 pytest>=8 numpy>=1.24
+      - name: Run pipeline gate
+        run: python -m pytest tests/test_rs01a_tool.py tests/test_rs01a1_fix.py -v --tb=short

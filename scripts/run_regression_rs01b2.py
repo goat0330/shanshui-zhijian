@@ -38,6 +38,7 @@ from core.schemas.contracts.task import (
     InferenceTask, TaskSpec, RunContext, TaskAssetBinding, InputSlotSpec,
 )
 from core.protocols.asset_resolver import AssetRegistry
+from core.schemas.contracts.run_manifest import RunManifestBuilder, RunStatus
 from tools.sar_temporal_change_tool import SarTemporalChangeTool
 
 # ── 真实数据路径 ──────────────────────────────────────────────
@@ -290,10 +291,38 @@ def run_multi_temporal_real():
 
 if __name__ == "__main__":
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # ── 创建 RunManifest ─────────────────────────────────────
+    manifest = RunManifestBuilder.create(
+        run_id="reg-rs01b2",
+        task_id="reg-pair-rs01b2,reg-mt-rs01b2",
+        task_spec_ref="sar-temporal-change-v1@1.0.0;sar-multi-temporal-v1@1.0.0",
+        run_command="python scripts/run_regression_rs01b2.py",
+    )
+    manifest = RunManifestBuilder.add_input_asset(
+        manifest, asset_id="s1_before", uri=str(T1_PATH))
+    manifest = RunManifestBuilder.add_input_asset(
+        manifest, asset_id="s1_after", uri=str(T2_PATH))
+
     pair_ok = run_pair_regression()
     mt_ok = run_multi_temporal_real()
+    all_ok = pair_ok and mt_ok
+
+    # ── 完成 Manifest ────────────────────────────────────────
+    if all_ok:
+        manifest = RunManifestBuilder.succeed(manifest)
+    else:
+        manifest = RunManifestBuilder.fail(
+            manifest, "regression",
+            "pair_failed" if not pair_ok else "multi_temporal_failed",
+            "Regression checks failed")
+    manifest_path = OUTPUT_DIR / "run_manifest.json"
+    manifest.save(manifest_path)
+    print(f"\nRunManifest: {manifest_path}")
+    print(f"  SHA256: {manifest.manifest_sha256}")
+
     print("\n" + "=" * 60)
     print(f"pair 回归: {'✅ PASS' if pair_ok else '❌ FAIL'}")
     print(f"多时相:    {'✅ PASS' if mt_ok else '❌ FAIL'}")
     print("=" * 60)
-    sys.exit(0 if pair_ok and mt_ok else 1)
+    sys.exit(0 if all_ok else 1)
