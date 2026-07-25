@@ -88,7 +88,7 @@ def create_app(
 
     # ── API ────────────────────────────────────────────────────
 
-    @app.post("/api/v2/candidates/intake")
+    @app.post("/api/v2/candidates/intake", status_code=201)
     async def intake_candidate(req: IntakeRequest):
         """摄入 Candidate 并自动生成 Event。"""
         try:
@@ -103,6 +103,7 @@ def create_app(
                 modalities_present=modalities_info.get("modalities_present"),
                 modalities_missing=modalities_info.get("modalities_missing"),
                 missing_context_notes=req.candidate_data.get("missing_context_notes"),
+                evidence_refs=req.candidate_data.get("candidate", {}).get("evidence_refs", []),
             )
 
             # 3. Event Creation
@@ -156,7 +157,7 @@ def create_app(
             raise HTTPException(404, detail={"code": "event_not_found", "message": f"Event {event_id} 不存在"})
         return event.model_dump()
 
-    @app.post("/api/v2/events/{event_id}/reviews")
+    @app.post("/api/v2/events/{event_id}/reviews", status_code=200)
     async def submit_review(event_id: str, req: ReviewRequest):
         """提交审核决策。"""
         try:
@@ -206,7 +207,7 @@ def create_app(
                 "status": "ok",
                 "event_id": result_event.event_id,
                 "event_version": result_event.event_version,
-                "status": result_event.status,
+                "event_state": result_event.status,
                 "changed": changed,
             }
         except EventNotFoundError as e:
