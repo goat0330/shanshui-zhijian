@@ -72,19 +72,31 @@ def create_app(
     review_svc = ReviewService(event_svc)
     replay_svc = ReplayService(repo)
 
-    # ── 请求/响应模型 ──────────────────────────────────────────
+    # ── 请求/响应模型 (G1.1-C2 typed) ─────────────────────────
 
-    class IntakeRequest(BaseModel):
-        candidate_data: dict[str, Any] = Field(..., description="Candidate Fixture dict")
+    class CandidateDeliveryEnvelope(BaseModel):
+        """Typed API request envelope for candidate intake."""
+        idempotency_key: str = Field(..., min_length=1)
+        candidate_id: str = Field(..., min_length=1)
+        payload_version: str = Field(default="v0.2")
+        candidate_data: dict = Field(...)
+        assets: list[dict] = Field(default_factory=list)
+        evidence_refs: list[str] = Field(default_factory=list)
+        modalities_present: list[str] = Field(default_factory=list)
+        modalities_missing: list[str] = Field(default_factory=list)
 
     class ReviewRequest(BaseModel):
-        action: str = Field(..., description="confirm / reject / reclassify / needs_more_evidence")
-        reviewer: str = Field(..., description="审核人")
+        action: str = Field(..., description="confirm/reject/reclassify/needs_more_evidence")
+        reviewer: str = Field(default="api_user")
         comment: str | None = None
         reason_code: str | None = None
         decision_id: str | None = None
-        # reclassify 用
-        new_category: str | None = Field(None, description="改类时的新类别")
+        new_category: str | None = Field(None, description="reclassify 必填")
+
+    class ErrorResponse(BaseModel):
+        error: str
+        detail: str | None = None
+        code: str | None = None
 
     # ── API ────────────────────────────────────────────────────
 
