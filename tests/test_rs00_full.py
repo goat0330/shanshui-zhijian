@@ -182,7 +182,6 @@ class TestA4MapperExporterValidator:
 
     def test_validator_detects_duplicate(self):
         validator = SubmissionValidator()
-        exporter = CompetitionExporter()
         pr1 = PredictionRecord(
             record_id="pred-001",
             inference_task_ref="task-001",
@@ -195,7 +194,11 @@ class TestA4MapperExporterValidator:
             execution_status="succeeded_empty",
             payload=ChangePrediction(change_pixels=0),
         )
-        bundle = exporter.export([pr1, pr2])
+        bundle = SubmissionBundle(
+            bundle_id="test-dup",
+            predictions=[pr1, pr2],
+        )
+        bundle.bundle_checksum = bundle.compute_checksum()
         report = validator.validate(bundle)
         assert not report.passed
         assert any("重复" in e for e in report.errors)
