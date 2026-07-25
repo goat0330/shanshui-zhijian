@@ -361,6 +361,120 @@ class TestScenarioIdentity:
 
 
 # ════════════════════════════════════════════════════════════════════
+# S9-S10: Adapter
+# ════════════════════════════════════════════════════════════════════
+
+class TestCandidateAdapter:
+    def test_v02_to_v03_conversion(self):
+        from core.compatibility.candidate_adapter import v02_to_v03
+        v02 = {
+            "schema_version": "candidate.v0.2",
+            "candidate_id": "old-001",
+            "observation_refs": ["obs-1"],
+            "temporal_extent": {"start": "2024-01-01", "end": "2024-06-01"},
+            "candidate_type": "water_extent_change",
+            "geometry": {"type": "Point", "coordinates": [104.0, 30.0]},
+            "score": 0.75,
+            "rule_version": "r1",
+        }
+        result = v02_to_v03(v02)
+        assert result["schema_version"] == "candidate.v0.3"
+        assert "candidate_track_id" in result
+        assert len(result["candidate_track_id"]) == 64
+
+    def test_v02_temporal_to_v03_index_time_split(self):
+        from core.compatibility.candidate_adapter import v02_to_v03
+        v02 = {
+            "schema_version": "candidate.v0.2",
+            "candidate_id": "test", "observation_refs": ["obs-1"],
+            "temporal_extent": {"start": 0, "end": 2},
+            "candidate_type": "water_gain", "score": 0.5,
+            "rule_version": "r1",
+        }
+        result = v02_to_v03(v02)
+        assert result["temporal_extent"]["start_index"] == 0
+        assert result["temporal_extent"]["end_index"] == 2
+
+    def test_v02_normalize(self):
+        from core.compatibility.candidate_adapter import CandidateCompatibilityAdapter
+        adapter = CandidateCompatibilityAdapter()
+        v02 = {"schema_version": "candidate.v0.2", "candidate_id": "x",
+               "observation_refs": ["obs-1"], "temporal_extent": {"start": 0, "end": 1},
+               "candidate_type": "water_gain", "score": 0.5, "rule_version": "r1"}
+        normalized = adapter.normalize(v02)
+        assert normalized["schema_version"] == "candidate.v0.3"
+        with pytest.raises(ValueError):
+            adapter.normalize({"schema_version": "unknown"})
+
+    def test_verify_v03_clean(self):
+        from core.compatibility.candidate_adapter import CandidateCompatibilityAdapter
+        dc = _make_minimal_candidate(candidate_id="a"*64)
+        adapter = CandidateCompatibilityAdapter()
+        issues = adapter.verify_v03(dc)
+        assert issues == []
+
+    def test_verify_v03_short_candidate_id(self):
+        from core.compatibility.candidate_adapter import CandidateCompatibilityAdapter
+        from core.schemas.contracts.candidate import DetectionCandidate, TemporalExtent
+        dc = DetectionCandidate(
+            candidate_id="short-id", candidate_track_id="b"*64,
+            observation_refs=["obs-1"],
+            temporal_extent=TemporalExtent(start_index=0, end_index=1),
+            candidate_type="water_gain", score=0.5, rule_version="r1",
+        )
+        adapter = CandidateCompatibilityAdapter()
+        issues = adapter.verify_v03(dc)
+        # "short-id" is not 64-char SHA256
+        assert any("candidate_id" in i for i in issues)
+
+
+# ════════════════════════════════════════════════════════════════════
+# S11-S14: RunManifest + Agent B hook
+# ════════════════════════════════════════════════════════════════════
+
+class TestRunManifest:
+    def test_simple_manifest(self):
+        from core.protocols.run_manifest import SimpleRunManifest
+        m = SimpleRunManifest(
+            run_id="run-001",
+            scene_index=3,
+            total_candidates=5,
+            candidate_ids=["c1", "c2"],
+            candidate_track_ids=["t1", "t2"],
+        )
+        assert m.run_id == "run-001"
+        assert m.total_candidates == 5
+        assert m.candidate_ids == ["c1", "c2"]
+
+    def test_run_manifest_hook_called(self):
+        from core.protocols.run_manifest import SimpleRunManifest, RunManifestHook
+        captured = []
+        def my_hook(m):
+            captured.append(m.run_id)
+        hook: RunManifestHook = my_hook
+        m = SimpleRunManifest(
+            run_id="run-hook-test", scene_index=0,
+            total_candidates=0, candidate_ids=[], candidate_track_ids=[],
+        )
+        hook(m)
+        assert captured == ["run-hook-test"]
+
+    def test_run_manifest_from_envelope(self):
+        from core.protocols.run_manifest import SimpleRunManifest
+        dc = _make_minimal_candidate()
+        from core.schemas.contracts.candidate_envelope import CandidateDeliveryEnvelope
+        env = CandidateDeliveryEnvelope(
+            run_id="run-042", scene_index=2,
+            total_candidates=1, candidates=[dc],
+        )
+        manifest = SimpleRunManifest.from_envelope(env)
+        assert manifest.run_id == "run-042"
+        assert manifest.scene_index == 2
+        assert manifest.total_candidates == 1
+        assert len(manifest.candidate_ids) == 1
+
+
+# ════════════════════════════════════════════════════════════════════
 # S6-S8: Per-type quality
 # ════════════════════════════════════════════════════════════════════
 
