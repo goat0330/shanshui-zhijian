@@ -64,6 +64,11 @@ class QualityReport(BaseModel):
     polarization_compatible: bool | None = Field(None, description="极化是否兼容")
     resolution_compatible: bool | None = Field(None, description="分辨率是否兼容")
 
+    # RS-01B-2.2A: 多时相场景质量汇总
+    accepted_scenes: int | None = Field(None, description="通过质量门禁的场景数")
+    rejected_scenes: int | None = Field(None, description="被拒绝的场景数")
+    warned_count: int | None = Field(None, description="有警告的场景数")
+
     # 拒绝与警告
     rejection_reason: str | None = Field(None, description="拒绝原因 (strict 模式)")
     recommendations: list[str] = Field(default_factory=list, description="建议/警告")

@@ -17,6 +17,10 @@ data/chongqing_demo/labels/
 # Pipeline outputs
 competition/spikes/chongqing_rs_demo/products/
 
+# Regression and output directories
+output/
+data/regression_output/
+
 # Environment
 .venv/
 .env

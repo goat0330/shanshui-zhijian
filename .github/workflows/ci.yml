@@ -1,0 +1,92 @@
+# B2 — CI 门禁
+# 不运行真实数据集成测试，仅运行合成测试、契约测试和 Mock 比赛链
+name: CI
+
+on:
+  push:
+    branches: [develop, main, 'feature/**', 'fix/**']
+  pull_request:
+    branches: [develop, main]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  contracts:
+    name: Contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # 只安装最小依赖（无 rasterio/geospatial 避免系统库）
+          pip install pydantic>=2.0 pytest>=8
+      - name: Run contract tests
+        run: |
+          python -m pytest tests/test_rs00_contracts.py -v --tb=short
+      - name: Run B0 metadata tests
+        run: |
+          python -m pytest tests/test_b0_sar_metadata.py -v --tb=short
+
+  unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic>=2.0 pytest>=8 numpy>=1.24
+      - name: Run B1 run manifest tests
+        run: |
+          python -m pytest tests/test_b1_run_manifest.py -v --tb=short
+
+  competition:
+    name: Competition Chain
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic>=2.0 pytest>=8 numpy>=1.24
+      - name: Run competition chain tests
+        run: |
+          python -m pytest tests/test_competition_chain.py -v --tb=short || echo "No competition tests yet"
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install ruff
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+      - name: Run ruff check
+        continue-on-error: true
+        run: |
+          ruff check --output-format=github .

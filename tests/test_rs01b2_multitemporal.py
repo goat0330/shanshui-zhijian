@@ -41,7 +41,7 @@ from core.schemas.contracts.validation_policy import (
 )
 from core.protocols.asset_resolver import AssetRegistry
 from tools.sar_temporal_change_tool import (
-    SarTemporalChangeTool, _FallbackToPair, _is_multi_temporal_mode,
+    SarTemporalChangeTool, _is_multi_temporal_mode,
 )
 from tools.multi_temporal_background import ensure_no_nan_inf
 
@@ -281,7 +281,8 @@ def _make_run_context(output_dir: str) -> RunContext:
                 "valid_count_threshold": 3,
                 "mad_epsilon": 0.001,
                 "zscore_threshold": 3.0,
-                "water_occurrence_threshold": 0.3,
+                "stable_land_max": 0.2,
+                "stable_water_min": 0.8,
                 "min_area_m2": 100,
                 "pixel_area_m2": 100,
             },
@@ -339,13 +340,23 @@ class TestStableHistoryWithChange:
         tool.run(task, spec, ctx)
 
         output_dir = Path(ctx.output_dir) / ctx.run_id / task.task_id
+
+        # baseline_vh_median/mad/current_vh_median 在 valid_count==0 区域可能为 NaN
+        valid_path = output_dir / "history_valid_count.tif"
+        with rasterio.open(str(valid_path)) as vf:
+            vc = vf.read(1)
+        valid_region = vc > 0
+
         for name in ["baseline_vh_median", "baseline_vh_mad",
                       "historical_water_occurrence", "current_vh_median",
                       "robust_zscore", "current_water_mask"]:
             path = output_dir / f"{name}.tif"
-            with rasterio.open(path) as src:
+            with rasterio.open(str(path)) as src:
                 arr = src.read(1)
-            assert np.all(np.isfinite(arr)), f"{name} 含有 NaN/Inf"
+            # 只在有效区域检查有限值（非 baseline/current 的栅格应全图有限）
+            needs_valid_mask = name in ("baseline_vh_median", "baseline_vh_mad", "current_vh_median")
+            mask = valid_region if needs_valid_mask else np.ones_like(arr, dtype=bool)
+            assert np.all(np.isfinite(arr[mask])), f"{name} 含有 NaN/Inf"
 
     def test_observations_have_required_fields(self, stable_registry, tmpdir):
         """Observation 包含所有必需字段。"""
@@ -469,53 +480,34 @@ class TestMadEdgeCases:
 class TestInsufficientHistory:
     """历史景不足时的回退策略。"""
 
-    def test_fallback_to_pair(self, tmpdir):
-        """历史景不足 + fallback_to_pair → 双时相模式。"""
+    def test_fallback_to_pair_succeeds(self, tmpdir):
+        """历史景不足 + fallback_to_pair → pair 模式成功。"""
         registry = AssetRegistry()
         water_mask = np.zeros((H, W), dtype=bool)
 
-        # 只有 3 景历史 (不足 min=6)
         history_refs = _create_history_scenes(tmpdir / "hist", 3, water_mask)
         for r in history_refs:
             registry.register(r)
 
-        # 当前 1 景
-        current_refs = _create_current_scenes(tmpdir / "cur", 1, water_mask)
+        current_refs = _create_current_scenes(tmpdir / "cur", 1, water_mask,
+                                               add_gain=True, add_loss=True)
         for r in current_refs:
             registry.register(r)
 
-        # 还需要 BEFORE/AFTER 角色供 pair 降级
-        # 在 _execute_multi_temporal 检测不足 → 抛 _FallbackToPair
-        # → run() 捕获后走双时相流程
-        # 但双时相需要 BEFORE/AFTER 角色
-
-        spec = TaskSpec(
-            task_spec_id="sar-multi-temporal-v1", version="1.0.0",
-            task_type=TaskType.TEMPORAL_CHANGE_DETECTION,
-            input_slots=[
-                InputSlotSpec(role=AssetRole.HISTORY, modalities=[Modality.SAR],
-                              min_items=1, max_items=24),
-                InputSlotSpec(role=AssetRole.CURRENT, modalities=[Modality.SAR],
-                              min_items=1, max_items=3),
-            ],
-            validation_policy={"mode": "trust_preprocessed_input"},
-        )
+        spec = _make_mt_spec()
         task = _make_mt_task("task-fb-01", spec, history_refs, current_refs)
         ctx = _make_run_context(str(tmpdir))
         ctx.tool_config["multi_temporal"]["min_history_scenes"] = 6
         ctx.tool_config["multi_temporal"]["insufficient_history_policy"] = "fallback_to_pair"
 
         tool = SarTemporalChangeTool(registry)
-        # 应该抛出 _FallbackToPair 异常，然后 run() 会尝试走 pair 流程
-        # 但由于没有 BEFORE/AFTER 绑定，pair 流程会失败
         result = tool.run(task, spec, ctx)
 
-        # fallback 到 pair 后因缺少 BEFORE/AFTER → INVALID_INPUT
-        # 或者我们应该添加 BEFORE/AFTER 绑定...
-        # 实际上: _execute_multi_temporal 抛 _FallbackToPair,
-        # run() 捕获后直接 fall through 到双时相解析
-        # 由于没有 BEFORE 绑定 → StopIteration → INVALID_INPUT
-        assert result.status in (ExecutionStatus.INVALID_INPUT, ExecutionStatus.FAILED)
+        # 应为 succeeded_with_observations，actual_mode=pair_fallback
+        assert result.status == ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS, \
+            f"Expected SUCCEEDED_WITH_OBSERVATIONS, got {result.status}"
+        assert result.diagnostics.get("actual_mode") == "pair_fallback"
+        assert len(result.observations) > 0, "应有变化观察"
 
     def test_no_data_policy(self, tmpdir):
         """历史景不足 + no_data → NO_DATA。"""
@@ -538,8 +530,10 @@ class TestInsufficientHistory:
 
         tool = SarTemporalChangeTool(registry)
         result = tool.run(task, spec, ctx)
-        assert result.status == ExecutionStatus.FAILED
-        assert "insufficient_history" in result.diagnostics.get("error_type", "")
+        assert result.status == ExecutionStatus.NO_DATA, \
+            f"Expected NO_DATA, got {result.status}"
+        assert result.diagnostics.get("error_type") == "insufficient_history", \
+            f"Expected error_type=insufficient_history, got {result.diagnostics}"
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -888,13 +882,26 @@ class TestNoNanInf:
         tool.run(task, spec, ctx)
 
         output_dir = Path(ctx.output_dir) / ctx.run_id / task.task_id
+
+        # baseline_vh_median/mad 在 valid_count==0 区域可能为 NaN
+        valid_path = output_dir / "history_valid_count.tif"
+        with rasterio.open(str(valid_path)) as vf:
+            vc = vf.read()
+        valid_region = vc > 0
+
         raster_files = list(output_dir.glob("*.tif"))
-        assert len(raster_files) == 10, f"期望 10 个 GeoTIFF, 实际 {len(raster_files)}"
+        # RS-01B-3: 10 original + 4 persistence rasters = 14
+        assert len(raster_files) == 14, f"期望 14 个 GeoTIFF, 实际 {len(raster_files)}"
 
         for path in raster_files:
-            with rasterio.open(path) as src:
+            with rasterio.open(str(path)) as src:
                 arr = src.read()
-            assert np.all(np.isfinite(arr)), f"{path.name} 含有非有限值"
+            name = path.name
+            # baseline/current 在 valid_count==0 区域可能为 NaN
+            if name in ("baseline_vh_median.tif", "baseline_vh_mad.tif", "current_vh_median.tif"):
+                assert np.all(np.isfinite(arr[valid_region])), f"{name} 含有非有限值"
+            else:
+                assert np.all(np.isfinite(arr)), f"{name} 含有非有限值"
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -927,41 +934,51 @@ class TestModeDetection:
 
 
 class TestMultiTemporalIoU:
-    """合成多时相变化 IoU >= 0.80 验证。"""
+    """合成多时相变化 IoU >= 0.80 验证 (GT 重投影到预测网格)。"""
+
+    def _reproject_gt(self, gt_4326, dst_crs, dst_transform, dst_shape):
+        """将 GT 掩膜从 EPSG:4326 用最近邻重投影到目标网格。"""
+        from rasterio.warp import reproject as rio_reproject
+        from rasterio.enums import Resampling
+        gt_out = np.zeros(dst_shape, dtype=np.uint8)
+        rio_reproject(
+            gt_4326.astype(np.float32),
+            gt_out,
+            src_transform=TRANSFORM,
+            src_crs=TEST_CRS,
+            dst_transform=dst_transform,
+            dst_crs=dst_crs,
+            resampling=Resampling.nearest,
+        )
+        return gt_out.astype(bool)
 
     def test_change_iou_meets_threshold(self, tmpdir):
-        """创建已知变化位置，测试多时相检测的 IoU。"""
+        """GT 重投影后计算 IoU >= 0.80。"""
         registry = AssetRegistry()
 
-        # 创建 12 景历史: WATER_PATCH1 有水，WATER_PATCH2 无水
+        # 12 景历史: WATER_PATCH1 有水，WATER_PATCH2 无水
         base_wm = np.zeros((H, W), dtype=bool)
-        base_wm[WATER_PATCH1] = True  # 历史有水 (4 px)
-        history_refs = _create_history_scenes(
-            tmpdir / "hist", 12, base_wm, anomaly_idx=None,
-        )
+        base_wm[WATER_PATCH1] = True
+        history_refs = _create_history_scenes(tmpdir / "hist", 12, base_wm, anomaly_idx=None)
         for i, r in enumerate(history_refs):
             r.asset_id = f"h_{i:03d}"
             registry.register(r)
 
-        # 当前: WATER_PATCH2 新增水体 (water_gain), WATER_PATCH1 水消失 (water_loss)
+        # 当前: WATER_PATCH2 新增水体, WATER_PATCH1 水消失
         current_wm = np.zeros((H, W), dtype=bool)
-        current_wm[WATER_PATCH2] = True  # 新增 4 px
-
-        current_refs = _create_current_scenes(
-            tmpdir / "cur", 1, current_wm, add_gain=False, add_loss=False,
-        )
+        current_wm[WATER_PATCH2] = True
+        current_refs = _create_current_scenes(tmpdir / "cur", 1, current_wm,
+                                               add_gain=False, add_loss=False)
         r = current_refs[0]
         r.asset_id = "c_000"
         registry.register(r)
 
-        # Ground truth change mask (在原始输入空间, 16x16)
-        gt_gain = np.zeros((H, W), dtype=bool)
-        gt_gain[WATER_PATCH2] = True  # 4 px gain
-
-        gt_loss = np.zeros((H, W), dtype=bool)
-        gt_loss[WATER_PATCH1] = True  # history water no longer seen → should be loss
-
-        gt_change = gt_gain | gt_loss
+        # GT (EPSG:4326, 16x16)
+        gt_gain_4326 = np.zeros((H, W), dtype=np.uint8)
+        gt_gain_4326[WATER_PATCH2] = 1
+        gt_loss_4326 = np.zeros((H, W), dtype=np.uint8)
+        gt_loss_4326[WATER_PATCH1] = 1
+        gt_change_4326 = (gt_gain_4326 | gt_loss_4326).astype(np.uint8)
 
         spec = _make_mt_spec()
         task = _make_mt_task("task-iou-01", spec, history_refs, current_refs)
@@ -972,37 +989,54 @@ class TestMultiTemporalIoU:
 
         output_dir = Path(ctx.output_dir) / ctx.run_id / task.task_id
 
+        # 读取输出参考网格
+        with rasterio.open(output_dir / "baseline_vh_median.tif") as src:
+            dst_crs = src.crs
+            dst_transform = src.transform
+            dst_shape = (src.height, src.width)
+
         # 读取预测
         with rasterio.open(output_dir / "water_gain_mask.tif") as src:
             pred_gain = src.read(1).astype(bool)
         with rasterio.open(output_dir / "water_loss_mask.tif") as src:
             pred_loss = src.read(1).astype(bool)
-
         pred_change = pred_gain | pred_loss
 
-        print(f"Predicted change pixels: {int(pred_change.sum())} "
-              f"(gain={int(pred_gain.sum())}, loss={int(pred_loss.sum())})")
+        # GT 重投影到预测网格
+        gt_gain = self._reproject_gt(gt_gain_4326, dst_crs, dst_transform, dst_shape)
+        gt_loss = self._reproject_gt(gt_loss_4326, dst_crs, dst_transform, dst_shape)
+        gt_change = gt_gain | gt_loss
 
-        # 检查: water_gain 和 water_loss 观察存在
-        gain_types = [o.quality.get("change_type") for o in result.observations]
-        assert "water_gain" in gain_types, "应为 water_gain 观察"
-        assert "water_loss" in gain_types, "应为 water_loss 观察"
+        # IoU
+        def _iou(pred, gt):
+            inter = (pred & gt).sum()
+            union = (pred | gt).sum()
+            return inter / max(union, 1)
 
-        # IoU (在预测空间近似):
-        # 由于重投影改变了尺寸, IoU 在重投影后空间测量。
-        # 用总变化像元数 / 输出像元总数作为"变化率"检查。
-        total_pred = pred_change.size
-        change_ratio = int(pred_change.sum()) / total_pred
-        print(f"Change ratio: {change_ratio:.4f} ({int(pred_change.sum())}/{total_pred})")
-        # 应检测到变化 (至少 0.01% 的像元变化)
-        assert change_ratio > 1e-4, f"变化率 {change_ratio:.6f} 过低"
+        iou_gain = _iou(pred_gain, gt_gain)
+        iou_loss = _iou(pred_loss, gt_loss)
+        iou_combined = _iou(pred_change, gt_change)
 
+        print(f"IoU water_gain: {iou_gain:.4f}")
+        print(f"IoU water_loss: {iou_loss:.4f}")
+        print(f"IoU combined:   {iou_combined:.4f}")
+        print(f"pred_gain px: {pred_gain.sum()}, gt_gain px: {gt_gain.sum()}")
+        print(f"pred_loss px: {pred_loss.sum()}, gt_loss px: {gt_loss.sum()}")
+
+        assert iou_gain >= 0.80, f"water_gain IoU {iou_gain:.4f} < 0.80"
+        assert iou_loss >= 0.80, f"water_loss IoU {iou_loss:.4f} < 0.80"
+        assert iou_combined >= 0.80, f"combined IoU {iou_combined:.4f} < 0.80"
+
+        # Observation 验证
         gain_obs = [o for o in result.observations
                      if o.quality.get("change_type") == "water_gain"]
         loss_obs = [o for o in result.observations
                      if o.quality.get("change_type") == "water_loss"]
         assert len(gain_obs) >= 1, f"应有 water_gain 图斑, 实际 {len(gain_obs)}"
         assert len(loss_obs) >= 1, f"应有 water_loss 图斑, 实际 {len(loss_obs)}"
+
+        # actual_mode 应为 multi_temporal
+        assert result.diagnostics.get("actual_mode") == "multi_temporal"
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1080,3 +1114,255 @@ class TestNoChangeFalsePositive:
         assert fpr <= 0.05, f"误报率 {fpr:.4f} > 0.05"
         assert result.status in (ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS,
                                   ExecutionStatus.SUCCEEDED_EMPTY)
+
+
+# ═══════════════════════════════════════════════════════════════
+# RS-01B-2.2A — 新增测试: SarMetadataResolver / strict / quality / bounds
+# ═══════════════════════════════════════════════════════════════
+
+
+class TestSarMetadataResolver:
+    """SarMetadataResolver 从 GeoTIFF tags 读取真实元数据。"""
+
+    def test_geotiff_tags_resolved(self):
+        """真实 GeoTIFF 文件的 embedded tags 可解析完整 SarMetadata (B0: per-field source)。"""
+        tif_path = Path(__file__).parent.parent / "data" / "chongqing_demo" / "raw" / "s1_multi" / "s1-aoi0_20240102.tif"
+        if not tif_path.exists():
+            pytest.skip("真实 GeoTIFF 文件不存在，跳过本地集成测试")
+        from core.schemas.contracts.sar_metadata import SarMetadataResolver, MetadataSource
+
+        # 使用无预填字段的 AssetRef（确保来源来自 GeoTIFF tags）
+        class BareRef:
+            uri = str(tif_path)
+            bands = None
+            acquisition_time = None
+
+        meta = SarMetadataResolver.resolve(BareRef(), str(tif_path))
+        assert meta.orbit_direction == "ASCENDING"
+        assert meta.relative_orbit == 55
+        assert meta.platform == "Sentinel-1A"
+        assert "VH" in meta.polarizations and "VV" in meta.polarizations
+        assert meta.incidence_angle_min > 0
+        assert meta.incidence_angle_max > meta.incidence_angle_min
+        assert len(meta.missing_fields()) == 0
+
+        # B0: 验证逐字段来源为 geotiff_tags
+        fs = meta.field_summary()
+        for fname, finfo in fs.items():
+            assert finfo["source"] == MetadataSource.GEOTIFF_TAGS.value or finfo["source"] == MetadataSource.INFERRED.value, \
+                f"{fname}: expected geotiff_tags or inferred, got {finfo['source']}"
+
+    def test_strict_real_metadata_passes(self):
+        """10 景真实数据的 SarMetadata 全部通过 strict 验证。"""
+        from core.schemas.contracts.sar_metadata import SarMetadataResolver
+        from core.schemas.contracts.validation_policy import SarValidationPolicy
+        from tools.sar_quality_validator import validate_sar_input, compute_input_quality
+        from pipeline.io.reader import read_geotiff
+
+        s1_dir = Path(__file__).parent.parent / "data" / "chongqing_demo" / "raw" / "s1_multi"
+        files = sorted(s1_dir.glob("s1-aoi0_*.tif"))
+        if len(files) < 2:
+            pytest.skip("真实 GeoTIFF 文件不足，跳过本地集成测试")
+
+        policy = SarValidationPolicy.default_strict()
+
+        class BareRef:
+            def __init__(self, p):
+                self.uri = str(p)
+                self.bands = None
+                self.acquisition_time = None
+
+        # 用第一个文件作为参考
+        ref_meta = SarMetadataResolver.resolve(BareRef(files[0]), str(files[0]))
+        ref_data = read_geotiff(str(files[0]), bands=["vv", "vh"])
+
+        passed = 0
+        for f in files[1:]:
+            scene_meta = SarMetadataResolver.resolve(BareRef(f), str(f))
+            scene_data = read_geotiff(str(f), bands=["vv", "vh"])
+            qm = compute_input_quality(ref_data.array, scene_data.array,
+                                        ref_data.bands, scene_data.bands)
+            validation = validate_sar_input(
+                ref_meta, scene_meta, ref_data.bands, scene_data.bands,
+                qm, policy, ref_data.width, ref_data.height,
+                scene_data.width, scene_data.height)
+            if not validation.rejected:
+                passed += 1
+
+        assert passed == len(files) - 1, \
+            f"{passed}/{len(files)-1} 个场景通过 strict 验证"
+
+
+class TestSceneQualityCounting:
+    """Quality gate counting fix: rejected != accepted."""
+
+    def test_rejected_and_accepted_are_disjoint(self, stable_registry, tmpdir):
+        """accepted + rejected 绑定有明确边界，不重叠。"""
+        registry, history_refs, current_refs = stable_registry
+        spec = _make_mt_spec()
+        task = _make_mt_task("task-disjoint", spec, history_refs, current_refs)
+        ctx = RunContext(run_id="run-disjoint", output_dir=str(tmpdir))
+        tool = SarTemporalChangeTool(registry)
+        result = tool.run(task, spec, ctx)
+
+        diag = result.diagnostics or {}
+        sq = diag.get("scene_quality", {})
+        accepted = sq.get("accepted", 0)
+        rejected = sq.get("rejected", 0)
+
+        # TRUST 模式下: 全部 accepted, 无 rejected
+        total_bindings = len(history_refs) + len(current_refs)
+        assert accepted > 0
+        assert accepted + rejected == total_bindings
+        assert sq.get("warned", 0) >= 0
+
+        # 验证 scene_quality 数组中 accepted/rejected 互斥
+        scene_list = result.diagnostics.get("scene_quality", [])
+        if isinstance(scene_list, list):
+            for s in scene_list:
+                assert not (s.get("accepted") and s.get("rejected")), \
+                    f"{s['asset_ref']} 同时标记 accepted 和 rejected"
+                # accepted + rejected 应覆盖所有检查场景
+                assert s.get("accepted") or s.get("rejected") or s.get("role") == "history_ref"
+
+
+class TestCandidatesBounds:
+    """candidates GeoJSON bounds 修复验证。"""
+
+    def test_candidates_bounds_nonempty(self, stable_registry, tmpdir):
+        """非空 FeatureCollection 应聚合多边形的完整 bounds。"""
+        registry, history_refs, current_refs = stable_registry
+        spec = _make_mt_spec()
+        task = _make_mt_task("task-bounds-01", spec, history_refs, current_refs)
+        ctx = RunContext(run_id="run-bounds", output_dir=str(tmpdir))
+        tool = SarTemporalChangeTool(registry)
+        result = tool.run(task, spec, ctx)
+
+        output_dir = Path(ctx.output_dir) / ctx.run_id / task.task_id
+        cand_path = output_dir / "candidates.geojson"
+        assert cand_path.exists()
+
+        with open(cand_path) as f:
+            fc = json.load(f)
+        features = fc.get("features", [])
+        if features:
+            # 验证 bounds 存在
+            ref_cand = registry.resolve(f"{task.task_id}_candidates")
+            assert ref_cand.spatial is not None
+            assert ref_cand.spatial.bounds is not None
+            b = ref_cand.spatial.bounds
+            assert b[0] < b[2]  # min_x < max_x
+            assert b[1] < b[3]  # min_y < max_y
+
+    def test_empty_candidates_no_crash(self, tmpdir):
+        """空 FeatureCollection 不应崩溃，bounds 为 None。"""
+        from core.schemas.contracts.perception import ExecutionStatus
+        registry = AssetRegistry()
+        spec = _make_mt_spec()
+
+        # 用常量 VH 值构造 4 个完全相同的历史场景（水陆完全一致）
+        def _write_const_scene(name, vh_val=-15.0):
+            vh = np.full((H, W), vh_val, dtype=np.float32)
+            vv = vh + 3.0
+            path = Path(tmpdir) / f"{name}.tif"
+            _write_sar_geotiff(path, vv, vh,
+                                acquisition_time=f"2024-06-{10+int(name[-1]):02d}T00:00:00Z")
+            ar = AssetRef(
+                asset_id=name, uri=str(path),
+                media_type="image/tiff; application=geotiff",
+                modality=Modality.SAR,
+                spatial=SpatialMetadata(reliability="georeferenced",
+                                         crs=TEST_CRS, width=W, height=H),
+                bands=["vv", "vh"],
+            )
+            registry.register(ar)
+            return ar
+
+        # 全部用相同 VH 值 → 同一边界阈值 → 完全相同的水体 → 无变化
+        refs = [_write_const_scene(f"nochg_h{i}") for i in range(4)]
+        cur_refs = [_write_const_scene(f"nochg_c{i}") for i in range(2)]
+
+        task = _make_mt_task("task-empty-bounds", spec, refs, cur_refs)
+        ctx = RunContext(run_id="run-empty-bounds", output_dir=str(tmpdir))
+        tool = SarTemporalChangeTool(registry)
+        result = tool.run(task, spec, ctx)
+
+        output_dir = Path(ctx.output_dir) / ctx.run_id / task.task_id
+        cand_path = output_dir / "candidates.geojson"
+        if cand_path.exists():
+            with open(cand_path) as f:
+                fc = json.load(f)
+            # 常量 VH → 可能产生微小变化或者真实空
+            features = fc.get("features", [])
+        else:
+            features = []
+
+        # 不应因空 FC 而崩溃或 FAILED
+        assert result.status in (ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS,
+                                  ExecutionStatus.SUCCEEDED_EMPTY)
+        # candidates asset ref 即使空也不崩溃
+        try:
+            registry.resolve(f"{task.task_id}_candidates")
+        except Exception:
+            pass
+
+
+class TestAgentBContracts:
+    """Agent B 的三个契约 JSON 均可解析。"""
+
+    @pytest.fixture
+    def aoi_dir(self):
+        return Path(__file__).parent.parent / "aoi-data-prep"
+
+    def test_asset_refs_parse(self, aoi_dir):
+        """assets.json 中 10 个 AssetRef 均可 Pydantic 解析。"""
+        assets_path = aoi_dir / "assets.json"
+        if not assets_path.exists():
+            pytest.skip("Agent B 交付文件不存在，跳过")
+        import json
+        with open(assets_path) as f:
+            data = json.load(f)
+        assert len(data) == 10
+        for item in data:
+            ref = AssetRef.model_validate(item)
+            assert ref.asset_id
+            assert ref.uri
+            assert ref.modality == Modality.SAR
+            assert "vv" in [b.lower() for b in (ref.bands or [])]
+            assert "vh" in [b.lower() for b in (ref.bands or [])]
+
+    def test_task_spec_parse(self, aoi_dir):
+        """task-spec.json 可 Pydantic 解析。"""
+        path = aoi_dir / "task-spec.json"
+        if not path.exists():
+            pytest.skip("Agent B 交付文件不存在，跳过")
+        import json
+        with open(path) as f:
+            data = json.load(f)
+        spec = TaskSpec.model_validate(data)
+        assert spec.task_spec_id == "sar-multi-temporal-v1"
+        assert spec.version == "1.0.0"
+        assert spec.task_type == TaskType.TEMPORAL_CHANGE_DETECTION
+        assert spec.validation_policy is not None
+
+    def test_inference_task_parse(self, aoi_dir):
+        """inference-task.json 可 Pydantic 解析。"""
+        path = aoi_dir / "inference-task.json"
+        if not path.exists():
+            pytest.skip("Agent B 交付文件不存在，跳过")
+        import json
+        with open(path) as f:
+            data = json.load(f)
+        task = InferenceTask.model_validate(data)
+        assert task.task_id == "RS-01B-2.1-MT-001"
+        assert len(task.asset_bindings) == 10
+        # 验证 8 history + 2 current
+        history_bindings = [b for b in task.asset_bindings if b.role == AssetRole.HISTORY]
+        current_bindings = [b for b in task.asset_bindings if b.role == AssetRole.CURRENT]
+        assert len(history_bindings) == 8
+        assert len(current_bindings) == 2
+        # sequence_index 连续
+        indices = sorted(b.sequence_index for b in history_bindings)
+        assert indices == list(range(8))
+        indices_c = sorted(b.sequence_index for b in current_bindings)
+        assert indices_c == [0, 1]
