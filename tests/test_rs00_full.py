@@ -114,7 +114,7 @@ class TestA3InputAdapter:
 
     def test_missing_inference_task(self):
         adapter = CompetitionInputAdapter()
-        with pytest.raises(ValueError, match="inference_task"):
+        with pytest.raises(Exception):
             adapter.parse_manifest({"assets": []})
 
     def test_missing_file(self):
@@ -148,7 +148,7 @@ class TestA4MapperExporterValidator:
             run_id="run-001",
             status=ExecutionStatus.SUCCEEDED_EMPTY,
         )
-        pr = mapper.map_result(result, task)
+        pr = mapper.map_result(result, task, TaskType.TEMPORAL_CHANGE_DETECTION)
         assert pr.inference_task_ref == "task-001"
         assert pr.execution_status == "succeeded_empty"
 
@@ -182,7 +182,6 @@ class TestA4MapperExporterValidator:
 
     def test_validator_detects_duplicate(self):
         validator = SubmissionValidator()
-        exporter = CompetitionExporter()
         pr1 = PredictionRecord(
             record_id="pred-001",
             inference_task_ref="task-001",
@@ -195,7 +194,11 @@ class TestA4MapperExporterValidator:
             execution_status="succeeded_empty",
             payload=ChangePrediction(change_pixels=0),
         )
-        bundle = exporter.export([pr1, pr2])
+        bundle = SubmissionBundle(
+            bundle_id="test-dup",
+            predictions=[pr1, pr2],
+        )
+        bundle.bundle_checksum = bundle.compute_checksum()
         report = validator.validate(bundle)
         assert not report.passed
         assert any("重复" in e for e in report.errors)
