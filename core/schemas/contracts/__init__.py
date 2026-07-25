@@ -66,3 +66,11 @@ class ObservationType(str, Enum):
     CHANGE_POLYGON = "change_polygon"
     OBJECT_DETECTION = "object_detection"
     ANOMALY_SCORE = "anomaly_score"
+
+
+# G0.3-A exports — imported directly from candidate module to avoid name clash
+# with ScoreType above (MODEL_PROBABILITY / RULE_BASED / ENSEMBLE).
+# Candidate's ScoreType (WITHIN_RUN_RANKING) is available via:
+#   from core.schemas.contracts.candidate import ScoreType
+# CandidateDeliveryEnvelope is available via:
+#   from core.schemas.contracts.candidate_envelope import CandidateDeliveryEnvelope

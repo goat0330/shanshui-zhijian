@@ -222,3 +222,123 @@ class DetectionCandidate(BaseModel):
                     "lifecycle='superseded'"
                 )
         return self
+
+
+# ── Helper Functions ────────────────────────────────────────────
+
+
+def compute_candidate_id(
+    *,
+    candidate_type: str,
+    observation_refs: list[str] | tuple[str, ...],
+    temporal_extent: dict | None = None,
+    geometry: dict | None = None,
+    quality_summary: dict | None = None,
+    **extra_content: object,
+) -> str:
+    """Compute content-addressed candidate_id (SHA256).
+
+    Any change in content → different hash. This indexes the *candidate content*,
+    not the spatial object identity.
+    """
+    payload: dict = {
+        "candidate_type": candidate_type,
+        "observation_refs": sorted(observation_refs) if observation_refs else [],
+    }
+    if temporal_extent is not None:
+        payload["temporal_extent"] = temporal_extent
+    if geometry is not None:
+        payload["geometry"] = geometry
+    if quality_summary is not None:
+        payload["quality_summary"] = quality_summary
+    payload.update(extra_content)
+
+    raw = json.dumps(payload, sort_keys=True, ensure_ascii=False, default=str)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def compute_candidate_track_id(
+    *,
+    representative_geometry: dict | None = None,
+    union_geometry: dict | None = None,
+    candidate_type: str | None = None,
+    **extra_stable: object,
+) -> str:
+    """Compute stable candidate_track_id from spatial identity.
+
+    This indexes the *spatial object*, not the content. Same object across
+    scenes/runs → same track_id.
+    """
+    geom = representative_geometry or union_geometry or {}
+    payload: dict = {
+        "geometry": json.dumps(geom, sort_keys=True, default=str),
+    }
+    if candidate_type is not None:
+        payload["candidate_type"] = candidate_type
+    payload.update(extra_stable)
+
+    raw = json.dumps(payload, sort_keys=True, ensure_ascii=False, default=str)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def build_quality_factor(
+    *,
+    candidate_type: str,
+    water_occurrence_mean: float | None = None,
+    water_occurrence_std: float | None = None,
+    valid_pixel_ratio: float | None = None,
+    registration_quality: float | None = None,
+    metadata_quality: float | None = None,
+    **extra: float,
+) -> dict:
+    """Build per-type quality_factor dict.
+
+    water_gain:
+        stable_land_persistence = water_occurrence_mean
+        (higher = more stable land → more confident gain)
+    water_loss:
+        stable_water_persistence = 1 - water_occurrence_mean
+        (higher = more stable water → more confident loss)
+    sar_backscatter_anomaly:
+        Composite of valid_pixel_ratio + registration + metadata
+    """
+    qf: dict = {}
+
+    if candidate_type == "water_gain":
+        if water_occurrence_mean is None:
+            raise ValueError("water_gain requires water_occurrence_mean")
+        if valid_pixel_ratio is not None:
+            raise ValueError("water_gain does not use valid_pixel_ratio")
+        qf["stable_land_persistence"] = round(water_occurrence_mean, 4)
+        qf["strength"] = round(water_occurrence_mean, 4)
+
+    elif candidate_type == "water_loss":
+        if water_occurrence_mean is None:
+            raise ValueError("water_loss requires water_occurrence_mean")
+        if valid_pixel_ratio is not None:
+            raise ValueError("water_loss does not use valid_pixel_ratio")
+        stability = 1.0 - water_occurrence_mean
+        qf["stable_water_persistence"] = round(stability, 4)
+        qf["strength"] = round(stability, 4)
+
+    elif candidate_type == "sar_backscatter_anomaly":
+        if valid_pixel_ratio is None:
+            raise ValueError("anomaly requires valid_pixel_ratio")
+        qf["valid_pixel_ratio"] = round(valid_pixel_ratio, 4)
+        if registration_quality is not None:
+            qf["registration_quality"] = round(registration_quality, 4)
+        if metadata_quality is not None:
+            qf["metadata_quality"] = round(metadata_quality, 4)
+        # Composite strength: product of all available components
+        components = [v for k, v in qf.items()
+                      if k != "strength" and isinstance(v, (int, float))]
+        strength = 1.0
+        for v in components:
+            strength *= v
+        qf["strength"] = round(strength, 4)
+
+    else:
+        raise ValueError(f"Unknown candidate_type: {candidate_type}")
+
+    qf.update(extra)
+    return qf
