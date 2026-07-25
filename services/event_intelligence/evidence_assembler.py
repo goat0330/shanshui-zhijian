@@ -58,6 +58,7 @@ class EvidenceAssembler:
         modalities_present: list[str] | None = None,
         modalities_missing: list[str] | None = None,
         missing_context_notes: str | None = None,
+        evidence_refs: list[str] | None = None,
     ) -> tuple[list[Evidence], EvidenceBundle]:
         """组装 Evidence 和 EvidenceBundle。
 
@@ -67,14 +68,24 @@ class EvidenceAssembler:
             modalities_present: 存在的模态列表
             modalities_missing: 缺失的模态列表（不能解释为正常）
             missing_context_notes: 缺失上下文说明
+            evidence_refs: 证据引用 ID 列表（从 Fixture 提取，候选 v0.3 不内联此字段）
 
         返回: (EvidenceList, EvidenceBundle)
         """
         evidence_list: list[Evidence] = []
         asset_map = {a.get("asset_id", ""): a for a in assets}
 
-        # 从 Candidate evidence_refs 构建 Evidence
-        for ref in (candidate.evidence_refs or []):
+        # (G1.1-C) Strict ref validation: all evidence_refs must exist in assets
+        refs = evidence_refs or []
+        for ref in refs:
+            if ref not in asset_map:
+                raise EvidenceAssemblerError(
+                    f"证据引用 {ref} 在 Fixture assets 中不存在。"
+                    f" 可用 asset_ids: {list(asset_map.keys())}"
+                )
+
+        # 从 evidence_refs 构建 Evidence
+        for ref in refs:
             asset = asset_map.get(ref, {})
             modality = asset.get("modality", "unknown")
             source_modality = self._modality_to_source(modality)
@@ -125,7 +136,7 @@ class EvidenceAssembler:
             modalities_present=modalities_present or [],
             modalities_missing=modalities_missing or [],
             spatial_summary={"has_geometry": candidate.geometry is not None},
-            temporal_summary=candidate.temporal_extent,
+            temporal_summary=candidate.temporal_extent.model_dump(),
             quality_summary=candidate.quality_summary,
             assembler_version=self.VERSION,
         )

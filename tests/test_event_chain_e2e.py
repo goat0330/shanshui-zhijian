@@ -202,8 +202,7 @@ class TestEvidenceAssembly:
             candidate=candidate,
             assets=fix.get("assets", []),
             modalities_present=fix.get("modalities_present"),
-            modalities_missing=fix.get("modalities_missing"),
-        )
+            modalities_missing=fix.get("modalities_missing"),        evidence_refs=[])
         assert len(evidence_list) >= 1
         assert bundle.bundle_id is not None
         assert bundle.candidate_ref == candidate.candidate_id
@@ -218,7 +217,7 @@ class TestEvidenceAssembly:
             modalities_present=["SAR_C"],
             modalities_missing=["OPTICAL_MULTI"],
             missing_context_notes="S2 T2 云覆盖",
-        )
+        evidence_refs=[])
         # 应包含 unavailable evidence
         unavailable = [e for e in evidence_list if e.stance == "unavailable"]
         assert len(unavailable) > 0
@@ -241,7 +240,7 @@ class TestEvidenceAssembly:
             assets=fix.get("assets", []),
             modalities_present=["SAR_C"],
             modalities_missing=["OPTICAL_MULTI"],
-        )
+        evidence_refs=[])
         # 所有 evidence 必须有合法 evidence_type
         for e in evidence_list:
             assert e.evidence_type != "" or e.stance == "unavailable"
@@ -257,7 +256,7 @@ class TestEventCreation:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=["OPTICAL_MULTI"],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
         assert event.status == "under_review"
         assert event.event_version == 1
@@ -269,7 +268,7 @@ class TestEventCreation:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=["OPTICAL_MULTI"],
-        )
+        evidence_refs=[])
         event1 = services["event_svc"].create_event(candidate, bundle)
 
         # 再次创建应该报错
@@ -283,7 +282,7 @@ class TestEventCreation:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=["OPTICAL_MULTI"],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
         assert event.status in ("under_review", "needs_more_evidence")
         assert event.status != "confirmed"
@@ -295,7 +294,7 @@ class TestEventCreation:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=["OPTICAL_MULTI"],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
         assert len(event.missing_context) > 0
         assert any("OPTICAL_MULTI" in mc for mc in event.missing_context)
@@ -317,7 +316,7 @@ class TestEventCreation:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=["OPTICAL_MULTI"],
-        )
+        evidence_refs=[])
         # 确认 Event 创建后 Candidate 不变
         assert candidate.candidate_id == orig_candidate_id
         assert candidate.score == 0.82
@@ -329,7 +328,7 @@ class TestEventCreation:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=["OPTICAL_MULTI"],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
         assert event.status in ("under_review", "needs_more_evidence")
         # 不出现 illegal / violation / confirmed (除非已人工确认)
@@ -346,7 +345,7 @@ class TestReviewDecision:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
         assert event.event_version == 1
 
@@ -365,7 +364,7 @@ class TestReviewDecision:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
 
         result_event, changed = services["review_svc"].reject(
@@ -382,7 +381,7 @@ class TestReviewDecision:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=["OPTICAL_MULTI"],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
 
         result_event, changed = services["review_svc"].needs_more_evidence(
@@ -398,7 +397,7 @@ class TestReviewDecision:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
         v1_version = event.event_version
 
@@ -420,7 +419,7 @@ class TestReviewDecision:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
         original_score = candidate.score
 
@@ -436,7 +435,7 @@ class TestReviewDecision:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
 
         # 第一次
@@ -461,7 +460,7 @@ class TestReviewDecision:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
 
         # 先 confirm (version → 2)
@@ -488,7 +487,7 @@ class TestReviewDecision:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
 
         # 先 reject
@@ -509,7 +508,7 @@ class TestReplay:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
 
         # Replay
@@ -533,7 +532,7 @@ class TestReplay:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
         services["replay_svc"].record_event_created(event)
 
@@ -564,7 +563,7 @@ class TestReplay:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
 
         # system
@@ -610,7 +609,7 @@ class TestPersistence:
         _, bundle = services["assembler"].assemble(
             candidate=candidate, assets=fix.get("assets", []),
             modalities_present=["SAR_C"], modalities_missing=[],
-        )
+        evidence_refs=[])
         event = services["event_svc"].create_event(candidate, bundle)
         services["replay_svc"].record_event_created(event)
         timeline_before = list(services["replay_svc"].get_timeline(event.event_id))

@@ -136,7 +136,7 @@ class EventService:
             category=candidate.candidate_type,
             severity=self._infer_severity(candidate.score),
             geometry=candidate.geometry,
-            temporal_extent=candidate.temporal_extent,
+            temporal_extent=candidate.temporal_extent.model_dump(),
             candidate_refs=[candidate.candidate_id],
             evidence_bundle_refs=[bundle.bundle_id],
             reason_codes=self._build_reason_codes(candidate),
