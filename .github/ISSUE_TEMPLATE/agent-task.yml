@@ -1,0 +1,116 @@
+name: Agent Task
+description: 向 Agent 分发工作任务
+title: "[agent:X] <工作包描述>"
+labels: []
+assignees:
+  - goat0330
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Agent 任务模板
+        由项目经理_AGENT_E 分发。
+
+  - type: input
+    id: agent
+    attributes:
+      label: 目标 Agent
+      description: 感知算法_AGENT_A / 工程可靠性_AGENT_B / 事件治理_AGENT_C / 产品工作台_AGENT_D / 项目经理_AGENT_E
+    validations:
+      required: true
+
+  - type: input
+    id: wp-id
+    attributes:
+      label: Work Package ID
+      description: 例如 GOV-02, G0.3-A, G1.1-C, D0
+    validations:
+      required: true
+
+  - type: input
+    id: baseline
+    attributes:
+      label: 基线 Commit
+      description: feature 分支应从哪个 Commit 创建
+    validations:
+      required: true
+
+  - type: textarea
+    id: business-goal
+    attributes:
+      label: 业务目标
+      description: 这个工作包要解决什么业务问题
+    validations:
+      required: true
+
+  - type: textarea
+    id: allowed-dirs
+    attributes:
+      label: 允许修改目录
+      description: 一行一个
+    validations:
+      required: true
+
+  - type: textarea
+    id: forbidden-dirs
+    attributes:
+      label: 禁止修改目录
+      description: 一行一个
+    validations:
+      required: true
+
+  - type: textarea
+    id: input-contract
+    attributes:
+      label: 输入合同
+      description: 此 Agent 需要消费的合同或数据
+    validations:
+      required: false
+
+  - type: textarea
+    id: output-contract
+    attributes:
+      label: 输出合同
+      description: 此 Agent 需要产生或更新的合同
+    validations:
+      required: false
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: 必须测试
+      description: 必须通过的测试列表
+    validations:
+      required: true
+
+  - type: input
+    id: gate
+    attributes:
+      label: Gate
+      description: 通过条件
+    validations:
+      required: true
+
+  - type: input
+    id: stop-condition
+    attributes:
+      label: 停止条件
+      description: 什么状态下可以停止此工作包
+    validations:
+      required: true
+
+  - type: input
+    id: delivery-format
+    attributes:
+      label: 交付格式
+      description: Branch, Commit, 文件清单
+    validations:
+      required: true
+
+  - type: input
+    id: downstream
+    attributes:
+      label: 下游 Agent
+      description: 下一个消费此输出的 Agent
+    validations:
+      required: false

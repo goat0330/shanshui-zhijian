@@ -1,0 +1,51 @@
+# 山水智鉴 — Agent 代码所有权
+# 每个路径条目定义责任 Agent(s)
+# 格式: path: agent_id
+
+# 感知算法_AGENT_A — SAR 遥感感知
+tools/: agent:A
+core/protocols/: agent:A
+core/schemas/contracts/candidate.py: agent:A
+core/schemas/contracts/perception.py: agent:A
+core/schemas/contracts/asset.py: agent:A
+core/schemas/contracts/task.py: agent:A
+core/schemas/contracts/validation_policy.py: agent:A
+
+# 工程可靠性_AGENT_B — 元数据 + 评测链 + CI
+competition/: agent:B
+core/schemas/contracts/run_manifest.py: agent:B
+core/schemas/contracts/sar_metadata.py: agent:B
+core/schemas/contracts/submission_envelope.py: agent:B
+.github/workflows/: agent:B
+scripts/run_regression*.py: agent:B
+
+# 事件治理_AGENT_C — 事件 + Review + Replay
+services/: agent:C
+core/schemas/contracts/event.py: agent:C
+core/schemas/contracts/evidence.py: agent:C
+core/schemas/contracts/review.py: agent:C
+core/schemas/contracts/replay.py: agent:C
+core/compatibility/: agent:C
+
+# 产品工作台_AGENT_D — 前端 + Workbench API
+frontend/: agent:D
+apps/workbench_api/: agent:D
+docs/product/: agent:D
+
+# 项目经理_AGENT_E — 治理 + ML
+AGENTS.md: agent:E
+agents/: agent:E
+docs/program/: agent:E
+docs/ml/: agent:E
+ml/: agent:E
+tests/integration/: agent:E
+.agent-owners.yml: agent:E
+.github/PULL_REQUEST_TEMPLATE.md: agent:E
+.github/ISSUE_TEMPLATE/: agent:E
+README.md: agent:E
+山水智鉴_项目驾驶舱.md: agent:E
+
+# 共享 — 需多个 Agent 审批
+pyproject.toml: [agent:E]
+.gitignore: [agent:E]
+docs/: [agent:A, agent:B, agent:C, agent:D, agent:E]
