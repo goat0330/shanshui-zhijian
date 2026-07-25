@@ -159,3 +159,23 @@ shanshui-zhijian/
 - SubmissionBundle 通过 Schema 和 golden test。
 
 完整 Gate 见 [`docs/07_实施管理/00_架构迁移计划.md`](docs/07_实施管理/00_架构迁移计划.md)。
+
+## 9. 治理框架
+
+山水智鉴采用**五 Agent 治理框架**，详见：
+
+| 文档 | 说明 |
+|------|------|
+| [`AGENTS.md`](AGENTS.md) | 多 Agent 治理框架总纲 |
+| [`agents/`](agents/) | 五 Agent 角色定义 + 交接模板 |
+| [`docs/program/MASTER_ROADMAP.md`](docs/program/MASTER_ROADMAP.md) | 主路线图 |
+| [`docs/program/AGENT_RESPONSIBILITY_MATRIX.md`](docs/program/AGENT_RESPONSIBILITY_MATRIX.md) | 责任矩阵 |
+| [`docs/program/STATUS_BOARD.md`](docs/program/STATUS_BOARD.md) | Agent 状态面板 |
+| [`docs/program/INTEGRATION_PLAN.md`](docs/program/INTEGRATION_PLAN.md) | 集成计划 |
+| [`docs/program/RELEASE_GATE.md`](docs/program/RELEASE_GATE.md) | 发布门禁 |
+| [`docs/program/DECISION_LOG.md`](docs/program/DECISION_LOG.md) | 决策日志 |
+| [`docs/program/BRANCH_STRATEGY.md`](docs/program/BRANCH_STRATEGY.md) | 分支策略 |
+| [`docs/program/CONTRACT_GAP_REGISTER.md`](docs/program/CONTRACT_GAP_REGISTER.md) | 合同缺口登记 |
+| [`.github/agent-owners.yml`](.github/agent-owners.yml) | 代码所有权映射 |
+| [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md) | PR 模板 |
+| [`.github/ISSUE_TEMPLATE/agent-task.yml`](.github/ISSUE_TEMPLATE/agent-task.yml) | Agent 任务 Issue 模板 |
