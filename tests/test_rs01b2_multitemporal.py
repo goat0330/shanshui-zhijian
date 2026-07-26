@@ -41,7 +41,7 @@ from core.schemas.contracts.validation_policy import (
 )
 from core.protocols.asset_resolver import AssetRegistry
 from tools.sar_temporal_change_tool import (
-    SarTemporalChangeTool, _FallbackToPair, _is_multi_temporal_mode,
+    SarTemporalChangeTool, _is_multi_temporal_mode,
 )
 from tools.multi_temporal_background import ensure_no_nan_inf
 
@@ -470,7 +470,7 @@ class TestInsufficientHistory:
     """历史景不足时的回退策略。"""
 
     def test_fallback_to_pair(self, tmpdir):
-        """历史景不足 + fallback_to_pair → 双时相模式。"""
+        """历史景不足 + fallback_to_pair → 使用合成当前景完成双时相模式。"""
         registry = AssetRegistry()
         water_mask = np.zeros((H, W), dtype=bool)
 
@@ -483,11 +483,6 @@ class TestInsufficientHistory:
         current_refs = _create_current_scenes(tmpdir / "cur", 1, water_mask)
         for r in current_refs:
             registry.register(r)
-
-        # 还需要 BEFORE/AFTER 角色供 pair 降级
-        # 在 _execute_multi_temporal 检测不足 → 抛 _FallbackToPair
-        # → run() 捕获后走双时相流程
-        # 但双时相需要 BEFORE/AFTER 角色
 
         spec = TaskSpec(
             task_spec_id="sar-multi-temporal-v1", version="1.0.0",
@@ -506,16 +501,14 @@ class TestInsufficientHistory:
         ctx.tool_config["multi_temporal"]["insufficient_history_policy"] = "fallback_to_pair"
 
         tool = SarTemporalChangeTool(registry)
-        # 应该抛出 _FallbackToPair 异常，然后 run() 会尝试走 pair 流程
-        # 但由于没有 BEFORE/AFTER 绑定，pair 流程会失败
         result = tool.run(task, spec, ctx)
 
-        # fallback 到 pair 后因缺少 BEFORE/AFTER → INVALID_INPUT
-        # 或者我们应该添加 BEFORE/AFTER 绑定...
-        # 实际上: _execute_multi_temporal 抛 _FallbackToPair,
-        # run() 捕获后直接 fall through 到双时相解析
-        # 由于没有 BEFORE 绑定 → StopIteration → INVALID_INPUT
-        assert result.status in (ExecutionStatus.INVALID_INPUT, ExecutionStatus.FAILED)
+        # 当前实现使用最后一景历史作为 before，并将当前景中位数合成为
+        # after；因此降级应当产生一个合法的双时相感知结果。
+        assert result.status in (
+            ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS,
+            ExecutionStatus.SUCCEEDED_EMPTY,
+        )
 
     def test_no_data_policy(self, tmpdir):
         """历史景不足 + no_data → NO_DATA。"""
@@ -538,7 +531,7 @@ class TestInsufficientHistory:
 
         tool = SarTemporalChangeTool(registry)
         result = tool.run(task, spec, ctx)
-        assert result.status == ExecutionStatus.FAILED
+        assert result.status == ExecutionStatus.NO_DATA
         assert "insufficient_history" in result.diagnostics.get("error_type", "")
 
 
@@ -889,7 +882,23 @@ class TestNoNanInf:
 
         output_dir = Path(ctx.output_dir) / ctx.run_id / task.task_id
         raster_files = list(output_dir.glob("*.tif"))
-        assert len(raster_files) == 10, f"期望 10 个 GeoTIFF, 实际 {len(raster_files)}"
+        expected = {
+            "baseline_vh_median.tif",
+            "baseline_vh_mad.tif",
+            "history_valid_count.tif",
+            "historical_water_occurrence.tif",
+            "current_vh_median.tif",
+            "current_water_mask.tif",
+            "robust_zscore.tif",
+            "water_gain_mask.tif",
+            "water_loss_mask.tif",
+            "final_change_mask.tif",
+            "persistence_count.tif",
+            "persistence_ratio.tif",
+            "persistent_change_mask.tif",
+            "transient_change_mask.tif",
+        }
+        assert {path.name for path in raster_files} == expected
 
         for path in raster_files:
             with rasterio.open(path) as src:
