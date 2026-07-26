@@ -4,7 +4,11 @@
 >
 > 正式 integration：`integration/g0-g1-contract-freeze` @ `eb2f1a0`
 >
-> SOP 分支：`feature/codex-top-level-session-sop` @ `ea57f07`
+> SOP 分支：`feature/codex-top-level-session-sop` @ `1717659`
+>
+> **架构修正 v2**: GeoCode 项目上下文 ≠ Git worktree。同一项目上下文中的
+> 多个 Session 共享同一工作目录。五个 Agent 需要五个独立窗口/CLI。详见
+> `docs/program/TOP_LEVEL_SESSION_SOP.md` 禁止事项。
 
 ## 当前状态
 

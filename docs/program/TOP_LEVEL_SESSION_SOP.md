@@ -1,5 +1,9 @@
 # 五个顶层 Session 协同 SOP
 
+> **版本**: v2
+> **修正**: GeoCode 项目上下文 ≠ Git worktree。同一项目上下文中的多个 Session
+> 共享同一工作目录，无法实现 worktree 隔离。
+
 ## 目标
 
 建立五个可以独立对话、彼此隔离、长期复用的 GeoCode Session：
@@ -16,24 +20,57 @@
 A/B/C/D/E 都是 GeoCode 中手动创建的**普通顶层 Session**，不是
 Ensemble child session。Ensemble 只用于临时并行任务。
 
+## 核心架构规则（重要）
+
+**五个顶层 Session = 五个独立 GeoCode 项目上下文 + 五个 Git worktree + 五个长期分支**
+
+```
+GeoCode 项目上下文 A  →  worktree agent-a  →  feature/agent-a-*
+GeoCode 项目上下文 B  →  worktree agent-b  →  feature/agent-b-*
+GeoCode 项目上下文 C  →  worktree agent-c  →  feature/agent-c-*
+GeoCode 项目上下文 D  →  worktree agent-d  →  feature/agent-d-*
+GeoCode 项目上下文 E  →  worktree agent-e  →  feature/agent-e-*
+```
+
+**关键约束**: 同一 GeoCode 项目上下文下的多个普通顶层 Session 共享同一
+工作目录、Git 工作区和分支上下文，无法实现 worktree 隔离。因此每个 Agent
+必须使用**独立的 CLI 窗口或 GeoCode 窗口**，各自打开一个 worktree。
+
 ## 每个 Session 的固定绑定
 
-| Agent | Worktree | Branch 规则 | 默认模型 |
-|---|---|---|---|
-| A 感知算法 | `agent-a` | `feature/agent-a-*` | `deepseek/deepseek-v4-flash` |
-| B 工程可靠性 | `agent-b` | `feature/agent-b-*` | `deepseek/deepseek-v4-flash` |
-| C 事件治理 | `agent-c` | `feature/agent-c-*` | `deepseek/deepseek-v4-flash` |
-| D 产品工作台 | `agent-d` | `feature/agent-d-*` | `deepseek/deepseek-v4-flash` |
-| E 项目经理 | `agent-e` | `feature/agent-e-*` | `deepseek/deepseek-v4-flash` |
+| Agent | Worktree | Project 上下文 | 工作目录 | Branch 规则 | 默认模型 |
+|---|---|---|---|---|---|
+| A 感知算法 | `agent-a` | 独立窗口 A | `D:\...\agent-a` | `feature/agent-a-*` | `deepseek/deepseek-v4-flash` |
+| B 工程可靠性 | `agent-b` | 独立窗口 B | `D:\...\agent-b` | `feature/agent-b-*` | `deepseek/deepseek-v4-flash` |
+| C 事件治理 | `agent-c` | 独立窗口 C | `D:\...\agent-c` | `feature/agent-c-*` | `deepseek/deepseek-v4-flash` |
+| D 产品工作台 | `agent-d` | 独立窗口 D | `D:\...\agent-d` | `feature/agent-d-*` | `deepseek/deepseek-v4-flash` |
+| E 项目经理 | `agent-e` | 独立窗口 E | `D:\...\agent-e` | `feature/agent-e-*` | `deepseek/deepseek-v4-flash` |
 
-模型必须在 Session 或 `team_spawn(model=...)` 中显式指定，不依赖平台默认模型。
+> `D:\...\` 指 `D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\`
+>
+> 模型必须在 Session 或 `team_spawn(model=...)` 中显式指定，不依赖平台默认模型。
 
 ## 启动步骤
 
-1. 从最新 `integration/g0-g1-contract-freeze` 创建或核对五个 worktree。
-2. 在每个 worktree 中打开一个普通顶层 GeoCode Session。
-3. 粘贴 `agents/SESSION_START_PROMPT.md`，替换角色、目录和分支。
-4. 执行四项启动检查：
+1. **核对 worktree**: 从最新 `integration/g0-g1-contract-freeze` 创建或核对
+   五个 worktree（用 `New-AgentTopLevelWorktrees.ps1` 或手工创建）。
+2. **打开五个独立窗口**: 每个窗口以 CLI 或 GeoCode IDE 打开一个 worktree 目录：
+
+   ```powershell
+   # 窗口 A
+   cd D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-a
+   opencode
+
+   # 窗口 B
+   cd D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-b
+   opencode
+
+   # 以此类推 C/D/E……
+   ```
+
+3. **初始化身份**: 每个窗口粘贴对应的启动提示词（见
+   `agents/start-prompts/SESSION_START_AGENT_*.md`，已预填角色/目录/分支）。
+4. **执行四项启动检查**：
 
    ```powershell
    git status --short --branch
@@ -42,7 +79,16 @@ Ensemble child session。Ensemble 只用于临时并行任务。
    git log -1 --oneline
    ```
 
-5. 将 Session 名称、目录、分支和模型登记到 `agents/sessions.yml`。
+   确认 `rev-parse` 返回的顶层目录与当前 worktree 匹配，分支名合规。
+5. 将 Session 名称、目录、分支和模型登记到 `codex-top-level-session` 项目下的
+   `agents/sessions.yml`（由 E 负责维护）。
+
+## 禁止事项
+
+- ❌ 在同一 GeoCode 项目上下文中创建多个普通 Session 冒充五个 Agent
+- ❌ 多个 Session 轮流 `git switch` 到不同 Agent 分支（工作区污染）
+- ❌ 一个 GeoCode 窗口同时打开 A/B/C/D/E 的目录
+- ❌ 修改 `integration/g0-g1-contract-freeze`、`develop` 或 `main`
 
 ## 派单与交接
 
