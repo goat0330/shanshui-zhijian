@@ -1,34 +1,53 @@
-version: 1
+version: 2
 authority:
   final_decision_owner: user
   control_plane: PROGRAM_AGENT_E
   auto_merge: false
+staffing:
+  min_worker_sessions: 1
+  max_worker_sessions: 4
+  allow_partial_team: true
+  roles_assignable_per_work_package: true
+interaction:
+  persistent_sessions: visible_top_level
+  ensemble_members: child_sessions_via_team_view
+  human_may_message_any_session: true
 recovery:
   legacy_checkout: 'D:\研究生作业\人工智能实践比赛\8.1开始_山水智鉴比赛'
   branch: recovery/shared-worktree-event-c-20260726-104210
 sessions:
   PERCEPTION_AGENT_A:
     display_name: 感知算法_AGENT_A
+    enabled: false
+    status: idle
+    default_role: perception
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-a'
-    branch: feature/agent-a-candidate-clean
-    gate_commit: bc81e45
+    branch_policy: feature/agent-a-*
   RELIABILITY_AGENT_B:
     display_name: 工程可靠性_AGENT_B
+    enabled: false
+    status: idle
+    default_role: reliability
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-b'
-    branch: feature/agent-b-reliability-repair
-    gate_commit: e8bb744
+    branch_policy: feature/agent-b-*
   EVENT_AGENT_C:
     display_name: 事件治理_AGENT_C
+    enabled: false
+    status: idle
+    default_role: event
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-c'
-    branch: feature/agent-c-event-clean
-    gate_commit: 91e7b9c
+    branch_policy: feature/agent-c-*
   WORKBENCH_AGENT_D:
     display_name: 产品工作台_AGENT_D
+    enabled: false
+    status: idle
+    default_role: workbench
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-d'
-    branch: feature/agent-d-workbench-clean
-    gate_commit: d48204c
+    branch_policy: feature/agent-d-*
   PROGRAM_AGENT_E:
     display_name: 项目经理_AGENT_E
+    enabled: true
+    status: active
+    default_role: program_control
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-e'
-    branch: feature/agent-e-integration-control
-    gate_commit: recorded_in_status_board
+    branch_policy: feature/agent-e-*
