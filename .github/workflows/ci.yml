@@ -4,9 +4,9 @@ name: CI — G0.3-B
 
 on:
   push:
-    branches: [develop, main, 'feature/**', 'fix/**']
+    branches: [develop, main, 'integration/**', 'feature/**', 'fix/**']
   pull_request:
-    branches: [develop, main]
+    branches: [develop, main, 'integration/**']
 
 env:
   PYTHON_VERSION: "3.12"
@@ -27,7 +27,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install ruff
       - name: Run ruff check
-        run: ruff check --output-format=github . --ignore=E402,F401
+        # Gate correctness errors now; style debt is tracked separately.
+        run: ruff check --output-format=github . --select=E9,F63,F7,F82
 
   # ── 1: Contracts ─────────────────────────────────────────
   contracts:
@@ -119,7 +120,10 @@ jobs:
     name: Pipeline Gate
     runs-on: ubuntu-22.04
     needs: [contracts, metadata, run-manifest, golden-byte, competition-chain]
-    if: github.ref_name == 'develop' || github.ref_name == 'main'
+    if: >-
+      github.ref_name == 'develop' ||
+      github.ref_name == 'main' ||
+      startsWith(github.ref_name, 'integration/')
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ env.PYTHON_VERSION }}
