@@ -15,7 +15,8 @@ $agents = @(
     @{ Id = 'agent-b'; Branch = 'feature/agent-b-top-level-session' },
     @{ Id = 'agent-c'; Branch = 'feature/agent-c-top-level-session' },
     @{ Id = 'agent-d'; Branch = 'feature/agent-d-top-level-session' },
-    @{ Id = 'agent-e'; Branch = 'feature/agent-e-top-level-session' }
+    # Agent E keeps the existing governance branch; A-D use top-level-session branches.
+    @{ Id = 'agent-e'; Branch = 'feature/agent-e-dynamic-session-policy' }
 )
 
 foreach ($agent in $agents) {
