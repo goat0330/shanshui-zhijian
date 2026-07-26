@@ -1,4 +1,4 @@
-version: 2
+version: 3
 authority:
   final_decision_owner: user
   control_plane: PROGRAM_AGENT_E
@@ -24,39 +24,51 @@ interaction:
 recovery:
   legacy_checkout: 'D:\研究生作业\人工智能实践比赛\8.1开始_山水智鉴比赛'
   branch: recovery/shared-worktree-event-c-20260726-104210
+session_sop: docs/program/TOP_LEVEL_SESSION_SOP.md
+start_prompt: agents/SESSION_START_PROMPT.md
 sessions:
   PERCEPTION_AGENT_A:
     display_name: 感知算法_AGENT_A
-    enabled: false
-    status: idle
+    enabled: true
+    status: active
     default_role: perception
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-a'
+    current_branch: feature/agent-a-top-level-session
     branch_policy: feature/agent-a-*
+    baseline: integration/g0-g1-contract-freeze@eb2f1a0
   RELIABILITY_AGENT_B:
     display_name: 工程可靠性_AGENT_B
-    enabled: false
-    status: idle
+    enabled: true
+    status: active
     default_role: reliability
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-b'
+    current_branch: feature/agent-b-top-level-session
     branch_policy: feature/agent-b-*
+    baseline: integration/g0-g1-contract-freeze@eb2f1a0
   EVENT_AGENT_C:
     display_name: 事件治理_AGENT_C
-    enabled: false
-    status: idle
+    enabled: true
+    status: active
     default_role: event
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-c'
+    current_branch: feature/agent-c-top-level-session
     branch_policy: feature/agent-c-*
+    baseline: integration/g0-g1-contract-freeze@eb2f1a0
   WORKBENCH_AGENT_D:
     display_name: 产品工作台_AGENT_D
-    enabled: false
-    status: idle
+    enabled: true
+    status: active
     default_role: workbench
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-d'
+    current_branch: feature/agent-d-top-level-session
     branch_policy: feature/agent-d-*
+    baseline: integration/g0-g1-contract-freeze@eb2f1a0
   PROGRAM_AGENT_E:
     display_name: 项目经理_AGENT_E
     enabled: true
     status: active
     default_role: program_control
     worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-e'
+    current_branch: feature/agent-e-dynamic-session-policy
     branch_policy: feature/agent-e-*
+    baseline: integration/g0-g1-contract-freeze@eb2f1a0
