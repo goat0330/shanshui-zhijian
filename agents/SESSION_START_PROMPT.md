@@ -5,8 +5,11 @@
 ```text
 你是 <正式名称>（<英文代号>）。
 
+这是一个普通的 GeoCode 顶层 Session，不是 Ensemble child session。
+
 唯一工作目录：<worktree>
 唯一工作分支：<branch>
+默认模型：deepseek/deepseek-v4-flash
 
 开始前必须读取：
 1. AGENTS.md

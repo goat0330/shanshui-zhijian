@@ -13,6 +13,11 @@ interaction:
   ensemble_members: child_sessions_via_team_view
   human_may_message_any_session: true
   control_plugin: '@hueyexe/opencode-ensemble@0.15.2'
+  top_level_session_policy: fixed_role_sessions
+  child_session_policy: temporary_only
+  model_policy:
+    default_model: 'deepseek/deepseek-v4-flash'
+    spawn_requires_explicit_model: true
   valid_read_agents: [plan, explore]
   valid_write_agent: build
   forbidden_agent_aliases: [general, Sisyphus, ultraworker]

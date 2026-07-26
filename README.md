@@ -181,6 +181,7 @@ shanshui-zhijian/
 | [`docs/program/RELEASE_GATE.md`](docs/program/RELEASE_GATE.md) | 发布门禁 |
 | [`docs/program/DECISION_LOG.md`](docs/program/DECISION_LOG.md) | 决策日志 |
 | [`docs/program/BRANCH_STRATEGY.md`](docs/program/BRANCH_STRATEGY.md) | 分支策略 |
+| [`docs/program/TOP_LEVEL_SESSION_SOP.md`](docs/program/TOP_LEVEL_SESSION_SOP.md) | 五个可独立对话的顶层 Session SOP |
 | [`docs/program/CONTRACT_GAP_REGISTER.md`](docs/program/CONTRACT_GAP_REGISTER.md) | 合同缺口登记 |
 | [`.github/agent-owners.yml`](.github/agent-owners.yml) | 代码所有权映射 |
 | [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md) | PR 模板 |
