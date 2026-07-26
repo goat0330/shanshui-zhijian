@@ -1,85 +1,140 @@
-# 五 Session 运行手册
+# GeoCode 持久化多 Agent 运行手册
 
-## 1. 组织关系
+> 唯一现行 Session SOP。旧顶层 Session 方案已废止，历史可从 Git 获取。
 
-用户是最终决策人和 Merge Gate Owner。项目经理_AGENT_E 是长期控制面
-Session；A、B、C、D 是长期执行 Session。E 可以派单、审计和给出
-`MERGE_READY`，但没有用户批准不得合并 integration、develop 或 main。
+## 1. 正式运行形态
 
-## 2. 固定身份与动态职责
+```text
+用户（最终决策与 Merge Gate）
+└── 项目经理_AGENT_E（GeoCode 顶层 Session）
+    ├── perception-agent-a（持久化 child Session + 独立 worktree）
+    ├── engineering-agent-b（持久化 child Session + 独立 worktree）
+    ├── event-agent-c（持久化 child Session + 独立 worktree）
+    └── product-agent-d（持久化 child Session + 独立 worktree）
+```
 
-Agent ID、长期 Session 和 worktree 保持稳定；本轮职责、Work Package 和
-branch 可以变化。A 可以从遥感转为计算机视觉，前提是 E 重新签发任务单，
-更新允许目录、输入输出合同、Gate 和下游交接。
+PROGRAM_AGENT_E 是唯一顶层控制面 Session。A/B/C/D 是持久化 Ensemble
+child Session。用户可以从侧栏进入 A/B/C/D 直接对话；E 使用 `team_message`、
+`team_status`、`team_results` 和 `team_view` 编排成员。
 
-| Session | Worktree | Branch policy |
-|---|---|---|
-| 感知算法_AGENT_A | `D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-a` | `feature/agent-a-*` |
-| 工程可靠性_AGENT_B | `D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-b` | `feature/agent-b-*` |
-| 事件治理_AGENT_C | `D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-c` | `feature/agent-c-*` |
-| 产品工作台_AGENT_D | `D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-d` | `feature/agent-d-*` |
-| 项目经理_AGENT_E | `D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-e` | `feature/agent-e-*` |
+重启后先激活团队；若成员未恢复，调用 `team_reconcile`，不得重复 spawn
+同名成员。
 
-旧目录 `8.1开始_山水智鉴比赛` 是只读恢复现场。不得继续让多个 Session
-在该目录写代码。
+## 2. 启动前提
 
-## 3. 每次启动的四项检查
+GeoCode 必须打开正式项目根目录：
+
+`D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\integration`
+
+启动 E 前确认：
 
 ```powershell
-git status --short --branch
-git branch --show-current
 git rev-parse --show-toplevel
+git branch --show-current
+git status --short
 git log -1 --oneline
 ```
 
-若目录或分支不符合上表策略，立即停止。若工作区包含不属于本 Session 的
-改动，也立即停止并通知项目经理_AGENT_E。
+期望仓库为 `integration` 根目录，分支为 `integration/g0-g1-contract-freeze`，
+工作树无未归属修改。
 
-## 4. 动态启停
+## 3. Team 与成员参数
 
-每轮允许只启用 1 至 4 个执行 Session，不要求 A/B/C/D 全部参与。E 在
-`agents/sessions.yml` 中把参加本轮的 Session 标记为 `enabled: true`，
-并为其签发 Work Package；未参加者标记为 `enabled: false`、保持 `idle`，
-但其长期会话和 worktree 不删除，也不得领取或修改代码。
+- Team：`shanshui-zhijian-dev`
+- `persistent: true`
+- A/B/C/D：`agent=build`
+- `worktree=true`
+- `model=deepseek/deepseek-v4-flash`
+- `mergeOnCleanup=false`
+- 禁止 `general`、`Sisyphus`、`ultraworker`
 
-职责变更不通过改 Agent ID 实现，而通过新任务单实现。任务完成后 Session
-回到 `idle`，worktree 保留，branch 在下一轮开始时重新核对。
+每个成员只 spawn 一次。允许只启用 1—4 个成员；未参与本轮的成员保持 idle。
 
-## 5. 任务协议
+## 4. Worktree 路径
 
-E 派单必须包含：Work Package、基线 Commit、允许/禁止目录、输入/输出
-合同、测试命令、Gate、停止条件和下游 Agent。执行 Agent 完成后使用
-`agents/HANDOFF_TEMPLATE.md` 汇报 Commit、测试、风险和待办。
+目标 Worktree 路径：
 
-## 6. Git 流程
+| 成员 | 期望路径 |
+|------|----------|
+| perception-agent-a | `..\subsessions\agent-a` |
+| engineering-agent-b | `..\subsessions\agent-b` |
+| event-agent-c | `..\subsessions\agent-c` |
+| product-agent-d | `..\subsessions\agent-d` |
 
-执行 Agent 只在自己的 feature branch 提交和推送。E 依次审查 B、A、C、
-D；每次只处理一个候选合并，并在临时集成视图运行全量验证。未经用户
-批准，不执行正式 integration 合并。
+如 Ensemble 自动生成 Worktree，不得手工移动或重命名生成目录。记录其真实
+绝对路径并更新 `agents/sessions.yml`。确认四个路径互不相同，且均不等于
+integration 根目录或旧 worktree（`agent-a/` ~ `agent-e/`）。
 
-## 7. 两种 Session 交互面
+## 5. Worktree 验收
 
-长期 A/B/C/D/E 使用桌面客户端顶层可见 Session，用户可以逐个进入并直接
-对话。Ensemble 动态成员是 child session，可通过 `team_view` 进入完整
-会话，也可以使用真实 Session ID 继续对话，但不保证显示为桌面左栏顶层条目。
+成员第一次响应必须报告：
 
-因此长期岗位使用“固定可见 Session”，临时审计和短周期并行任务使用
-“Ensemble 动态团队”，两者通过 Git、状态板和 Handoff 汇合。
+```powershell
+git rev-parse --show-toplevel
+git branch --show-current
+git status --short
+git log -1 --oneline
+```
 
-## 8. OpenCode Ensemble 边界
+E 必须确认四个成员的 repo root 和 branch 均互不相同，且都不是
+`integration/g0-g1-contract-freeze`、`develop` 或 `main`。
+未通过前禁止写代码。成员不得 `git switch`，不得读取或修改其他成员 worktree。
 
-Ensemble 仅作为新的隔离试验控制面使用，不接管或改写旧 Session 数据。
-配置必须固定 `mergeOnCleanup: false`。禁止 `team_merge`；成员只提交、
-推送、发送 handoff。任何自动创建 worktree 的结果都要先检查路径和分支。
+## 6. 旧 Worktree 与目录
 
-## 9. 故障恢复
+以下旧目录已退出正式开发体系，保留为只读恢复现场：
 
-共享目录事故的只读恢复点：
+| 目录 | 状态 | 说明 |
+|------|------|------|
+| `D:\...\8.1开始_山水智鉴比赛` | BLOCKED_DIRTY | 旧 checkout，保留不动 |
+| `D:\...\agent-a` — `agent-e` | 已移除 | 旧顶层 Session worktree，已 archive |
+| `D:\...\codex-top-level-session` | 已移除 | 旧治理 branch worktree，已 archive |
+| `recovery/...` branch | KEEP_RECOVERY | 保留不动 |
+| `archive/legacy-*` branch | 只读存档 | 在远端 GitHub 可查询 |
 
-`recovery/shared-worktree-event-c-20260726-104210`
+## 7. 派单与回收
 
-备份 Bundle：
+E 每次只向一个成员派发一个 Work Package，内容必须包含：基线 Commit、目标、
+允许/禁止目录、输入/输出合同、测试、Gate、停止条件和下游 Agent。正式任务单
+写入 `agents/inbox/`，运行时通过 `team_message` 发送。
 
-`D:\研究生作业\人工智能实践比赛\山水智鉴_多Session恢复备份\recovery_shared-worktree-event-c-20260726-104210.bundle`
+成员完成后：
+1. 在自己的 Ensemble worktree 分支提交
+2. 按 `agents/HANDOFF_TEMPLATE.md` 返回 Commit、测试、风险和未完成项
+3. 进入 idle，等待 E Review
+4. 不调用 merge、cleanup 或 shutdown
 
-不得删除旧目录、recovery branch 或 bundle，直到 v0.1.0 发布且用户确认。
+## 8. 合并权限
+
+E 可以审计 diff、运行集成测试并给出 `MERGE_READY`。没有用户明确批准：
+- 不调用 `team_merge`
+- 不执行 `team_cleanup`
+- 不合并 integration、develop、main
+- 不删除 child Session、worktree、recovery branch 或 bundle
+
+一次只审核一个成员分支，推荐依赖顺序为 B → A → C → D；如果工作包之间没有
+合同依赖，E 可以建议并行开发，但合并仍串行。
+
+## 9. 重启与清理
+
+重启后：
+1. 打开同一正式项目根目录
+2. 激活 `shanshui-zhijian-dev`
+3. 查看 `team_status`
+4. 必要时调用一次 `team_reconcile`
+5. 检查侧栏、历史、成员 worktree 和 branch
+6. 缺失成员才允许重新 spawn
+
+`team_shutdown` 只停止执行，不删除会话。`team_cleanup` 会归档成员并清理团队，
+只在项目阶段结束且用户批准时使用。
+
+## 10. 状态源
+
+- 实时 Session 状态：`http://127.0.0.1:4747/`
+- 正式配置：`agents/sessions.yml`
+- 人类可读状态：`docs/program/STATUS_BOARD.md`
+- 角色边界：`agents/*_AGENT_*.md`
+- 决策记录：`docs/program/DECISION_LOG.md`
+- 代码事实：Git Commit、PR、CI 和测试日志
+
+Dashboard 只表示运行状态，不替代 Git、CI 或 Merge Gate。
