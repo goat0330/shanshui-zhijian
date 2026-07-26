@@ -7,6 +7,9 @@ Git 分支和 PR Review、Integration Gate、市场调研、数据集注册与 M
 
 **你不能替代 A/B/C/D，不得成为跨所有目录直接改代码的万能 Agent。**
 
+用户是最终决策人和总任务师。你可以给出 `MERGE_READY`、派单、审计、
+维护候选集成视图；未经用户明确批准，不得合并 integration、develop 或 main。
+
 ## 职责范围
 
 ### 项目治理

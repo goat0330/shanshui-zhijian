@@ -1,104 +1,46 @@
 # 山水智鉴 — Agent 状态面板
 
-> **更新**: 2026-07-26
-> **基线**: integration/g0-g1-contract-freeze @ 1fe33b0
-> **审查**:
->   - `develop` @ 1fe33b0
->   - `main` @ d00a94b
+> 更新：2026-07-26
+>
+> 正式 integration：`integration/g0-g1-contract-freeze` @ `df7b3e7`（未改动）
+>
+> 候选集成视图：`feature/agent-e-integration-control`
 
----
+## 当前状态
 
-## 五 Agent 状态表
+| Agent | Work Package | Clean Branch | Head | 已验证 Gate | 状态 |
+|---|---|---|---|---|---|
+| 工程可靠性_AGENT_B | G0.3-B + Workbench CI | `feature/agent-b-reliability-repair` | `e8bb744` | Python 183 passed, 1 skipped；Ruff correctness；远程 CI passed | `MERGE_READY` |
+| 感知算法_AGENT_A | G0.3-A Candidate v0.3 | `feature/agent-a-candidate-clean` | `bc81e45` | 依赖对齐后 108 passed；远程 CI passed | `MERGE_READY` |
+| 事件治理_AGENT_C | G1.1-C Event Integrity | `feature/agent-c-event-clean` | `91e7b9c` | C 域 72 passed；依赖对齐后 141 passed；远程 CI passed | `MERGE_READY` |
+| 产品工作台_AGENT_D | D0-D9 Workbench V0 | `feature/agent-d-workbench-clean` | `d48204c` | Vitest 43/43；Build；Playwright 24/24；远程 Python CI passed | `MERGE_READY` |
+| 项目经理_AGENT_E | MULTISESSION-01 | `feature/agent-e-integration-control` | 当前 branch HEAD | 治理、候选集成、隔离 OpenCode 控制面；远程 CI passed | `MERGE_READY` |
 
-| Agent | Work Package | Branch | Commit | PR | CI | Ownership | Gate | Blocker |
-|-------|-------------|--------|--------|:--:|:--:|:---------:|:----:|:-------:|
-| **E** | GOV-02 治理基线 | `feature/agent-e-program-governance` | *(当前)* | - | - | ✅ 允许 | GOV-02 | 等待创建 PR |
-| **B** | G0.3 Reliability | `origin/feature/agent-b-g0.3-reliability-final` | `c32e753` | - | - | ⚠️ 含 `.github/workflows/ci.yml` | G0.3-B | 未合并 |
-| **A** | G0.3 Candidate | `origin/feature/agent-a-g0.3-candidate-final` | `0a3c6d1` | - | - | ⚠️ 含 `services/` `tests/` 文件 | G0.3-A | 未合并 |
-| **C** | G1.1 Event | `origin/feature/agent-c-g1.1-event-integrity` | `bc0a830` | - | - | ✅ 仅事件域文件 | G1.1-C | 未合并 |
-| **D** | D0 Workbench | `feature/agent-d-workbench-v0` | `bdfc121` (本地) | - | - | ✅ 仅 frontend+workbench_api | D0 | 未推送 |
+## 已核验事实
 
----
+- 原五个 OpenCode/GeoCode Session 曾共用一个 working tree，产生 HEAD 与
+  分支名错位；根因已由 reflog 和工作区状态确认。
+- 原共享目录保持不变，并建立 recovery branch 与经过 `git bundle verify`
+  的恢复包。
+- A/B/C/D/E 现在各有独立 worktree；正式 integration 尚未合入任何 clean
+  branch。
+- C 和 D 的 clean branch 为便于端到端验证，本地包含上游依赖合并；正式
+  集成仍必须按 B → A → C → D 顺序执行。
 
-## 远程 Agent 分支清单
+## 当前阻断
 
-### 感知算法_AGENT_A 分支
+1. 正式 integration 合并等待用户批准。
+2. Ensemble 只能用于新建的隔离团队，不能自动接管五个旧 sibling Session。
+3. 外部 CARTO 底图在受限网络下可能不可达，但 Mock 工作台核心 E2E 不受影响。
 
-| Branch | Head | Ahead | Behind | 文件数 | 跨目录风险 |
-|--------|:----:|:-----:|:------:|:------:|:----------:|
-| `agent-a-g0-lineage` | cd1fc66 | 1 | 1 | _(衍生基线)_ | 低 |
-| `agent-a-g0.1-lineage` | 9dd30c3 | 7 | 7 | _(中间版本)_ | 中 |
-| **`agent-a-g0.3-candidate-final`** | **0a3c6d1** | **7** | **7** | **23** | **⚠️ 含 services/, tools/ 等跨域文件** |
-| `agent-a-perception-candidate` | cff8508 | 15 | 15 | 36 | ⚠️ 含 aoi-data-prep/ 等 |
+## 下一 Gate
 
-### 工程可靠性_AGENT_B 分支
+1. 用户审查本报告并决定是否授权 B → A → C → D 逐项合入 integration。
+2. 每次正式合入后重新运行 Python、前端单测、Build 和 Playwright。
+3. 用户决定是否在新的官方 OpenCode Agent E Session 中启用 Ensemble 团队。
 
-| Branch | Head | Ahead | Behind | 文件数 | 跨目录风险 |
-|--------|:----:|:-----:|:------:|:------:|:----------:|
-| `agent-b-data-competition` | 8f5c816 | 3 | 3 | 14 | 低 |
-| `agent-b-g0-reliability` | 2cd380e | 1 | 1 | _(衍生)_ | 低 |
-| **`agent-b-g0.3-reliability-final`** | **c32e753** | **2** | **2** | **13** | **⚠️ 含 CI/YML 文件** |
+## 不再作为当前状态源的旧分支
 
-### 事件治理_AGENT_C 分支
-
-| Branch | Head | Ahead | Behind | 文件数 | 跨目录风险 |
-|--------|:----:|:-----:|:------:|:------:|:----------:|
-| `agent-c-event-review` | c0ea835 | 1 | 1 | 13 | ✅ 仅事件域 |
-| **`agent-c-g1.1-event-integrity`** | **bc0a830** | **3** | **3** | **19** | **⚠️ 含 tools/ 文件 (多时相)** |
-
-### 产品工作台_AGENT_D 分支
-
-| Branch | Head | Ahead | Behind | 文件数 | 跨目录风险 |
-|--------|:----:|:-----:|:------:|:------:|:----------:|
-| `agent-d-workbench-v0` (本地) | bdfc121 | 1 | 0 | ~100+ | ✅ 仅 frontend+workbench_api |
-
-### 其他分支
-
-| Branch | Head | Ahead | Behind | 说明 |
-|--------|:----:|:-----:|:------:|------|
-| `aoi-data-prep` | ee5152b | 10 | 10 | ⚠️ 含感知+评测混合文件 |
-
----
-
-## 跨 Agent 文件冲突检测
-
-| 文件 | 冲突 Agent | 当前 Owner | 建议处理 |
-|------|:----------:|:----------:|----------|
-| `core/schemas/contracts/candidate.py` | A, C (agent-c-event-review), A (perception) | A | A 为主，C 只读消费 |
-| `core/schemas/contracts/event.py` | C, A (g0.3-candidate-final) | C | C 为主，A 中的 event.py 应为误写入 |
-| `tools/multi_temporal_background.py` | A (perception), C (g1.1-event) | A | A 为主，C 的改动应合并到 A |
-| `tools/persistence_background.py` | A (perception), A (g0.3), C (g1.1) | A | A 为主 |
-| `tools/sar_temporal_change_tool.py` | A (perception), A (g0.3), C (g1.1) | A | A 为主 |
-| `tests/test_rs01b3_persistence.py` | A, C | A | A 为主 |
-
----
-
-## 已废弃 / 建议归档的分支
-
-| 分支 | 被取代者 | 原因 |
-|------|----------|------|
-| `agent-a-g0-lineage` | `g0.3-candidate-final` | 中间版本 |
-| `agent-a-g0.1-lineage` | `g0.3-candidate-final` | 中间版本 |
-| `agent-a-perception-candidate` | `g0.3-candidate-final` | 混合分支 |
-| `agent-b-data-competition` | `g0.3-reliability-final` | 中间版本 |
-| `agent-b-g0-reliability` | `g0.3-reliability-final` | 中间版本 |
-| `agent-c-event-review` | `g1.1-event-integrity` | 早期版本 |
-| `backend-services` | (merged to develop) | 已合并 |
-| `core-schemas` | (merged to develop) | 已合并 |
-| `frontend` | (merged to develop) | 已合并 |
-| `rs-pipeline` | (merged to develop) | 已合并 |
-| `smart-city` | (merged to develop) | 已合并 |
-| `tests` | (merged to develop) | 已合并 |
-| `iaic-integration` | (merged to develop) | 已合并 |
-
----
-
-## 建议保留的源 Commit
-
-| Commit | 分支 | 理由 |
-|--------|------|------|
-| `1fe33b0` | develop | 当前 develop 基线 |
-| `0a3c6d1` | agent-a-g0.3-candidate-final | Agent A 最新候选冻结 |
-| `c32e753` | agent-b-g0.3-reliability-final | Agent B 最新可靠性 |
-| `bc0a830` | agent-c-g1.1-event-integrity | Agent C 最新事件完整性 |
-| `bdfc121` | agent-d-workbench-v0 | Agent D 工作台完成 |
+旧 `agent-a-*`、`agent-b-*`、`agent-c-*` 混合分支和旧 D clone 只保留为
+历史来源，不再继续开发，也不得直接合入 integration。具体恢复过程见
+`MULTI_SESSION_OPERATIONS.md`。

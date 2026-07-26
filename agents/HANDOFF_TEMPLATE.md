@@ -1,6 +1,6 @@
 # Agent 交接模板
 
-> **模板版本**: v1 (GOV-02)
+> **模板版本**: v2 (MULTISESSION-01)
 > **用途**: Agent 间任务交接的标准格式。交接收发双方都必须记录到 DECISION_LOG。
 
 ---
@@ -14,6 +14,9 @@
 | 接收 Agent | |
 | 交接时间 | |
 | 前置任务 ID | |
+| Worktree | |
+| Branch | |
+| Head Commit | |
 
 ---
 
@@ -67,3 +70,11 @@
 |-------|:----:|:----:|
 | 发出方： | PASS / CONDITIONALLY_PASSED | (日期+Commit) |
 | 接收方： | ACCEPTED / REJECTED | (日期+Commit) |
+
+## 8. Session 隔离声明
+
+- [ ] 本次只在登记 worktree 工作
+- [ ] 未切换到其他 Agent 分支
+- [ ] 未修改禁止目录
+- [ ] 未合并 integration/develop/main
+- [ ] 工作区状态和未提交文件已如实列出

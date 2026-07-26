@@ -17,12 +17,12 @@
 
 ## 集成步骤
 
-### 第 0 步：Governance Bootstrap（当前）
+### 第 0 步：Governance Bootstrap（已完成，待用户批准正式合入）
 
 | 内容 | 详情 |
 |------|------|
-| 分支 | `feature/agent-e-program-governance` |
-| 基线 | `integration/g0-g1-contract-freeze` @ 1fe33b0 |
+| 分支 | `feature/agent-e-integration-control` |
+| 基线 | `integration/g0-g1-contract-freeze` @ df7b3e7 |
 | 交付 | AGENTS.md, agents/, docs/program/, .github/ |
 | Gate | 治理文件验证 + YAML 可解析 + 文档一致性 |
 | 目标 | → `integration/g0-g1-contract-freeze` |
@@ -31,7 +31,7 @@
 
 | 内容 | 详情 |
 |------|------|
-| 分支 | `feature/agent-b-g0.3-reliability-clean` |
+| 分支 | `feature/agent-b-reliability-repair` @ `e8bb744` |
 | 基线 | `integration/g0-g1-contract-freeze` (最新) |
 | 范围 | 仅 `competition/`, `core/schemas/contracts/run_manifest.py`, `core/schemas/contracts/sar_metadata.py`, `core/schemas/contracts/submission_envelope.py`, `.github/workflows/` |
 | Gate | Metadata 可追踪、RunManifest 哈希一致、CI 不吞失败、无 A/C/D 文件 |
@@ -41,7 +41,7 @@
 
 | 内容 | 详情 |
 |------|------|
-| 分支 | `feature/agent-a-g0.3-candidate-clean` |
+| 分支 | `feature/agent-a-candidate-clean` @ `bc81e45` |
 | 基线 | `integration/g0-g1-contract-freeze` (最新) |
 | 范围 | 仅 `tools/`, `core/schemas/contracts/candidate.py`, `core/schemas/contracts/perception.py`, `core/protocols/` |
 | Gate | Candidate v0.3 冻结、双时相回归不变、多时相测试通过、无 B/C/D 文件 |
@@ -51,7 +51,7 @@
 
 | 内容 | 详情 |
 |------|------|
-| 分支 | `feature/agent-c-g1.1-event-clean` |
+| 分支 | `feature/agent-c-event-clean` @ `91e7b9c` |
 | 基线 | `integration/g0-g1-contract-freeze` (最新) |
 | 范围 | 仅 `services/`, `core/schemas/contracts/event.py`, `core/schemas/contracts/evidence.py`, `core/schemas/contracts/review.py`, `core/schemas/contracts/replay.py`, `core/compatibility/` |
 | Gate | 幂等、事务原子、Replay 不重复、Candidate 不被修改、无 A/B/D 文件 |
@@ -61,7 +61,7 @@
 
 | 内容 | 详情 |
 |------|------|
-| 分支 | `feature/agent-d-workbench-clean` |
+| 分支 | `feature/agent-d-workbench-clean` @ `d48204c` |
 | 基线 | `integration/g0-g1-contract-freeze` (最新) |
 | 范围 | 仅 `frontend/`, `apps/workbench_api/`, `docs/product/` |
 | Gate | Mock/Real 双模式、OpenAPI 类型生成、Playwright 通过、不修改领域合同 |
@@ -87,6 +87,7 @@
 
 - 将 `integration/g0-g1-contract-freeze` 合并到 `develop`
 - 发布 Release Candidate
+- 必须获得用户明确批准
 
 ### 第 8 步：真实 AOI Gate + 完整 CI + 演示验收 → main → tag v0.1.0
 
@@ -95,6 +96,7 @@
 - 产品演示验收
 - 合并到 `main`
 - 打标签 `v0.1.0`
+- 必须获得用户明确批准
 
 ---
 
