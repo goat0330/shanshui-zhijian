@@ -1,46 +1,46 @@
 # 山水智鉴 — Agent 状态面板
 
-> 更新：2026-07-26
+> 更新：2026-07-26（v0.1.0 发布后）
 >
-> 正式 integration：`integration/g0-g1-contract-freeze` @ `df7b3e7`（未改动）
+> 正式发布：`v0.1.0` @ `f950850`（已推送 tag）
 >
-> 候选集成视图：`feature/agent-e-integration-control`
+> develop：`f950850`（integration 已快进合并）
+>
+> main：PR #14 待合并（受保护分支，需通过 PR）
 
 ## 当前状态
 
-| Agent | Work Package | Clean Branch | Head | 已验证 Gate | 状态 |
+| Agent | Work Package | 最终 Clean Branch | 最终 Head | 最终 Gate | 状态 |
 |---|---|---|---|---|---|
-| 工程可靠性_AGENT_B | G0.3-B + Workbench CI | `feature/agent-b-reliability-repair` | `e8bb744` | Python 183 passed, 1 skipped；Ruff correctness；远程 CI passed | `MERGE_READY` |
-| 感知算法_AGENT_A | G0.3-A Candidate v0.3 | `feature/agent-a-candidate-clean` | `bc81e45` | 依赖对齐后 108 passed；远程 CI passed | `MERGE_READY` |
-| 事件治理_AGENT_C | G1.1-C Event Integrity | `feature/agent-c-event-clean` | `91e7b9c` | C 域 72 passed；依赖对齐后 141 passed；远程 CI passed | `MERGE_READY` |
-| 产品工作台_AGENT_D | D0-D9 Workbench V0 | `feature/agent-d-workbench-clean` | `d48204c` | Vitest 43/43；Build；Playwright 24/24；远程 Python CI passed | `MERGE_READY` |
-| 项目经理_AGENT_E | MULTISESSION-01 | `feature/agent-e-integration-control` | 当前 branch HEAD | 治理、候选集成、隔离 OpenCode 控制面；远程 CI passed | `MERGE_READY` |
+| **B** 工程可靠性_AGENT_B | G0.3-B + Workbench CI | `feature/agent-b-reliability-repair` | `f0cfdaf` | CI passed | ✅ 已合入 integration |
+| **A** 感知算法_AGENT_A | G0.3-A Candidate v0.3 | `feature/agent-a-integration-regression` | `eaa9849` | CI passed | ✅ 已合入 integration |
+| **C** 事件治理_AGENT_C | G1.1-C Event Integrity | `feature/agent-c-event-clean` | `8a37ef7` | CI passed | ✅ 已合入 integration |
+| **D** 产品工作台_AGENT_D | D0-D9 Workbench V0 | `feature/agent-d-workbench-clean` | `9ebc893` | CI passed | ✅ 已合入 integration |
+| **E** 项目经理_AGENT_E | MULTISESSION-02 | `feature/agent-e-dynamic-session-policy` | `576c248` | CI passed | ✅ 已合入 integration |
 
 ## 已核验事实
 
-- 原五个 OpenCode/GeoCode Session 曾共用一个 working tree，产生 HEAD 与
-  分支名错位；根因已由 reflog 和工作区状态确认。
-- 原共享目录保持不变，并建立 recovery branch 与经过 `git bundle verify`
-  的恢复包。
-- A/B/C/D/E 现在各有独立 worktree；正式 integration 尚未合入任何 clean
-  branch。
-- C 和 D 的 clean branch 为便于端到端验证，本地包含上游依赖合并；正式
-  集成仍必须按 B → A → C → D 顺序执行。
+- 五 Agent 按 B → A → C → D → E 顺序全部合入 `integration/g0-g1-contract-freeze`。
+- 远程 CI 全部通过：Python 369 passed + 2 skipped，Vitest 43/43，Playwright 24/24，前端 Build 通过。
+- 用户批准后，integration 已快进合并至 develop（f950850）。
+- main 受保护，PR #14 已创建等待合并。
+- `v0.1.0` 标签已推送。
+- 原共享目录保持不变，recovery branch 与 bundle 仍保留。
 
 ## 当前阻断
 
-1. 正式 integration 合并等待用户批准。
-2. Ensemble 只能用于新建的隔离团队，不能自动接管五个旧 sibling Session。
-3. 外部 CARTO 底图在受限网络下可能不可达，但 Mock 工作台核心 E2E 不受影响。
+1. **main 保护**：develop → main 需通过 PR #14 合并。
+2. **PROJ 本地环境冲突**：本地 `venv` 中 rasterio 与 PostGIS PROJ 版本不匹配，不影响 CI。
+3. Ensemble 试验待 v0.1.0 发布稳定后进行。
 
 ## 下一 Gate
 
-1. 用户审查本报告并决定是否授权 B → A → C → D 逐项合入 integration。
-2. 每次正式合入后重新运行 Python、前端单测、Build 和 Playwright。
-3. 用户决定是否在新的官方 OpenCode Agent E Session 中启用 Ensemble 团队。
+1. 合并 PR #14（develop → main）。
+2. 启动 Ensemble 隔离试验（新 OpenCode 环境 + `opencode-ensemble@0.15.2`）。
+3. 开始 V0.2 开发任务分配。
 
-## 不再作为当前状态源的旧分支
+## 已归档分支
 
-旧 `agent-a-*`、`agent-b-*`、`agent-c-*` 混合分支和旧 D clone 只保留为
-历史来源，不再继续开发，也不得直接合入 integration。具体恢复过程见
-`MULTI_SESSION_OPERATIONS.md`。
+旧 `agent-a-*`、`agent-b-*`、`agent-c-*` 混合分支、旧 D clone 以及旧
+`feature/agent-e-integration-control` 保留为历史来源，不再继续开发。
+具体恢复过程见 `MULTI_SESSION_OPERATIONS.md`。

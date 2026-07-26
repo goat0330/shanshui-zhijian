@@ -73,6 +73,25 @@
 
 ---
 
+## V0.1.0 发布决策 (2026-07-26)
+
+### D-RELEASE-001: v0.1.0 首次集成发布
+
+- **决策**: 将 `integration/g0-g1-contract-freeze` (f950850) 合并至 `develop` 和 `main`，并打 tag `v0.1.0`
+- **理由**: 五 Agent G0-G1 合同冻结完毕，全部带 CI 验证的 Clean Branch 已就绪
+- **包含内容**:
+  - B: 工程可靠性 — Metadata 可追溯、RunManifest 哈希一致、Competition 链、CI 流水线
+  - A: 感知算法 — Candidate v0.3 冻结、Observation→Candidate 完整、双时相+多时相+持续性测试
+  - C: 事件治理 — 幂等 intake、事务原子、Event v1/v2 兼容、Replay 不重复
+  - D: 产品工作台 — React + MapLibre、Mock/Real 双模式、Playwright E2E
+  - E: 项目经理 — 五 Agent 治理框架、Session 隔离、Release Gate、Decision Log
+- **验证状态**: 远程 CI: Python 369 passed + 2 skipped, Vitest 43/43, Playwright 24/24, Build 通过
+- **影响范围**: develop, main, v0.1.0 tag
+- **决策者**: 用户批准；项目经理_AGENT_E 执行
+- **状态**: ✅ develop 已合并 (f950850)，tag v0.1.0 已推送，PR #14 待合并至 main
+
+---
+
 ## 历史决策（来自 山水智鉴_项目驾驶舱.md）
 
 | ID | 决策 | 状态 |

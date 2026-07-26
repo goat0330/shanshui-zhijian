@@ -1,8 +1,9 @@
 # 山水智鉴 — 多 Agent 治理框架
 
-> **版本**: v0.3 (MULTISESSION-02)
+> **版本**: v0.1.0 (RELEASE)
 > **最新更新**: 2026-07-26
-> **基线分支**: `integration/g0-g1-contract-freeze` (HEAD: `caef195`)
+> **发布基线**: `v0.1.0` @ `f950850`（已推送 tag）
+> **当前 develop**: `f950850`（integration 已快进合并）
 > **控制分支**: `feature/agent-e-dynamic-session-policy`
 
 ---
