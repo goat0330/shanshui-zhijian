@@ -12,6 +12,10 @@ interaction:
   persistent_sessions: visible_top_level
   ensemble_members: child_sessions_via_team_view
   human_may_message_any_session: true
+  control_plugin: '@hueyexe/opencode-ensemble@0.15.2'
+  valid_read_agents: [plan, explore]
+  valid_write_agent: build
+  forbidden_agent_aliases: [general, Sisyphus, ultraworker]
 recovery:
   legacy_checkout: 'D:\研究生作业\人工智能实践比赛\8.1开始_山水智鉴比赛'
   branch: recovery/shared-worktree-event-c-20260726-104210

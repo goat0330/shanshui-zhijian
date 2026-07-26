@@ -68,9 +68,15 @@ D；每次只处理一个候选合并，并在临时集成视图运行全量验�
 
 ## 8. OpenCode Ensemble 边界
 
-Ensemble 仅作为新的隔离试验控制面使用，不接管或改写旧 Session 数据。
-配置必须固定 `mergeOnCleanup: false`。禁止 `team_merge`；成员只提交、
-推送、发送 handoff。任何自动创建 worktree 的结果都要先检查路径和分支。
+当前正式控制插件为 `@hueyexe/opencode-ensemble@0.15.2`，OMO 不再作为
+正式 Session 控制面的依赖。Ensemble 不接管或改写旧 Session 数据；配置必须
+固定 `mergeOnCleanup: false`。禁止 `team_merge`；成员只提交、推送、发送
+handoff。任何自动创建 worktree 的结果都要先检查路径和分支。
+
+`team_spawn` 的 `agent` 参数必须使用当前 OpenCode 中真实存在的 key：写入任务
+使用 `build`，只读任务使用 `plan` 或 `explore`。禁止使用 OMO 注入的
+`general`、`Sisyphus`、`ultraworker` 别名。成员仍为 `working` 时才测试
+`team_message` 唤醒；成员完成或 shutdown 后，消息按设计只存储不唤醒。
 
 ## 9. 故障恢复
 
