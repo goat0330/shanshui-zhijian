@@ -1,0 +1,40 @@
+name: CI — Workbench
+
+on:
+  push:
+    branches: [develop, main, 'integration/**', 'feature/agent-d-*']
+    paths:
+      - 'frontend/**'
+      - 'apps/workbench_api/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [develop, main, 'integration/**']
+    paths:
+      - 'frontend/**'
+      - 'apps/workbench_api/**'
+      - '.github/workflows/frontend-ci.yml'
+
+jobs:
+  frontend:
+    name: Build, unit and browser tests
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: TypeScript production build
+        run: npm run build
+      - name: Unit tests
+        run: npm test
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser E2E
+        run: npm run test:e2e

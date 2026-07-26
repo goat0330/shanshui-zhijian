@@ -363,7 +363,11 @@ class TestA7Regression:
                         )
                     ],
                 )
-                pr = mapper.map_result(result, task)
+                pr = mapper.map_result(
+                    result,
+                    task,
+                    TaskType.TEMPORAL_CHANGE_DETECTION,
+                )
                 all_tasks.append(pr)
 
         bundle = exporter.export(all_tasks, bundle_id="test-e2e-all")
