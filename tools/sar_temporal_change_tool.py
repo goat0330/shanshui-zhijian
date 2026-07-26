@@ -21,8 +21,10 @@ RS-01B-1 新增:
 import json
 import sys
 import hashlib
+import tempfile
 from pathlib import Path
 from datetime import datetime
+import pyproj
 
 ROOT = Path(__file__).resolve().parent.parent
 PIPELINE_DIR = ROOT / "competition" / "spikes" / "chongqing_rs_demo"
@@ -61,42 +63,122 @@ from tools.multi_temporal_background import (
     compute_water_occurrence, compute_robust_zscore,
     classify_multitemporal_change, ensure_no_nan_inf,
 )
+from tools.persistence_background import (
+    parse_persistence_config, compute_per_scene_change, compute_persistence,
+    link_objects_across_time, rank_candidates,
+    candidates_to_geojson, candidates_to_json,
+)
 
 
 def _sha256_hex(path: Path) -> str:
+    """返回完整 64 字符 SHA256 十六进制串。"""
     with open(path, "rb") as f:
-        return hashlib.sha256(f.read()).hexdigest()[:16]
+        return hashlib.sha256(f.read()).hexdigest()
+
+
+_CRS_TRANSFORM_CACHE: dict[str, pyproj.Transformer] = {}
+
+
+def _get_transformer(src_crs: str, dst_crs: str = "EPSG:4326") -> pyproj.Transformer:
+    """缓存并返回 pyproj.Transformer。"""
+    key = f"{src_crs}->{dst_crs}"
+    if key not in _CRS_TRANSFORM_CACHE:
+        _CRS_TRANSFORM_CACHE[key] = pyproj.Transformer.from_crs(
+            src_crs, dst_crs, always_xy=True,
+        )
+    return _CRS_TRANSFORM_CACHE[key]
+
+
+def _reproject_coords(coords: list, transformer: pyproj.Transformer) -> list:
+    """重投影坐标列表。"""
+    xs = [p[0] for p in coords]
+    ys = [p[1] for p in coords]
+    lons, lats = transformer.transform(xs, ys)
+    return [[float(lon), float(lat)] for lon, lat in zip(lons, lats)]
 
 
 def _to_epsg4326(features: list[dict], src_crs: str) -> list[dict]:
-    """将 GeoJSON features 的 geometry 坐标从 src_crs 转为 EPSG:4326。"""
+    """将 GeoJSON features 的 geometry 坐标从 src_crs 精确转为 EPSG:4326。"""
     if not features:
         return features
     crs_str = str(src_crs).upper()
     if crs_str == "EPSG:4326":
         return features
-    if crs_str.startswith("EPSG:45"):
-        result = []
-        for feat in features:
-            geom = feat.get("geometry")
-            if geom and geom.get("type") == "Polygon":
-                coords = []
-                for ring in geom["coordinates"]:
-                    new_ring = []
-                    for pt in ring:
-                        # EPSG:4545 → EPSG:4326: 粗略缩放
-                        # 重庆 CM 108E, 近似 111km/deg
-                        lon = 108.0 + pt[0] / 111000.0
-                        lat = 30.0 + pt[1] / 111000.0
-                        new_ring.append([lon, lat])
-                    coords.append(new_ring)
-                new_feat = dict(feat)
-                new_feat["geometry"] = {"type": "Polygon", "coordinates": coords}
-                result.append(new_feat)
-            else:
-                result.append(feat)
-        return result
-    raise NotImplementedError(f"CRS 转换未实现: {src_crs}")
+    transformer = _get_transformer(crs_str)
+    result = []
+    for feat in features:
+        geom = feat.get("geometry")
+        if not geom:
+            result.append(feat)
+            continue
+        gtype = geom.get("type")
+        if gtype == "Polygon":
+            new_coords = [_reproject_coords(ring, transformer) for ring in geom["coordinates"]]
+            new_feat = dict(feat)
+            new_feat["geometry"] = {"type": "Polygon", "coordinates": new_coords}
+            result.append(new_feat)
+        elif gtype == "MultiPolygon":
+            new_polys = []
+            for poly in geom["coordinates"]:
+                new_polys.append([_reproject_coords(ring, transformer) for ring in poly])
+            new_feat = dict(feat)
+            new_feat["geometry"] = {"type": "MultiPolygon", "coordinates": new_polys}
+            result.append(new_feat)
+        elif gtype == "Point":
+            new_coords = _reproject_coords([geom["coordinates"]], transformer)[0]
+            new_feat = dict(feat)
+            new_feat["geometry"] = {"type": "Point", "coordinates": new_coords}
+            result.append(new_feat)
+        else:
+            new_feat = dict(feat)
+            result.append(new_feat)
+    return result
+
+
+def _convert_candidates_to_4326(
+    candidates: list, src_crs
+) -> list:
+    """Convert CandidateObject geometries from src_crs to EPSG:4326."""
+    import copy
+    from pyproj import CRS, Transformer
+
+    crs_str = str(src_crs).upper()
+    if crs_str == "EPSG:4326" or not candidates:
+        return candidates
+
+    transformer = Transformer.from_crs(CRS(crs_str), CRS("EPSG:4326"), always_xy=True)
+
+    def _reproject_geom(geom: dict | None) -> dict | None:
+        if not geom:
+            return None
+        gtype = geom.get("type")
+        if gtype == "Polygon":
+            new_coords = []
+            for ring in geom["coordinates"]:
+                xs, ys = zip(*ring)
+                lons, lats = transformer.transform(xs, ys)
+                new_coords.append([[float(lon), float(lat)] for lon, lat in zip(lons, lats)])
+            return {"type": "Polygon", "coordinates": new_coords}
+        elif gtype == "MultiPolygon":
+            new_polys = []
+            for poly in geom["coordinates"]:
+                new_poly = []
+                for ring in poly:
+                    xs, ys = zip(*ring)
+                    lons, lats = transformer.transform(xs, ys)
+                    new_poly.append([[float(lon), float(lat)] for lon, lat in zip(lons, lats)])
+                new_polys.append(new_poly)
+            return {"type": "MultiPolygon", "coordinates": new_polys}
+        return geom
+
+    result = []
+    for c in candidates:
+        new_c = copy.copy(c)
+        new_c.representative_geometry = _reproject_geom(c.representative_geometry)
+        new_c.union_geometry = _reproject_geom(c.union_geometry)
+        result.append(new_c)
+
+    return result
 
 
 def _failed(
@@ -114,11 +196,6 @@ def _failed(
         },
         started_at=started_at, finished_at=datetime.now().isoformat(),
     )
-
-
-class _FallbackToPair(Exception):
-    """内部异常：多时相历史景数不足，回退双时相模式。"""
-    pass
 
 
 def _is_multi_temporal_mode(spec: TaskSpec) -> bool:
@@ -142,8 +219,28 @@ def _parse_mt_policy(context: RunContext) -> dict:
         "zscore_threshold": mt.get("zscore_threshold", 3.0),
         "water_occurrence_threshold": mt.get("water_occurrence_threshold", 0.3),
         "min_area_m2": mt.get("min_area_m2", 500),
-        "pixel_area_m2": mt.get("pixel_area_m2", 100),
-    }
+    "pixel_area_m2": mt.get("pixel_area_m2", 100),
+    "stable_land_max": mt.get("stable_land_max", 0.2),
+    "stable_water_min": mt.get("stable_water_min", 0.8),
+    "persistence_config": parse_persistence_config(context.tool_config),
+}
+
+
+def _write_synth_pair(path: Path, vv: np.ndarray, vh: np.ndarray,
+                       crs, transform) -> Path:
+    """写入合成 SAR 对 (用于 pair_fallback)。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = np.stack([vv.astype(np.float32), vh.astype(np.float32)])
+    import rasterio
+    H, W = vh.shape
+    with rasterio.open(path, "w", driver="GTiff", height=H, width=W, count=2,
+                       dtype="float32", crs=crs, transform=transform, nodata=-9999.0,
+                       compress="lzw") as dst:
+        dst.write(data[0], 1)
+        dst.write(data[1], 2)
+        dst.set_band_description(1, "vv")
+        dst.set_band_description(2, "vh")
+    return path
 
 
 class SarTemporalChangeTool(PerceptionTool):
@@ -254,46 +351,98 @@ class SarTemporalChangeTool(PerceptionTool):
         self, task: InferenceTask, spec: TaskSpec, context: RunContext,
         result_id: str, started_at: str, policy: SarValidationPolicy,
     ) -> PerceptionResult:
-        """多时相稳健背景变化检测 (RS-01B-2)。
-
-        流程:
-        1. 解析 HISTORY + CURRENT 资产
-        2. 检查历史景数，不足则返回 NO_DATA 或抛出用于 fallback
-        3. 逐景通过 RS-01B-1 质量门禁
-        4. 构建历史 VH 堆栈 + 当前 VH 堆栈
-        5. 计算背景统计 (median, MAD, valid_count)
-        6. 历史水体检测 → water_occurrence
-        7. 当前水体检测
-        8. 鲁棒 Z-Score + 变化分类
-        9. 多边形化 + Observations
-        10. 写出 10 产物 + 注册 AssetRef
-        """
+        """多时相稳健背景变化检测 (RS-01B-2，验收版)。"""
         mt_policy = _parse_mt_policy(context)
-        has_current = any(b.role == AssetRole.CURRENT for b in task.asset_bindings)
 
         # 1. 解析资产
         history_bindings, current_bindings = self._resolve_multi_temporal(task, spec)
-
         n_history = len(history_bindings)
-        n_current = len(current_bindings) if has_current else 1
+        n_current = len(current_bindings)
 
         # 2. 历史景数检查
         if n_history < mt_policy["min_history_scenes"]:
-            policy_choice = mt_policy["insufficient_history_policy"]
-            if policy_choice == "no_data":
+            pc = mt_policy["insufficient_history_policy"]
+            if pc == "no_data":
+                return PerceptionResult(
+                    perception_result_id=result_id,
+                    inference_task_ref=task.task_id,
+                    task_spec_ref=task.task_spec_ref,
+                    run_id=context.run_id,
+                    status=ExecutionStatus.NO_DATA,
+                    diagnostics={
+                        "stage": "history_check",
+                        "error_type": "insufficient_history",
+                        "message": f"历史景数 {n_history} < {mt_policy['min_history_scenes']} (policy=no_data)",
+                    },
+                    started_at=started_at,
+                    finished_at=datetime.now().isoformat(),
+                )
+            # pair_fallback: 从最后历史 + 当前中位数合成 before/after
+            try:
+                last_hist_binding = history_bindings[-1]
+                if n_current == 0:
+                    return _failed(result_id, task, spec, context,
+                                   "pair_fallback", "no_current",
+                                   "pair_fallback 需要至少 1 景当前", started_at)
+                # 合成 current_median → 写出临时文件，注册为 after
+                import tempfile
+                tmp_dir = Path(tempfile.mkdtemp(prefix="mt_fb_"))
+                cur_arrays = []
+                for b in current_bindings:
+                    asset = self._registry.resolve(b.asset_ref)
+                    ri = read_geotiff(asset.uri, bands=["vv", "vh"])
+                    ri = reproject_to_target(ri)
+                    vh = ri.array[ri.bands.index("vh")]
+                    vh[np.isclose(vh, ri.nodata, atol=1e-3)] = np.nan
+                    cur_arrays.append(vh)
+                if cur_arrays:
+                    cur_median = np.nanmedian(np.stack(cur_arrays, axis=0), axis=0).astype(np.float32)
+                    cur_median = np.where(np.isfinite(cur_median), cur_median, ri.nodata)
+                    vv_median = cur_median + 3.0  # 近似 VV
+                    fake_after_path = tmp_dir / "pair_fallback_after.tif"
+                    _write_synth_pair(fake_after_path, vv_median, cur_median, ri.crs, ri.transform)
+                    fake_after_ref = AssetRef(
+                        asset_id=f"{task.task_id}_pair_fallback_after",
+                        uri=str(fake_after_path),
+                        media_type="image/tiff; application=geotiff",
+                        modality=Modality.SAR,
+                        spatial=SpatialMetadata(reliability="georeferenced", crs=str(ri.crs).upper(),
+                                                 width=ri.width, height=ri.height),
+                        bands=["vv", "vh"],
+                    )
+                    self._registry.register(fake_after_ref)
+                    # 构造 before binding: 使用最后一个历史场景
+                    # 构造 after binding: 使用合成的 after
+                    fb_before = TaskAssetBinding(
+                        asset_ref=last_hist_binding.asset_ref, role=AssetRole.BEFORE,
+                        sequence_index=last_hist_binding.sequence_index,
+                    )
+                    fb_after = TaskAssetBinding(
+                        asset_ref=fake_after_ref.asset_id, role=AssetRole.AFTER,
+                    )
+                    return self._execute_pair(task, spec, context, result_id, started_at,
+                                               policy, fb_before, fb_after, actual_mode="pair_fallback")
+            except Exception as e:
                 return _failed(result_id, task, spec, context,
-                               "history_check", "insufficient_history",
-                               f"历史景数 {n_history} < 最小 {mt_policy['min_history_scenes']} (policy=no_data)",
-                               started_at)
-            # fallback_to_pair → 抛异常让 run() 去执行 pair 流程
-            raise _FallbackToPair(
-                f"历史景数 {n_history} < 最小 {mt_policy['min_history_scenes']}, 回退双时相"
-            )
+                               "pair_fallback", type(e).__name__, str(e), started_at)
 
-        # 3. 质量门禁 (逐景)
+        # 3. 质量门禁 + 场景结果聚合
+        scene_quality: list[dict] = []
+        accepted = 0
+        rejected = 0
+        warned = 0
+        accepted_history = 0
+        accepted_current = 0
+        rejected_history = 0
+        rejected_current = 0
+        warned_history = 0
+        warned_current = 0
+        dropped_refs: list[str] = []
+        all_warnings: list[str] = []
         all_bindings = history_bindings + current_bindings
-        ref_binding = history_bindings[0]
+        min_valid_pixel_ratio = 1.0
 
+        ref_binding = history_bindings[0]
         try:
             ref_asset = self._registry.resolve(ref_binding.asset_ref)
         except KeyError as e:
@@ -301,298 +450,703 @@ class SarTemporalChangeTool(PerceptionTool):
                            "resolve_reference", "missing_asset", str(e), started_at)
 
         for i, b in enumerate(all_bindings):
+            sq = {"binding_index": i, "asset_ref": b.asset_ref, "role": b.role.value,
+                  "accepted": True, "rejected": False, "reason": None, "warnings": []}
+            is_history = b.role == AssetRole.HISTORY
             try:
                 scene_asset = self._registry.resolve(b.asset_ref)
             except KeyError as e:
-                return _failed(result_id, task, spec, context,
-                               "resolve_scene", "missing_asset",
-                               f"scene[{i}] {b.asset_ref}: {e}", started_at)
+                sq["accepted"] = False; sq["rejected"] = True
+                sq["reason"] = f"missing_asset: {e}"
+                rejected += 1
+                if is_history: rejected_history += 1
+                else: rejected_current += 1
+                dropped_refs.append(b.asset_ref)
+                scene_quality.append(sq); continue
             if b.asset_ref == ref_binding.asset_ref:
-                continue  # 跳过自身
+                sq["role"] = "history_ref"
+                scene_quality.append(sq)
+                accepted += 1
+                accepted_history += 1
+                continue
+
             try:
                 scene_data = read_geotiff(scene_asset.uri, bands=["vv", "vh"])
             except Exception as e:
-                return _failed(result_id, task, spec, context,
-                               "read_scene", type(e).__name__,
-                               f"scene[{i}] {scene_asset.uri}: {e}", started_at)
+                sq["accepted"] = False; sq["rejected"] = True
+                sq["reason"] = f"read_error: {e}"
+                rejected += 1
+                if is_history: rejected_history += 1
+                else: rejected_current += 1
+                dropped_refs.append(b.asset_ref)
+                scene_quality.append(sq); continue
+
+            # 参考场景自检
+            try:
+                ref_data = read_geotiff(ref_asset.uri, bands=["vv", "vh"])
+                # 检查 VV/VH 波段存在
+                assert "vv" in ref_data.bands and "vh" in ref_data.bands, \
+                    f"参考场景缺少 VV/VH 波段"
+                # 检查非空、非常数
+                ref_vh = ref_data.array[ref_data.bands.index("vh")]
+                assert ref_vh.size > 0, "参考场景 VH 为空"
+                ref_valid = np.isfinite(ref_vh) & ~np.isclose(ref_vh, ref_data.nodata, atol=1e-3)
+                assert ref_valid.sum() > 0, "参考场景无有效像素"
+                vh_range = np.nanmax(ref_vh) - np.nanmin(ref_vh)
+                assert vh_range > 0.01, f"参考场景 VH 接近常数 (range={vh_range:.3f})"
+            except Exception as e:
+                sq["accepted"] = False; sq["rejected"] = True
+                sq["reason"] = f"ref_self_check: {e}"
+                rejected += 1
+                if is_history: rejected_history += 1
+                else: rejected_current += 1
+                dropped_refs.append(b.asset_ref)
+                scene_quality.append(sq); continue
 
             if policy.mode != PolicyMode.TRUST:
                 meta_ref = SarMetadata.from_asset_ref(ref_asset, ref_asset.uri)
                 meta_scene = SarMetadata.from_asset_ref(scene_asset, scene_asset.uri)
-                ref_data = read_geotiff(ref_asset.uri, bands=["vv", "vh"])
-                qm = compute_input_quality(
-                    ref_data.array, scene_data.array,
-                    ref_data.bands, scene_data.bands,
-                )
-                validation = validate_sar_input(
-                    meta_ref, meta_scene,
-                    ref_data.bands, scene_data.bands,
-                    qm, policy,
-                    ref_data.width, ref_data.height,
-                    scene_data.width, scene_data.height,
-                )
+                qm = compute_input_quality(ref_data.array, scene_data.array,
+                                            ref_data.bands, scene_data.bands)
+                min_valid_pixel_ratio = min(min_valid_pixel_ratio,
+                                             qm.get("valid_pixel_ratio", 0.0))
+                validation = validate_sar_input(meta_ref, meta_scene,
+                                                 ref_data.bands, scene_data.bands,
+                                                 qm, policy, ref_data.width, ref_data.height,
+                                                 scene_data.width, scene_data.height)
                 if validation.rejected:
-                    return _failed(result_id, task, spec, context,
-                                   "quality_gate", "scene_rejected",
-                                   f"scene[{i}] {b.asset_ref}: {validation.rejection_reason}",
-                                   started_at)
+                    sq["accepted"] = False; sq["rejected"] = True
+                    sq["reason"] = validation.rejection_reason
+                    sq["quality"] = {k: v for k, v in qm.items()
+                                     if not isinstance(v, tuple)}
+                    rejected += 1
+                    if is_history: rejected_history += 1
+                    else: rejected_current += 1
+                    dropped_refs.append(b.asset_ref)
+                if validation.quality.recommendations:
+                    sq["warnings"] = validation.quality.recommendations
+                    if not validation.rejected:
+                        warned += 1
+                        if is_history: warned_history += 1
+                        else: warned_current += 1
+                    all_warnings.extend(validation.quality.recommendations)
+            scene_quality.append(sq)
+            if sq["accepted"]:
+                accepted += 1
+                if is_history: accepted_history += 1
+                else: accepted_current += 1
 
-        # 4. 构建历史 VH 堆栈
-        ref_raster = reproject_to_target(read_geotiff(ref_asset.uri, bands=["vv", "vh"]))
+        if rejected > 0 and policy.rejects_on():
+            return PerceptionResult(
+                perception_result_id=result_id, inference_task_ref=task.task_id,
+                task_spec_ref=task.task_spec_ref, run_id=context.run_id,
+                status=ExecutionStatus.INVALID_INPUT,
+                diagnostics={
+                    "stage": "quality_gate",
+                    "accepted": accepted, "rejected": rejected,
+                    "accepted_history": accepted_history,
+                    "accepted_current": accepted_current,
+                    "rejected_history": rejected_history,
+                    "rejected_current": rejected_current,
+                    "warned": warned,
+                    "warned_history": warned_history,
+                    "warned_current": warned_current,
+                    "dropped_asset_refs": dropped_refs,
+                    "warnings": all_warnings,
+                    "min_valid_pixel_ratio": min_valid_pixel_ratio,
+                    "scene_quality": scene_quality,
+                },
+                started_at=started_at, finished_at=datetime.now().isoformat(),
+            )
+
+        # 4-5. 构建历史/当前堆栈 (统一到 ref_raster 网格)
+        try:
+            ref_raster = reproject_to_target(read_geotiff(ref_asset.uri, bands=["vv", "vh"]))
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "reproject_reference", type(e).__name__, str(e), started_at)
         vh_idx = ref_raster.bands.index("vh")
-        history_arrays = []
-        history_water = []
 
-        for i, b in enumerate(history_bindings):
-            asset = self._registry.resolve(b.asset_ref)
-            ri = read_geotiff(asset.uri, bands=["vv", "vh"])
-            ri = reproject_to_target(ri)
-            if ri.width != ref_raster.width or ri.height != ref_raster.height:
-                ri = resample_to_grid(ri, ref_raster)
-            vh = ri.array[vh_idx].copy()
-            # 标记 NoData 为 NaN
-            vh[np.isclose(vh, ri.nodata, atol=1e-3)] = np.nan
-            vh[~np.isfinite(vh)] = np.nan
-            history_arrays.append(vh)
+        def _read_to_stack(bindings, ref_rast):
+            arrays, water_masks, valid_masks = [], [], []
+            for b in bindings:
+                try:
+                    asset_obj = self._registry.resolve(b.asset_ref)
+                    ri = read_geotiff(asset_obj.uri, bands=["vv", "vh"])
+                    ri = reproject_to_target(ri)
+                    if ri.width != ref_rast.width or ri.height != ref_rast.height:
+                        ri = resample_to_grid(ri, ref_rast)
+                except Exception as e:
+                    raise RuntimeError(f"stack_build_error({b.asset_ref}): {e}") from e
+                vh = ri.array[vh_idx].copy()
+                valid = np.isfinite(vh) & ~np.isclose(vh, ri.nodata, atol=1e-3)
+                vh[~valid] = np.nan
+                wm, _ = sar_water_predict(np.where(valid, vh, -9999.0))
+                arrays.append(vh)
+                water_masks.append(wm)
+                valid_masks.append(valid)
+            return np.stack(arrays, axis=0), np.stack(water_masks, axis=0), np.stack(valid_masks, axis=0)
 
-            # 历史水体掩膜
-            wm, _ = sar_water_predict(np.where(np.isfinite(vh), vh, -9999.0))
-            history_water.append(wm)
-
-        vh_history_stack = np.stack(history_arrays, axis=0)  # (N, H, W)
-        water_history_stack = np.stack(history_water, axis=0)  # (N, H, W)
-
-        # 5. 构建当前 VH
-        current_arrays = []
-        for i, b in enumerate(current_bindings):
-            asset = self._registry.resolve(b.asset_ref)
-            ri = read_geotiff(asset.uri, bands=["vv", "vh"])
-            ri = reproject_to_target(ri)
-            if ri.width != ref_raster.width or ri.height != ref_raster.height:
-                ri = resample_to_grid(ri, ref_raster)
-            vh = ri.array[vh_idx].copy()
-            vh[np.isclose(vh, ri.nodata, atol=1e-3)] = np.nan
-            vh[~np.isfinite(vh)] = np.nan
-            current_arrays.append(vh)
-
-        current_vh_median = np.nanmedian(np.stack(current_arrays, axis=0), axis=0).astype(np.float32)
-        is_single_current = len(current_arrays) == 1
+        try:
+            vh_history_stack, water_history_stack, valid_history_stack = _read_to_stack(
+                history_bindings, ref_raster)
+            cur_arrays, cur_waters, cur_valids = [], [], []
+            for b in current_bindings:
+                try:
+                    asset_obj = self._registry.resolve(b.asset_ref)
+                    ri = read_geotiff(asset_obj.uri, bands=["vv", "vh"])
+                    ri = reproject_to_target(ri)
+                    if ri.width != ref_raster.width or ri.height != ref_raster.height:
+                        ri = resample_to_grid(ri, ref_raster)
+                except Exception as e:
+                    raise RuntimeError(f"cur_stack_build_error({b.asset_ref}): {e}") from e
+                vh = ri.array[vh_idx].copy()
+                valid = np.isfinite(vh) & ~np.isclose(vh, ri.nodata, atol=1e-3)
+                vh[~valid] = np.nan
+                cur_arrays.append(vh)
+                cur_waters.append(
+                    sar_water_predict(np.where(valid, vh, -9999.0))[0]
+                )
+                cur_valids.append(valid)
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "stack_build", type(e).__name__, str(e), started_at)
 
         # 6. 背景统计
-        baseline_vh_median = compute_median_background(vh_history_stack)
-        baseline_vh_mad = compute_mad(vh_history_stack, baseline_vh_median,
-                                       epsilon=mt_policy["mad_epsilon"])
-        history_valid_count = compute_valid_count(vh_history_stack)
-        historical_water_occurrence = compute_water_occurrence(
-            water_history_stack.astype(np.float32)
-        )
+        try:
+            baseline_vh_median = compute_median_background(vh_history_stack)
+            baseline_vh_mad = compute_mad(vh_history_stack, baseline_vh_median,
+                                           epsilon=mt_policy["mad_epsilon"])
+            history_valid_count = compute_valid_count(vh_history_stack)
+            historical_water_occurrence = compute_water_occurrence(
+                water_history_stack.astype(np.float32), valid_history_stack)
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "statistics", type(e).__name__, str(e), started_at)
 
         # 7. 当前水体
-        current_vh_clean = np.where(np.isfinite(current_vh_median), current_vh_median, -9999.0)
-        current_water_mask, current_thresh = sar_water_predict(current_vh_clean)
+        is_single_current = len(current_bindings) <= 1
+        try:
+            if len(cur_arrays) > 1:
+                current_vh_median = np.nanmedian(np.stack(cur_arrays, axis=0), axis=0).astype(np.float32)
+            else:
+                current_vh_median = cur_arrays[0].astype(np.float32) if cur_arrays else np.full_like(baseline_vh_median, np.nan)
+            current_vh_clean = np.where(np.isfinite(current_vh_median), current_vh_median, -9999.0)
+            current_water_mask, current_thresh = sar_water_predict(current_vh_clean)
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "current_water", type(e).__name__, str(e), started_at)
 
-        # 8. 鲁棒 Z-Score + 变化分类
-        robust_zscore = compute_robust_zscore(
-            current_vh_median, baseline_vh_median, baseline_vh_mad,
-        )
-        robust_zscore[np.isnan(current_vh_median)] = 0.0
-        robust_zscore = ensure_no_nan_inf(robust_zscore)
-
-        change_result = classify_multitemporal_change(
-            current_water_mask, historical_water_occurrence, robust_zscore,
-            history_valid_count,
-            zscore_threshold=mt_policy["zscore_threshold"],
-            water_occurrence_threshold=mt_policy["water_occurrence_threshold"],
-            min_valid_count=mt_policy["valid_count_threshold"],
-        )
-
-        # 9. 保证无 NaN/Inf
-        for key in ["baseline_vh_median", "baseline_vh_mad", "history_valid_count",
-                     "historical_water_occurrence", "current_vh_median"]:
-            arr = locals().get(key)
-            if isinstance(arr, np.ndarray):
-                if key == "history_valid_count":
-                    arr = np.where(np.isfinite(arr), arr, 0).astype(np.uint16)
-                else:
-                    arr = ensure_no_nan_inf(arr.astype(np.float32))
-                locals()[key] = arr
-
-        # Re-bind after potential NaN fix
-        baseline_vh_median = ensure_no_nan_inf(baseline_vh_median)
-        baseline_vh_mad = ensure_no_nan_inf(baseline_vh_mad)
-        history_valid_count = np.where(
-            np.isfinite(history_valid_count), history_valid_count, 0
-        ).astype(np.uint16)
-        historical_water_occurrence = ensure_no_nan_inf(historical_water_occurrence)
-        current_vh_median = ensure_no_nan_inf(current_vh_median)
-
-        # 10. 多边形化 (每种变化类型)
-        all_features: list[dict] = []
-        ref_crs_str = str(ref_raster.crs).upper()
-        pixel_area = mt_policy["pixel_area_m2"]
-
-        for ct_mask, ct_label in [
-            (change_result["water_gain_mask"], "water_gain"),
-            (change_result["water_loss_mask"], "water_loss"),
-            (change_result["sar_anomaly_mask"], "sar_backscatter_anomaly"),
-        ]:
-            if ct_mask.sum() == 0:
-                continue
-            feats = polygonize_change_mask(
-                ct_mask, ref_raster.transform, ref_raster.crs,
-                min_area_m2=mt_policy["min_area_m2"],
-                pixel_area_m2=pixel_area,
+        # 8. Z-Score + 变化分类
+        try:
+            robust_zscore = compute_robust_zscore(current_vh_median, baseline_vh_median, baseline_vh_mad)
+            robust_zscore[~np.isfinite(current_vh_median)] = 0.0
+            robust_zscore = ensure_no_nan_inf(robust_zscore)
+            change_result = classify_multitemporal_change(
+                current_water_mask, historical_water_occurrence, robust_zscore,
+                history_valid_count,
+                zscore_threshold=mt_policy["zscore_threshold"],
+                stable_land_max=mt_policy["stable_land_max"],
+                stable_water_min=mt_policy["stable_water_min"],
+                min_valid_count=mt_policy["valid_count_threshold"],
             )
-            for feat in feats:
-                feat["properties"]["change_type"] = ct_label
-                # 计算图斑内统计量
-                geom = feat["geometry"]
-                if geom and geom.get("type") == "Polygon":
-                    coords = geom["coordinates"][0]
-                    xs = [p[0] for p in coords]
-                    ys = [p[1] for p in coords]
-                    # 像素坐标近似
-                    inv_t = ~ref_raster.transform
-                    rows = []
-                    cols = []
-                    for x, y in zip(xs, ys):
-                        c, r = inv_t * (x, y)
-                        rows.append(int(round(r)))
-                        cols.append(int(round(c)))
-                    rows = np.clip(rows, 0, ref_raster.height - 1)
-                    cols = np.clip(cols, 0, ref_raster.width - 1)
-                    if len(rows) > 0 and len(cols) > 0:
-                        # 取边界框内统计量
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "change_classify", type(e).__name__, str(e), started_at)
+
+        # 确保无 NaN/Inf
+        for name in ["baseline_vh_median", "baseline_vh_mad",
+                      "historical_water_occurrence", "current_vh_median", "robust_zscore"]:
+            arr = locals()[name]
+            if isinstance(arr, np.ndarray):
+                locals()[name] = ensure_no_nan_inf(arr)
+        history_valid_count = np.where(np.isfinite(history_valid_count), history_valid_count, 0).astype(np.uint16)
+
+        # ── RS-01B-3: Per-scene persistence + candidate objects ──────
+        persistence_data = {}
+        candidate_objects = []
+        candidate_features_4326 = []
+        candidate_json_data = {}
+        try:
+            p_cfg = mt_policy["persistence_config"]
+            # 1. Per-scene change results
+            per_scene = compute_per_scene_change(
+                cur_arrays, baseline_vh_median, baseline_vh_mad,
+                historical_water_occurrence, history_valid_count,
+                zscore_threshold=mt_policy["zscore_threshold"],
+                stable_land_max=mt_policy["stable_land_max"],
+                stable_water_min=mt_policy["stable_water_min"],
+                min_valid_count=mt_policy["valid_count_threshold"],
+            )
+
+            # 2. Persistence statistics
+            persistence = compute_persistence(
+                per_scene,
+                minimum_occurrences=p_cfg["persistence"]["minimum_occurrences"],
+                minimum_ratio=p_cfg["persistence"]["minimum_ratio"],
+            )
+            persistence_data = persistence
+
+            # 3. Per-scene polygonize for object linking + Observation generation
+            per_scene_features_proj: list[list[dict]] = []
+            per_scene_features_4326: list[list[dict]] = []
+            per_scene_asset_refs_list: list[str] = []
+            per_scene_observations: list[list[Observation]] = []  # A1: per-scene Observations
+            for si, scene_res in enumerate(per_scene):
+                scene_feats: list[dict] = []
+                scene_observations: list[Observation] = []
+                # Determine scene source asset and acquisition time
+                scene_asset_id: str | None = None
+                scene_acq_time: str | None = None
+                if si < len(current_bindings):
+                    try:
+                        cur_asset = self._registry.resolve(current_bindings[si].asset_ref)
+                        scene_asset_id = cur_asset.asset_id
+                        scene_acq_time = getattr(cur_asset, "acquisition_time", None)
+                    except KeyError as e:
+                        raise ValueError(
+                            f"Cannot resolve asset '{current_bindings[si].asset_ref}' "
+                            f"for scene {si} — required for stable observation identity"
+                        ) from e
+                else:
+                    raise ValueError(
+                        f"Scene index {si} out of range for "
+                        f"{len(current_bindings)} current bindings"
+                    )
+
+                for ct_mask, ct_label in [
+                    (scene_res["scene_water_gain_mask"], "water_gain"),
+                    (scene_res["scene_water_loss_mask"], "water_loss"),
+                    (scene_res["scene_sar_anomaly_mask"], "sar_backscatter_anomaly"),
+                ]:
+                    if ct_mask.sum() == 0:
+                        continue
+                    feats = polygonize_change_mask(
+                        ct_mask, ref_raster.transform, ref_raster.crs,
+                        min_area_m2=mt_policy["min_area_m2"],
+                        pixel_area_m2=mt_policy["pixel_area_m2"],
+                    )
+                    for f in feats:
+                        f["properties"]["change_type"] = ct_label
+                        f["properties"]["scene_index"] = si
+                        # Add z-score and water occurrence stats
+                        if f.get("geometry", {}).get("type") in ("Polygon", "MultiPolygon"):
+                            try:
+                                coords_list = f["geometry"]["coordinates"]
+                                if f["geometry"]["type"] == "Polygon":
+                                    rings = [coords_list[0]]
+                                else:
+                                    rings = []
+                                    for poly_coords in coords_list:
+                                        if poly_coords:
+                                            rings.append(poly_coords[0])
+                                for ring in rings:
+                                    inv_t = ~ref_raster.transform
+                                    rows, cols = [], []
+                                    for x, y in ring:
+                                        c, r = inv_t * (x, y)
+                                        rows.append(int(round(r))); cols.append(int(round(c)))
+                                    if rows:
+                                        rows = np.clip(rows, 0, ref_raster.height - 1)
+                                        cols = np.clip(cols, 0, ref_raster.width - 1)
+                                        r_min, r_max = max(0, min(rows)), min(ref_raster.height, max(rows) + 1)
+                                        c_min, c_max = max(0, min(cols)), min(ref_raster.width, max(cols) + 1)
+                                        sz = scene_res["scene_robust_zscore"][r_min:r_max, c_min:c_max]
+                                        sw = historical_water_occurrence[r_min:r_max, c_min:c_max]
+                                        f["properties"]["robust_z_mean"] = round(float(np.nanmean(sz)), 4)
+                                        f["properties"]["robust_z_max"] = round(float(np.nanmax(np.abs(sz))), 4)
+                                        f["properties"]["water_occurrence_mean"] = round(float(np.nanmean(sw)), 4)
+                            except Exception:
+                                pass
+                    scene_feats.extend(feats)
+                # Keep projected features for CRS-correct linking (A0)
+                per_scene_features_proj.append(scene_feats)
+                # Also keep 4326 copies for GeoJSON output
+                scene_feats_4326 = _to_epsg4326(scene_feats, ref_raster.crs)
+                per_scene_features_4326.append(scene_feats_4326)
+                per_scene_asset_refs_list.append(scene_asset_id)
+
+                # A1: Create stable per-scene Observations
+                for fi, feat in enumerate(scene_feats_4326):
+                    props = feat.get("properties", {})
+                    geom = feat.get("geometry", {})
+                    change_type = props.get("change_type", "unknown")
+                    area_m2 = float(props.get("area_m2", 0))
+                    pix_count = int(props.get("pixel_count", 0))
+
+                    # A-G0-3: Stable observation_id — NO scene_index dependency
+                    # ID = source_asset_id + change_type + canonical geometry hash + rule_version
+                    canonical_geom_hash = ""
+                    if geom:
+                        try:
+                            from shapely.geometry import shape as _sh_shape
+                            _sh = _sh_shape(geom)
+                            if _sh and not _sh.is_empty:
+                                _norm = _sh.normalize() if hasattr(_sh, 'normalize') else _sh
+                                canonical_geom_hash = hashlib.sha256(
+                                    _norm.wkt.encode()
+                                ).hexdigest()[:12]
+                        except Exception as e:
+                            raise ValueError(
+                                f"Cannot compute canonical geometry for observation "
+                                f"in scene {si}: {e}"
+                            ) from e
+                    if scene_asset_id is None:
+                        raise ValueError(
+                            f"Cannot resolve source_asset_id for scene {si} "
+                            f"— required for stable observation identity"
+                        )
+                    obs_id_input = (
+                        f"{scene_asset_id}"
+                        f"|{change_type}"
+                        f"|{canonical_geom_hash}"
+                        f"|rs-contract.v0.2"
+                    )
+                    obs_id = f"obs-{hashlib.sha256(obs_id_input.encode()).hexdigest()[:20]}"
+
+                    obs = Observation(
+                        observation_id=obs_id,
+                        perception_result_ref=result_id,
+                        source_asset_refs=[scene_asset_id] if scene_asset_id else [],
+                        source_task_type=TaskType.TEMPORAL_CHANGE_DETECTION,
+                        observation_type=(
+                            ObservationType.SAR_BACKSCATTER_CHANGE
+                            if change_type == "sar_backscatter_anomaly"
+                            else ObservationType.CHANGE_POLYGON
+                        ),
+                        label=f"sar_scene{si}_{change_type}",
+                        score=min(1.0, area_m2 / 50000.0) if area_m2 > 0 else 0.5,
+                        score_type=ScoreType.RULE_BASED,
+                        geometry=geom,
+                        geometry_crs="EPSG:4326",
+                        temporal={
+                            "scene_index": si,
+                            "acquisition_time": scene_acq_time or "",
+                            "first_seen": si,
+                            "last_seen": si,
+                        },
+                        # A-G0-6: 使用真实质量指标, 不再使用伪 valid_pixel_ratio
+                        # 单景Observation的valid_pixel_ratio = 1.0（通过了场景质量门禁即表示有效）
+                        quality={
+                            "area_m2": area_m2,
+                            "pixel_count": pix_count,
+                            "robust_z_mean": float(props.get("robust_z_mean", 0)),
+                            "robust_z_max": float(props.get("robust_z_max", 0)),
+                            "water_occurrence_mean": float(props.get("water_occurrence_mean", 0)),
+                            "spatial_reliability": "georeferenced",
+                            "scene_quality_gate_passed": True,
+                            "quality_flags": [],
+                            "change_type": change_type,
+                            "history_scene_count": n_history,
+                            "current_scene_count": n_current,
+                        },
+                        model_run_ref=context.run_id,
+                        coordinate_space="geographic",
+                    )
+                    scene_observations.append(obs)
+                    # Store obs_id on feature for later linking
+                    feat["properties"]["observation_id"] = obs_id
+
+                per_scene_observations.append(scene_observations)
+
+            # 4. Link objects across time (in projected CRS — meters)
+            ol_cfg = p_cfg["object_linking"]
+            linking_crs = str(ref_raster.crs) if ref_raster and ref_raster.crs else None
+            candidate_objects_proj = link_objects_across_time(
+                per_scene_features_proj, per_scene_asset_refs_list,
+                min_iou=ol_cfg["minimum_iou"],
+                max_centroid_distance_m=ol_cfg["maximum_centroid_distance_m"],
+                require_same_change_type=ol_cfg.get("require_same_change_type", True),
+                require_spatial_intersect=ol_cfg.get("require_spatial_intersect", False),
+                geometry_crs=linking_crs,
+                pixel_area_m2=mt_policy["pixel_area_m2"],
+                minimum_occurrences=p_cfg["persistence"]["minimum_occurrences"],
+                minimum_ratio=p_cfg["persistence"]["minimum_ratio"],
+                persistence_status=persistence["persistence_status"],
+                n_current_scenes=len(current_bindings),
+            )
+            # Convert candidate geometries to EPSG:4326 for output
+            candidate_objects = _convert_candidates_to_4326(
+                candidate_objects_proj, ref_raster.crs
+            )
+
+            # 5. Rank candidates
+            rk_cfg = p_cfg["ranking"]
+            candidate_objects = rank_candidates(
+                candidate_objects,
+                history_scene_count=n_history,
+                current_scene_count=len(current_bindings),
+                weights=rk_cfg,
+            )
+
+            # 6. Convert to GeoJSON + JSON
+            candidate_features_4326 = candidates_to_geojson(candidate_objects)
+            candidate_json_data = candidates_to_json(
+                candidate_objects,
+                history_scene_count=n_history,
+                current_scene_count=len(current_bindings),
+            )
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "persistence", type(e).__name__, str(e), started_at)
+
+        # 9. 多边形化 (按变化类型)
+        try:
+            all_features: list[dict] = []
+            ref_crs_str = str(ref_raster.crs).upper()
+            pixel_area = mt_policy["pixel_area_m2"]
+
+            for ct_mask, ct_label in [
+                (change_result["water_gain_mask"], "water_gain"),
+                (change_result["water_loss_mask"], "water_loss"),
+                (change_result["sar_anomaly_mask"], "sar_backscatter_anomaly"),
+            ]:
+                if ct_mask.sum() == 0:
+                    continue
+                feats = polygonize_change_mask(ct_mask, ref_raster.transform, ref_raster.crs,
+                                                min_area_m2=mt_policy["min_area_m2"],
+                                                pixel_area_m2=pixel_area)
+                for feat in feats:
+                    feat["properties"]["change_type"] = ct_label
+                    geom = feat.get("geometry")
+                    if geom and geom.get("type") == "Polygon":
+                        coords = geom["coordinates"][0]
+                        inv_t = ~ref_raster.transform
+                        rows, cols = [], []
+                        for x, y in coords:
+                            c, r = inv_t * (x, y)
+                            rows.append(int(round(r))); cols.append(int(round(c)))
+                        rows = np.clip(rows, 0, ref_raster.height - 1)
+                        cols = np.clip(cols, 0, ref_raster.width - 1)
                         r_min, r_max = max(0, min(rows)), min(ref_raster.height, max(rows) + 1)
                         c_min, c_max = max(0, min(cols)), min(ref_raster.width, max(cols) + 1)
-                        region_z = robust_zscore[r_min:r_max, c_min:c_max]
-                        region_wo = historical_water_occurrence[r_min:r_max, c_min:c_max]
-                        feat["properties"]["robust_z_mean"] = round(float(np.nanmean(region_z)), 4)
-                        feat["properties"]["robust_z_max"] = round(float(np.nanmax(np.abs(region_z))), 4)
-                        feat["properties"]["water_occurrence_mean"] = round(float(np.nanmean(region_wo)), 4)
-            all_features.extend(feats)
+                        rz = robust_zscore[r_min:r_max, c_min:c_max]
+                        rw = historical_water_occurrence[r_min:r_max, c_min:c_max]
+                        feat["properties"]["robust_z_mean"] = round(float(np.nanmean(rz)), 4)
+                        feat["properties"]["robust_z_max"] = round(float(np.nanmax(np.abs(rz))), 4)
+                        feat["properties"]["water_occurrence_mean"] = round(float(np.nanmean(rw)), 4)
+                all_features.extend(feats)
 
-        # mixed: 同一图斑同时为 gain 和 loss (由 polygonize 合并后判)
-        # (保留但概率极低)
+            features_4326 = _to_epsg4326(all_features, ref_raster.crs)
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "polygonize_crs", type(e).__name__, str(e), started_at)
 
-        features_4326 = _to_epsg4326(all_features, ref_raster.crs)
-
-        # 11. 输出目录
+        # 10. 输出目录
         root_output = Path(context.output_dir) if context.output_dir else Path.cwd()
         task_output = root_output / context.run_id / task.task_id
         task_output.mkdir(parents=True, exist_ok=True)
 
-        # 12. 写出 10 个栅格产物
+        # 11. 写出产物的前置检查
         paths: dict[str, Path] = {}
 
-        # 先用 _safe_raster 写辅助函数
         def _write_raster(name: str, arr: np.ndarray, dtype: str = "float32") -> Path:
             p = task_output / f"{name}.tif"
-            actual_dtype = dtype
-            actual_nodata = -9999.0
-            if dtype == "uint16":
-                actual_dtype = "float32"  # write_geotiff 不支持 uint16 负值 nodata
-                arr = arr.astype(np.float32)
-            elif dtype == "uint8":
-                arr_out = arr.astype(np.uint8)
-            else:
-                arr_out = arr.astype(np.float32)
             if dtype == "uint8":
-                arr_out = arr.astype(np.uint8)
+                out = arr.astype(np.uint8)
+                write_geotiff(out, p, ref_raster.crs, ref_raster.transform,
+                              bands=[name], dtype="uint8")
+            elif dtype == "uint16":
+                write_geotiff(arr.astype(np.float32), p, ref_raster.crs, ref_raster.transform,
+                              bands=[name], dtype="float32")
             else:
-                arr_out = arr.astype(np.float32)
-            write_geotiff(arr_out, p, ref_raster.crs, ref_raster.transform,
-                          bands=[name], dtype=actual_dtype)
+                write_geotiff(arr.astype(np.float32), p, ref_raster.crs, ref_raster.transform,
+                              bands=[name], dtype="float32")
             paths[name] = p
             return p
 
-        _write_raster("baseline_vh_median", baseline_vh_median)
-        _write_raster("baseline_vh_mad", baseline_vh_mad)
-        _write_raster("history_valid_count", history_valid_count, dtype="uint16")
-        _write_raster("historical_water_occurrence", historical_water_occurrence)
-        _write_raster("current_vh_median", current_vh_median)
-        _write_raster("current_water_mask", current_water_mask, dtype="uint8")
-        _write_raster("robust_zscore", robust_zscore)
-        _write_raster("water_gain_mask", change_result["water_gain_mask"], dtype="uint8")
-        _write_raster("water_loss_mask", change_result["water_loss_mask"], dtype="uint8")
-        _write_raster("final_change_mask", change_result["final_change_mask"], dtype="uint8")
+        try:
+            _write_raster("baseline_vh_median", baseline_vh_median)
+            _write_raster("baseline_vh_mad", baseline_vh_mad)
+            _write_raster("history_valid_count", history_valid_count, dtype="uint16")
+            _write_raster("historical_water_occurrence", historical_water_occurrence)
+            _write_raster("current_vh_median", current_vh_median)
+            _write_raster("current_water_mask", current_water_mask, dtype="uint8")
+            _write_raster("robust_zscore", robust_zscore)
+            _write_raster("water_gain_mask", change_result["water_gain_mask"], dtype="uint8")
+            _write_raster("water_loss_mask", change_result["water_loss_mask"], dtype="uint8")
+            _write_raster("final_change_mask", change_result["final_change_mask"], dtype="uint8")
 
-        cand_path = task_output / "candidates.geojson"
-        write_geojson(features_4326, cand_path)
-        paths["candidates"] = cand_path
+            cand_path = task_output / "candidates.geojson"
+            write_geojson(features_4326, cand_path)
+            paths["candidates"] = cand_path
 
-        report_path = task_output / "run_report.json"
+            # RS-01B-3: Write persistence artifacts
+            if persistence_data:
+                _write_raster("persistence_count", persistence_data["persistence_count"], dtype="uint16")
+                _write_raster("persistence_ratio", persistence_data["persistence_ratio"])
+                _write_raster("persistent_change_mask", persistence_data["persistent_change_mask"], dtype="uint8")
+                _write_raster("transient_change_mask", persistence_data["transient_change_mask"], dtype="uint8")
+            if candidate_features_4326:
+                cand_obj_path = task_output / "candidate_objects.geojson"
+                write_geojson(candidate_features_4326, cand_obj_path)
+                paths["candidate_objects"] = cand_obj_path
+            if candidate_json_data:
+                cand_json_path = task_output / "candidate_objects.json"
+                with open(cand_json_path, "w", encoding="utf-8") as f:
+                    json.dump(candidate_json_data, f, ensure_ascii=False, indent=2)
+                paths["candidate_objects_json"] = cand_json_path
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "write_rasters", type(e).__name__, str(e), started_at)
+
+        # 12. 运行报告 (最终版本，再计算 checksum)
         total_area = sum(f["properties"].get("area_m2", 0) for f in features_4326)
         report = {
             "run_id": context.run_id, "task_id": task.task_id,
             "task_spec_ref": task.task_spec_ref,
-            "mode": "multi_temporal",
-            "raster_crs": ref_crs_str,
-            "geojson_crs": "EPSG:4326",
-            "n_history_scenes": n_history,
-            "n_current_scenes": n_current,
+            "actual_mode": "multi_temporal",
+            "raster_crs": ref_crs_str, "geojson_crs": "EPSG:4326",
+            "n_history_scenes": n_history, "n_current_scenes": n_current,
             "current_mode": "single" if is_single_current else "multi",
             "change_stats": change_result["stats"],
-            "polygon_count": len(features_4326),
-            "total_area_m2": total_area,
+            "polygon_count": len(features_4326), "total_area_m2": total_area,
             "mt_policy": mt_policy,
+            "scene_quality": {
+                "accepted": accepted, "rejected": rejected,
+                "accepted_history": accepted_history,
+                "accepted_current": accepted_current,
+                "rejected_history": rejected_history,
+                "rejected_current": rejected_current,
+                "warned": warned,
+                "warned_history": warned_history,
+                "warned_current": warned_current,
+                "dropped_asset_refs": dropped_refs,
+                "warnings": all_warnings,
+                "min_valid_pixel_ratio": min_valid_pixel_ratio,
+            },
             "output_dir": str(task_output),
         }
+        report_path = task_output / "run_report.json"
         with open(report_path, "w", encoding="utf-8") as f:
             json.dump(report, f, ensure_ascii=False, indent=2)
         paths["run_report"] = report_path
+        # 报告已最终化，计算 checksum
+        report_checksum = _sha256_hex(report_path)
 
-        # 13. 注册派生资产
-        ct_map = {"water_gain": 1, "water_loss": 2, "sar_backscatter_anomaly": 3}
-
-        if hasattr(ref_raster.transform, '__iter__'):
+        # 13. 注册派生资产 (含 candidates 的 bounds)
+        try:
             t = ref_raster.transform
             transform_list = [float(t.a), float(t.b), float(t.c),
                               float(t.d), float(t.e), float(t.f)]
-        else:
-            transform_list = list(ref_raster.transform)[:6]
+            derived: list[AssetRef] = []
+            raster_names = [
+                "baseline_vh_median", "baseline_vh_mad", "history_valid_count",
+                "historical_water_occurrence", "current_vh_median", "current_water_mask",
+                "robust_zscore", "water_gain_mask", "water_loss_mask", "final_change_mask",
+            ]
+            # RS-01B-3: Add persistence rasters
+            if persistence_data:
+                raster_names.extend([
+                    "persistence_count", "persistence_ratio",
+                    "persistent_change_mask", "transient_change_mask",
+                ])
+            for name in raster_names:
+                p = paths[name]
+                aid = f"{task.task_id}_{name}"
+                ref = AssetRef(asset_id=aid, uri=str(p),
+                               media_type="image/tiff; application=geotiff",
+                               modality=Modality.MASK if "mask" in name else Modality.SAR,
+                               spatial=SpatialMetadata(
+                                   reliability="georeferenced", crs=ref_crs_str,
+                                   transform=transform_list,
+                                   width=ref_raster.width, height=ref_raster.height),
+                               bands=[name], checksum=_sha256_hex(p))
+                self._registry.register(ref); derived.append(ref)
 
-        derived: list[AssetRef] = []
-        raster_names = [
-            "baseline_vh_median", "baseline_vh_mad", "history_valid_count",
-            "historical_water_occurrence", "current_vh_median", "current_water_mask",
-            "robust_zscore", "water_gain_mask", "water_loss_mask", "final_change_mask",
-        ]
-        for name in raster_names:
-            p = paths[name]
-            asset_id = f"{task.task_id}_{name}"
-            ref = AssetRef(
-                asset_id=asset_id, uri=str(p),
-                media_type="image/tiff; application=geotiff",
-                modality=Modality.MASK if "mask" in name else Modality.SAR,
+            # candidates spatial bounds — 聚合全部 Feature，支持 Polygon/MultiPolygon
+            cand_bounds = None
+            if features_4326:
+                all_xs, all_ys = [], []
+                for feat in features_4326:
+                    geom = feat.get("geometry") or {}
+                    coords = geom.get("coordinates", [])
+                    gtype = geom.get("type", "")
+                    # Polygon → [ring, ...]; MultiPolygon → [[ring, ...], ...]
+                    rings: list = []
+                    if gtype == "Polygon":
+                        rings = coords  # list of rings
+                    elif gtype == "MultiPolygon":
+                        for poly in coords:
+                            rings.extend(poly)  # flattened rings
+                    for ring in rings:
+                        for pt in ring:
+                            if len(pt) >= 2:
+                                all_xs.append(pt[0])
+                                all_ys.append(pt[1])
+                if all_xs and all_ys:
+                    cand_bounds = [min(all_xs), min(all_ys), max(all_xs), max(all_ys)]
+
+            ref_cand = AssetRef(
+                asset_id=f"{task.task_id}_candidates", uri=str(cand_path),
+                media_type="application/geo+json", modality=Modality.VECTOR,
                 spatial=SpatialMetadata(
-                    reliability="georeferenced", crs=ref_crs_str,
-                    transform=transform_list,
-                    width=ref_raster.width, height=ref_raster.height,
-                ),
-                bands=[name], checksum=_sha256_hex(p),
+                    reliability="georeferenced", crs="EPSG:4326",
+                    bounds=cand_bounds) if cand_bounds else None,
+                checksum=_sha256_hex(cand_path),
             )
-            self._registry.register(ref)
-            derived.append(ref)
+            ref_report_asset = AssetRef(
+                asset_id=f"{task.task_id}_run_report", uri=str(report_path),
+                media_type="application/json", modality=Modality.METADATA,
+                checksum=report_checksum,
+            )
+            for r in [ref_cand, ref_report_asset]:
+                self._registry.register(r); derived.append(r)
 
-        ref_cand = AssetRef(
-            asset_id=f"{task.task_id}_candidates", uri=str(cand_path),
-            media_type="application/geo+json", modality=Modality.VECTOR,
-            checksum=_sha256_hex(cand_path),
-        )
-        ref_report_asset = AssetRef(
-            asset_id=f"{task.task_id}_run_report", uri=str(report_path),
-            media_type="application/json", modality=Modality.METADATA,
-            checksum=_sha256_hex(report_path),
-        )
-        for r in [ref_cand, ref_report_asset]:
-            self._registry.register(r)
-            derived.append(r)
+            # RS-01B-3: Register candidate objects artifacts
+            if "candidate_objects" in paths:
+                cand_obj_bounds = None
+                if candidate_features_4326:
+                    all_xs, all_ys = [], []
+                    for feat in candidate_features_4326:
+                        geom = feat.get("geometry") or {}
+                        coords = geom.get("coordinates", [])
+                        rings: list = []
+                        if geom.get("type") == "Polygon":
+                            rings = coords
+                        elif geom.get("type") == "MultiPolygon":
+                            for poly in coords:
+                                rings.extend(poly)
+                        for ring in rings:
+                            for pt in ring:
+                                if len(pt) >= 2:
+                                    all_xs.append(pt[0]); all_ys.append(pt[1])
+                    if all_xs and all_ys:
+                        cand_obj_bounds = [min(all_xs), min(all_ys), max(all_xs), max(all_ys)]
+                ref_cand_obj = AssetRef(
+                    asset_id=f"{task.task_id}_candidate_objects",
+                    uri=str(paths["candidate_objects"]),
+                    media_type="application/geo+json", modality=Modality.VECTOR,
+                    spatial=SpatialMetadata(
+                        reliability="georeferenced", crs="EPSG:4326",
+                        bounds=cand_obj_bounds) if cand_obj_bounds else None,
+                    checksum=_sha256_hex(paths["candidate_objects"]),
+                )
+                self._registry.register(ref_cand_obj); derived.append(ref_cand_obj)
+            if "candidate_objects_json" in paths:
+                ref_cand_json = AssetRef(
+                    asset_id=f"{task.task_id}_candidate_objects_json",
+                    uri=str(paths["candidate_objects_json"]),
+                    media_type="application/json", modality=Modality.METADATA,
+                    checksum=_sha256_hex(paths["candidate_objects_json"]),
+                )
+                self._registry.register(ref_cand_json); derived.append(ref_cand_json)
+        except ValueError as e:
+            return _failed(result_id, task, spec, context,
+                           "register", "duplicate_asset_id", str(e), started_at)
 
-        # 14. Observations
-        source_asset_ids = [self._registry.resolve(b.asset_ref).asset_id
-                            for b in all_bindings]
+        # 14. Observations — A1: per-scene observations + aggregate mask observations
+        source_asset_ids = []
+        for b in all_bindings:
+            try:
+                source_asset_ids.append(self._registry.resolve(b.asset_ref).asset_id)
+            except KeyError:
+                pass
         observations: list[Observation] = []
+        # Add per-scene Observations first (A1 stable)
+        for scene_obs_list in per_scene_observations:
+            observations.extend(scene_obs_list)
+        # Add aggregate change mask observations
         for feat in features_4326:
             props = feat.get("properties", {})
             a = props.get("area_m2", 0)
@@ -602,74 +1156,316 @@ class SarTemporalChangeTool(PerceptionTool):
                 perception_result_ref=result_id,
                 source_asset_refs=source_asset_ids,
                 source_task_type=TaskType.TEMPORAL_CHANGE_DETECTION,
-                observation_type=(
-                    ObservationType.SAR_BACKSCATTER_CHANGE if ct == "sar_backscatter_anomaly"
-                    else ObservationType.CHANGE_POLYGON
-                ),
+                observation_type=(ObservationType.SAR_BACKSCATTER_CHANGE
+                                   if ct == "sar_backscatter_anomaly"
+                                   else ObservationType.CHANGE_POLYGON),
                 label=f"sar_mt_{ct}",
                 score=min(1.0, a / 50000.0) if a > 0 else 0.5,
                 score_type=ScoreType.RULE_BASED,
-                geometry=feat.get("geometry"),
-                geometry_crs="EPSG:4326",
-                quality={
-                    "area_m2": a,
-                    "change_type": ct,
-                    "pixel_count": props.get("pixel_count", 0),
-                    "robust_z_mean": props.get("robust_z_mean", 0),
-                    "robust_z_max": props.get("robust_z_max", 0),
-                    "water_occurrence_mean": props.get("water_occurrence_mean", 0),
-                    "history_scene_count": n_history,
-                    "current_scene_count": n_current,
-                },
+                geometry=feat.get("geometry"), geometry_crs="EPSG:4326",
+                quality={"area_m2": a, "change_type": ct,
+                         "pixel_count": props.get("pixel_count", 0),
+                         "robust_z_mean": props.get("robust_z_mean", 0),
+                         "robust_z_max": props.get("robust_z_max", 0),
+                         "water_occurrence_mean": props.get("water_occurrence_mean", 0),
+                         "history_scene_count": n_history,
+                         "current_scene_count": n_current,
+                         "spatial_reliability": "georeferenced"},
                 model_run_ref=context.run_id,
             ))
 
-        # 15. 更新报告
-        with open(report_path, "r", encoding="utf-8") as f:
-            rpt = json.load(f)
-        rpt["status"] = "succeeded_with_observations" if observations else "succeeded_empty"
-        rpt["derived_assets"] = [r.asset_id for r in derived]
-        rpt["observation_ids"] = [o.observation_id for o in observations]
-        with open(report_path, "w", encoding="utf-8") as f:
-            json.dump(rpt, f, ensure_ascii=False, indent=2)
+        # A-G0-1: Candidate observation_refs are already populated by link_objects_across_time
+        # from feature-level observation_id properties. No fuzzy patch needed.
+        # Verify they are non-empty (safety check)
+        for cand in candidate_objects:
+            if not cand.source_observation_ids:
+                logger.warning(
+                    "Candidate %s has empty observation_refs; "
+                    "this should not happen with A-G0-1 lineage",
+                    cand.candidate_id,
+                )
 
-        # 16. 质量报告
-        quality_report = None
+        # 15. 质量报告 (始终创建聚合报告)
+        quality_recommendations = []
+        quality_reasons = []
         if is_single_current:
-            quality_report = QualityReport(
-                valid_pixel_ratio=1.0,
-                recommendations=["single_current_scene: reliability_reduced"],
-                reasons=["current_mode=single: 可靠性降低"],
+            quality_recommendations.append("single_current_scene: reliability_reduced")
+            quality_reasons.append("current_mode=single: 可靠性降低")
+        if n_history < mt_policy["min_history_scenes"]:
+            quality_recommendations.append("insufficient_history: pair_fallback_used")
+            quality_reasons.append(f"history={n_history} < {mt_policy['min_history_scenes']}")
+        if rejected > 0:
+            quality_recommendations.append(f"{rejected} scene(s) rejected by quality gate")
+            quality_reasons.append(f"rejected={rejected}, accepted={accepted}")
+        if all_warnings:
+            quality_recommendations.extend(
+                r for r in all_warnings if r not in quality_recommendations
             )
+        quality_report = QualityReport(
+            valid_pixel_ratio=float(min_valid_pixel_ratio) if min_valid_pixel_ratio < 1.0 else 1.0,
+            accepted_scenes=accepted,
+            rejected_scenes=rejected,
+            warned_count=warned,
+            recommendations=quality_recommendations or [],
+            reasons=quality_reasons or [],
+        )
 
         status = (ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS
                   if observations else ExecutionStatus.SUCCEEDED_EMPTY)
 
         return PerceptionResult(
-            perception_result_id=result_id,
-            inference_task_ref=task.task_id,
-            task_spec_ref=task.task_spec_ref,
-            run_id=context.run_id,
-            status=status,
-            observations=observations,
+            perception_result_id=result_id, inference_task_ref=task.task_id,
+            task_spec_ref=task.task_spec_ref, run_id=context.run_id,
+            status=status, observations=observations,
             artifact_refs=[r.asset_id for r in derived],
             quality_report=quality_report,
             diagnostics={
-                "mode": "multi_temporal",
-                "n_history": n_history,
-                "n_current": n_current,
+                "actual_mode": "multi_temporal",
+                "n_history": n_history, "n_current": n_current,
                 "current_mode": "single" if is_single_current else "multi",
                 "change_stats": change_result["stats"],
                 "polygon_count": len(features_4326),
                 "total_area_m2": total_area,
-                "raster_crs": ref_crs_str,
-                "geojson_crs": "EPSG:4326",
+                "raster_crs": ref_crs_str, "geojson_crs": "EPSG:4326",
+                "scene_quality": {
+                    "accepted": accepted, "rejected": rejected,
+                    "accepted_history": accepted_history,
+                    "accepted_current": accepted_current,
+                    "rejected_history": rejected_history,
+                    "rejected_current": rejected_current,
+                    "warned": warned,
+                    "warned_history": warned_history,
+                    "warned_current": warned_current,
+                    "dropped_asset_refs": dropped_refs,
+                    "warnings": all_warnings,
+                    "min_valid_pixel_ratio": min_valid_pixel_ratio,
+                },
+                "persistence": persistence_data.get("persistence_status", "unknown") if persistence_data else "disabled",
+                "persistence_stats": {
+                    "persistence_status": persistence_data.get("persistence_status", "disabled") if persistence_data else "disabled",
+                    "n_current_scenes": persistence_data.get("n_current_scenes", 0) if persistence_data else 0,
+                    "persistent_pixels": int(persistence_data.get("persistent_change_mask", np.zeros(0)).sum()) if persistence_data else 0,
+                    "transient_pixels": int(persistence_data.get("transient_change_mask", np.zeros(0)).sum()) if persistence_data else 0,
+                },
+                "candidate_stats": {
+                    "total_candidates": len(candidate_objects),
+                    "persistent_count": sum(1 for c in candidate_objects if c.persistence_status == "persistent"),
+                    "transient_count": sum(1 for c in candidate_objects if c.persistence_status == "transient"),
+                    "uncertain_count": sum(1 for c in candidate_objects if c.persistence_status == "uncertain"),
+                },
             },
-            started_at=started_at,
-            finished_at=datetime.now().isoformat(),
+            started_at=started_at, finished_at=datetime.now().isoformat(),
         )
 
-    # ── pair 双时相 (提取自原 run 逻辑, 供 fallback) ────────────
+    # ── pair 执行 (供 run() 和 pair_fallback 共用) ────────────
+
+    def _execute_pair(
+        self, task: InferenceTask, spec: TaskSpec, context: RunContext,
+        result_id: str, started_at: str, policy: SarValidationPolicy,
+        before_binding: TaskAssetBinding, after_binding: TaskAssetBinding,
+        actual_mode: str = "pair",
+    ) -> PerceptionResult:
+        """双时相核心算法。pair_fallback 也经过此路径。"""
+        try:
+            before_ref = self._registry.resolve(before_binding.asset_ref)
+            after_ref = self._registry.resolve(after_binding.asset_ref)
+        except KeyError as e:
+            return _failed(result_id, task, spec, context,
+                           "resolve", "missing_asset", str(e), started_at)
+
+        # 读取
+        try:
+            sar_t1 = read_geotiff(before_ref.uri, bands=["vv", "vh"])
+            sar_t2 = read_geotiff(after_ref.uri, bands=["vv", "vh"])
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "read", type(e).__name__, str(e), started_at)
+
+        # 质量门禁
+        try:
+            meta_before = SarMetadata.from_asset_ref(before_ref, before_ref.uri)
+            meta_after = SarMetadata.from_asset_ref(after_ref, after_ref.uri)
+        except Exception as e:
+            meta_before = None
+            meta_after = None
+
+        if policy.mode != PolicyMode.TRUST and meta_before and meta_after:
+            qm = compute_input_quality(sar_t1.array, sar_t2.array, sar_t1.bands, sar_t2.bands)
+            validation = validate_sar_input(meta_before, meta_after, sar_t1.bands, sar_t2.bands,
+                                             qm, policy, sar_t1.width, sar_t1.height,
+                                             sar_t2.width, sar_t2.height)
+            if validation.rejected:
+                status = ExecutionStatus.NO_DATA if qm.get("valid_pixel_ratio", 0.0) < 0.01 else ExecutionStatus.INVALID_INPUT
+                return PerceptionResult(
+                    perception_result_id=result_id, inference_task_ref=task.task_id,
+                    task_spec_ref=task.task_spec_ref, run_id=context.run_id,
+                    status=status, quality_report=validation.quality,
+                    diagnostics={"rejection_reason": validation.rejection_reason,
+                                 "quality": qm}, started_at=started_at,
+                    finished_at=datetime.now().isoformat())
+
+        # 重投影
+        try:
+            sar_t1 = reproject_to_target(sar_t1)
+            sar_t2 = reproject_to_target(sar_t2)
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "reproject", type(e).__name__, str(e), started_at)
+
+        ref = sar_t1
+        if sar_t2.width != ref.width or sar_t2.height != ref.height:
+            try:
+                sar_t2 = resample_to_grid(sar_t2, ref)
+            except Exception as e:
+                return _failed(result_id, task, spec, context,
+                               "resample", type(e).__name__, str(e), started_at)
+
+        # 水体检测
+        try:
+            vh_idx_t1 = sar_t1.bands.index("vh")
+            vh_idx_t2 = sar_t2.bands.index("vh")
+            water_t1, thresh_t1 = sar_water_predict(sar_t1.array[vh_idx_t1])
+            water_t2, thresh_t2 = sar_water_predict(sar_t2.array[vh_idx_t2])
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "water_detection", type(e).__name__, str(e), started_at)
+
+        # 变化检测
+        try:
+            change = detect_change(water_t1, water_t2)
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "change_detection", type(e).__name__, str(e), started_at)
+
+        total_changed = change["stats"]["total_changed"]
+
+        # 多边形化
+        try:
+            features_4545 = polygonize_change_mask(change["change_mask"], ref.transform, ref.crs,
+                                                    min_area_m2=500, pixel_area_m2=100)
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "polygonize", type(e).__name__, str(e), started_at)
+
+        # CRS 转换
+        try:
+            features_4326 = _to_epsg4326(features_4545, ref.crs)
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "crs_convert", type(e).__name__, str(e), started_at)
+
+        # 输出目录
+        root_output = Path(context.output_dir) if context.output_dir else Path.cwd()
+        task_output = root_output / context.run_id / task.task_id
+        task_output.mkdir(parents=True, exist_ok=True)
+
+        # 写出产物
+        try:
+            water_t1_path = task_output / "water_t1.tif"
+            water_t2_path = task_output / "water_t2.tif"
+            mask_path = task_output / "change_mask.tif"
+            cand_path = task_output / "candidates.geojson"
+            report_path = task_output / "run_report.json"
+
+            write_geotiff(water_t1, water_t1_path, ref.crs, ref.transform, bands=["water"], dtype="uint8")
+            write_geotiff(water_t2, water_t2_path, ref.crs, ref.transform, bands=["water"], dtype="uint8")
+            write_geotiff(change["change_mask"], mask_path, ref.crs, ref.transform, bands=["change"], dtype="uint8")
+            write_geojson(features_4326, cand_path)
+
+            total_area = sum(f["properties"].get("area_m2", 0) for f in features_4326)
+            report = {
+                "run_id": context.run_id, "task_id": task.task_id,
+                "task_spec_ref": task.task_spec_ref,
+                "actual_mode": actual_mode,
+                "raster_crs": str(ref.crs).upper(), "geojson_crs": "EPSG:4326",
+                "total_changed_pixels": int(total_changed),
+                "polygon_count": len(features_4326),
+                "total_area_m2": total_area,
+                "thresh_t1_db": float(thresh_t1), "thresh_t2_db": float(thresh_t2),
+                "status": "succeeded_with_observations" if features_4326 else "succeeded_empty",
+            }
+            with open(report_path, "w", encoding="utf-8") as f:
+                json.dump(report, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            return _failed(result_id, task, spec, context,
+                           "write", type(e).__name__, str(e), started_at)
+
+        # 修正 checksum: 报告已最终化，计算 checksum
+        report_checksum = _sha256_hex(report_path)
+
+        # 派生资产
+        derived: list[AssetRef] = []
+        t = ref.transform
+        transform_list = [float(t.a), float(t.b), float(t.c), float(t.d), float(t.e), float(t.f)]
+        crs_str = str(ref.crs).upper()
+
+        def _raster_ref(aid, uri, bands, desc):
+            r = AssetRef(asset_id=aid, uri=str(uri),
+                         media_type="image/tiff; application=geotiff", modality=Modality.MASK,
+                         spatial=SpatialMetadata(reliability="georeferenced", crs=crs_str,
+                                                  transform=transform_list,
+                                                  width=ref.width, height=ref.height),
+                         bands=bands, checksum=_sha256_hex(uri))
+            self._registry.register(r)
+            derived.append(r)
+
+        try:
+            _raster_ref(f"{task.task_id}_water_t1", water_t1_path, ["water"], None)
+            _raster_ref(f"{task.task_id}_water_t2", water_t2_path, ["water"], None)
+            _raster_ref(f"{task.task_id}_change_mask", mask_path, ["change"], None)
+
+            ref_cand = AssetRef(asset_id=f"{task.task_id}_candidates", uri=str(cand_path),
+                                media_type="application/geo+json", modality=Modality.VECTOR,
+                                spatial=SpatialMetadata(reliability="georeferenced", crs="EPSG:4326",
+                                                         bounds=[f["bbox"] if "bbox" in f else None for f in features_4326[:1]][0] if features_4326 else None),
+                                checksum=_sha256_hex(cand_path))
+            ref_report = AssetRef(asset_id=f"{task.task_id}_run_report", uri=str(report_path),
+                                  media_type="application/json", modality=Modality.METADATA,
+                                  checksum=report_checksum)
+            for r in [ref_cand, ref_report]:
+                self._registry.register(r)
+                derived.append(r)
+        except ValueError as e:
+            return _failed(result_id, task, spec, context,
+                           "register", "duplicate_asset_id", str(e), started_at)
+
+        # Observations
+        observations: list[Observation] = []
+        before_aid = self._registry.resolve(before_binding.asset_ref).asset_id
+        after_aid = self._registry.resolve(after_binding.asset_ref).asset_id
+        for feat in features_4326:
+            props = feat.get("properties", {})
+            a = props.get("area_m2", 0)
+            observations.append(Observation(
+                observation_id=f"obs-{task.task_id}-{props.get('feature_id', 'p')}",
+                perception_result_ref=result_id,
+                source_asset_refs=[before_aid, after_aid],
+                source_task_type=TaskType.TEMPORAL_CHANGE_DETECTION,
+                observation_type=ObservationType.SAR_BACKSCATTER_CHANGE,
+                label="sar_water_extent_change",
+                score=min(1.0, a / 50000.0) if a > 0 else 0.5,
+                score_type=ScoreType.RULE_BASED,
+                geometry=feat.get("geometry"), geometry_crs="EPSG:4326",
+                quality={"area_m2": a, "change_type": props.get("change_type", "candidate")},
+                model_run_ref=context.run_id,
+            ))
+
+        status = ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS if observations else ExecutionStatus.SUCCEEDED_EMPTY
+
+        return PerceptionResult(
+            perception_result_id=result_id, inference_task_ref=task.task_id,
+            task_spec_ref=task.task_spec_ref, run_id=context.run_id,
+            status=status, observations=observations,
+            artifact_refs=[r.asset_id for r in derived],
+            diagnostics={"total_changed_pixels": int(total_changed),
+                         "polygon_count": len(features_4326),
+                         "total_area_m2": total_area,
+                         "raster_crs": crs_str, "geojson_crs": "EPSG:4326",
+                         "actual_mode": actual_mode},
+            started_at=started_at, finished_at=datetime.now().isoformat(),
+        )
+
+    # ── 主运行 ──────────────────────────────────────────────────
 
     def run(self, task: InferenceTask, spec: TaskSpec, context: RunContext) -> PerceptionResult:
         result_id = f"pr-{task.task_id}"
@@ -693,298 +1489,34 @@ class SarTemporalChangeTool(PerceptionTool):
 
         # 2. 多时相路由 (RS-01B-2)
         if _is_multi_temporal_mode(spec):
-            # 解析策略 (重用在下面 pair 流程中也会用到)
             policy = SarValidationPolicy.default_warn()
             if spec.validation_policy:
                 try:
                     policy = SarValidationPolicy(**spec.validation_policy)
                 except Exception:
                     pass
-            try:
-                return self._execute_multi_temporal(
-                    task, spec, context, result_id, started_at, policy,
-                )
-            except _FallbackToPair:
-                pass  # 回落至双时相
+            return self._execute_multi_temporal(
+                task, spec, context, result_id, started_at, policy,
+            )
 
-        # 3. 双时相解析 (原有逻辑)
+        # 3. 双时相 (纯 BEFORE+AFTER 模式)
         try:
             before_binding = next(b for b in task.asset_bindings if b.role == AssetRole.BEFORE)
             after_binding = next(b for b in task.asset_bindings if b.role == AssetRole.AFTER)
-            if before_binding.asset_ref == after_binding.asset_ref:
-                return _failed(result_id, task, spec, context,
-                               "binding_resolve", "same_asset", "before/after 不可引用同一资产", started_at)
-            before_ref = self._registry.resolve(before_binding.asset_ref)
-            after_ref = self._registry.resolve(after_binding.asset_ref)
-        except (StopIteration, KeyError) as e:
+        except StopIteration:
             return PerceptionResult(
                 perception_result_id=result_id, inference_task_ref=task.task_id,
                 task_spec_ref=task.task_spec_ref, run_id=context.run_id,
                 status=ExecutionStatus.INVALID_INPUT,
-                diagnostics={"error": f"缺少 before/after 资产: {e}"},
+                diagnostics={"error": "缺少 before/after 绑定"},
                 started_at=started_at, finished_at=datetime.now().isoformat())
 
-        # 3. 读取
-        try:
-            sar_t1 = read_geotiff(before_ref.uri, bands=["vv", "vh"])
-            sar_t2 = read_geotiff(after_ref.uri, bands=["vv", "vh"])
-        except Exception as e:
-            return _failed(result_id, task, spec, context,
-                           "read", type(e).__name__, str(e), started_at)
-
-        # 4. 质量门禁 (RS-01B-1)
-        policy = SarValidationPolicy.default_warn()  # 默认 warn，保持向后兼容
+        policy = SarValidationPolicy.default_warn()
         if spec.validation_policy:
             try:
                 policy = SarValidationPolicy(**spec.validation_policy)
             except Exception:
-                pass  # 解析失败用默认 warn
+                pass
 
-        if policy.mode != PolicyMode.TRUST:
-            # 构建 SarMetadata (从 AssetRef)
-            meta_before = SarMetadata.from_asset_ref(before_ref, before_ref.uri)
-            meta_after = SarMetadata.from_asset_ref(after_ref, after_ref.uri)
-
-            # 计算输入质量
-            quality_metrics = compute_input_quality(
-                sar_t1.array, sar_t2.array,
-                sar_t1.bands, sar_t2.bands, nodata=-9999.0,
-            )
-
-            # 校验
-            validation = validate_sar_input(
-                meta_before, meta_after,
-                sar_t1.bands, sar_t2.bands,
-                quality_metrics, policy,
-                sar_t1.width, sar_t1.height,
-                sar_t2.width, sar_t2.height,
-            )
-
-            if validation.rejected:
-                qr = validation.quality
-                # 判断是 NO_DATA 还是 INVALID_INPUT
-                if quality_metrics.get("valid_pixel_ratio", 0.0) < 0.01:
-                    status = ExecutionStatus.NO_DATA
-                else:
-                    status = ExecutionStatus.INVALID_INPUT
-                return PerceptionResult(
-                    perception_result_id=result_id,
-                    inference_task_ref=task.task_id,
-                    task_spec_ref=task.task_spec_ref,
-                    run_id=context.run_id,
-                    status=status,
-                    quality_report=qr,
-                    diagnostics={
-                        "rejection_reason": validation.rejection_reason,
-                        "quality": quality_metrics,
-                    },
-                    started_at=started_at, finished_at=datetime.now().isoformat(),
-                )
-
-            # 未拒绝但可能有警告 — 预存 quality_report
-            _quality_report = validation.quality
-        else:
-            _quality_report = None
-
-        # 5. 重投影
-        try:
-            sar_t1 = reproject_to_target(sar_t1)
-            sar_t2 = reproject_to_target(sar_t2)
-        except Exception as e:
-            return _failed(result_id, task, spec, context,
-                           "reproject", type(e).__name__, str(e), started_at)
-
-        ref = sar_t1
-        if sar_t2.width != ref.width or sar_t2.height != ref.height:
-            try:
-                sar_t2 = resample_to_grid(sar_t2, ref)
-            except Exception as e:
-                return _failed(result_id, task, spec, context,
-                               "resample", type(e).__name__, str(e), started_at)
-
-        # 5. 水体检测
-        try:
-            vh_idx_t1 = sar_t1.bands.index("vh")
-            vh_idx_t2 = sar_t2.bands.index("vh")
-            water_t1, thresh_t1 = sar_water_predict(sar_t1.array[vh_idx_t1])
-            water_t2, thresh_t2 = sar_water_predict(sar_t2.array[vh_idx_t2])
-        except Exception as e:
-            return _failed(result_id, task, spec, context,
-                           "water_detection", type(e).__name__, str(e), started_at)
-
-        # 6. 变化检测
-        try:
-            change = detect_change(water_t1, water_t2)
-        except Exception as e:
-            return _failed(result_id, task, spec, context,
-                           "change_detection", type(e).__name__, str(e), started_at)
-
-        total_changed = change["stats"]["total_changed"]
-
-        # 7. 多边形化 (在 EPSG:4545 下)
-        try:
-            features_4545 = polygonize_change_mask(
-                change["change_mask"], ref.transform, ref.crs,
-                min_area_m2=500, pixel_area_m2=100,
-            )
-        except Exception as e:
-            return _failed(result_id, task, spec, context,
-                           "polygonize", type(e).__name__, str(e), started_at)
-
-        # 8. GeoJSON geometry → EPSG:4326
-        try:
-            features_4326 = _to_epsg4326(features_4545, ref.crs)
-        except Exception as e:
-            return _failed(result_id, task, spec, context,
-                           "crs_convert", type(e).__name__, str(e), started_at)
-
-        # 9. 输出目录: output_dir/run_id/task_id/
-        root_output = Path(context.output_dir) if context.output_dir else Path.cwd()
-        task_output = root_output / context.run_id / task.task_id
-        task_output.mkdir(parents=True, exist_ok=True)
-
-        # 10. 写出产物 (先写数据，再写报告，后注册)
-        try:
-            water_t1_path = task_output / "water_t1.tif"
-            water_t2_path = task_output / "water_t2.tif"
-            mask_path = task_output / "change_mask.tif"
-            cand_path = task_output / "candidates.geojson"
-            report_path = task_output / "run_report.json"
-
-            write_geotiff(water_t1, water_t1_path, ref.crs, ref.transform, bands=["water"], dtype="uint8")
-            write_geotiff(water_t2, water_t2_path, ref.crs, ref.transform, bands=["water"], dtype="uint8")
-            write_geotiff(change["change_mask"], mask_path, ref.crs, ref.transform, bands=["change"], dtype="uint8")
-            write_geojson(features_4326, cand_path)
-
-            # 先写一个占位报告 (后面会覆盖)
-            report = {
-                "run_id": context.run_id, "task_id": task.task_id,
-                "task_spec_ref": task.task_spec_ref,
-                "raster_crs": str(ref.crs),
-                "geojson_crs": "EPSG:4326",
-                "total_changed_pixels": int(total_changed),
-                "polygon_count": len(features_4326),
-                "total_area_m2": 0.0,
-                "thresh_t1_db": float(thresh_t1),
-                "thresh_t2_db": float(thresh_t2),
-                "output_dir": str(task_output),
-            }
-            with open(report_path, "w", encoding="utf-8") as f:
-                json.dump(report, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            return _failed(result_id, task, spec, context,
-                           "write", type(e).__name__, str(e), started_at)
-
-        # 11. 注册派生资产到 registry
-        prefix = f"{task.task_id}"
-        derived_assets: list[AssetRef] = []
-        crs_str = str(ref.crs).upper()
-        if hasattr(ref.transform, '__iter__'):
-            # rasterio Affine → 6-element list [a, b, c, d, e, f]
-            t = ref.transform
-            transform_list = [float(t.a), float(t.b), float(t.c),
-                              float(t.d), float(t.e), float(t.f)]
-        else:
-            transform_list = list(ref.transform)[:6]
-        try:
-            ref_water_t1 = AssetRef(
-                asset_id=f"{prefix}_water_t1", uri=str(water_t1_path),
-                media_type="image/tiff; application=geotiff", modality=Modality.MASK,
-                spatial=SpatialMetadata(
-                    reliability="georeferenced", crs=crs_str,
-                    transform=transform_list,
-                    width=ref.width, height=ref.height,
-                ),
-                bands=["water"], checksum=_sha256_hex(water_t1_path),
-            )
-            ref_water_t2 = AssetRef(
-                asset_id=f"{prefix}_water_t2", uri=str(water_t2_path),
-                media_type="image/tiff; application=geotiff", modality=Modality.MASK,
-                spatial=SpatialMetadata(
-                    reliability="georeferenced", crs=crs_str,
-                    transform=transform_list,
-                    width=ref.width, height=ref.height,
-                ),
-                bands=["water"], checksum=_sha256_hex(water_t2_path),
-            )
-            ref_mask = AssetRef(
-                asset_id=f"{prefix}_change_mask", uri=str(mask_path),
-                media_type="image/tiff; application=geotiff", modality=Modality.MASK,
-                spatial=SpatialMetadata(
-                    reliability="georeferenced", crs=crs_str,
-                    transform=transform_list,
-                    width=ref.width, height=ref.height,
-                ),
-                bands=["change"], checksum=_sha256_hex(mask_path),
-            )
-            ref_cand = AssetRef(
-                asset_id=f"{prefix}_candidates", uri=str(cand_path),
-                media_type="application/geo+json", modality=Modality.VECTOR,
-                checksum=_sha256_hex(cand_path),
-            )
-            ref_report = AssetRef(
-                asset_id=f"{prefix}_run_report", uri=str(report_path),
-                media_type="application/json", modality=Modality.METADATA,
-                checksum=_sha256_hex(report_path),
-            )
-            for r in [ref_water_t1, ref_water_t2, ref_mask, ref_cand, ref_report]:
-                self._registry.register(r)
-                derived_assets.append(r)
-        except ValueError as e:
-            return _failed(result_id, task, spec, context,
-                           "register", "duplicate_asset_id", str(e), started_at)
-
-        # 12. Observations
-        observations: list[Observation] = []
-        total_area = 0.0
-        for feat in features_4326:
-            props = feat.get("properties", {})
-            a = props.get("area_m2", 0)
-            total_area += a
-            observations.append(Observation(
-                observation_id=f"obs-{task.task_id}-{props.get('feature_id', 'p')}",
-                perception_result_ref=result_id,
-                source_asset_refs=[before_ref.asset_id, after_ref.asset_id],
-                source_task_type=TaskType.TEMPORAL_CHANGE_DETECTION,
-                observation_type=ObservationType.SAR_BACKSCATTER_CHANGE,
-                label="sar_water_extent_change",
-                score=min(1.0, a / 50000.0) if a > 0 else 0.5,
-                score_type=ScoreType.RULE_BASED,
-                geometry=feat.get("geometry"),
-                geometry_crs="EPSG:4326",
-                quality={"area_m2": a, "change_type": props.get("change_type", "candidate")},
-                model_run_ref=context.run_id,
-            ))
-
-        # 13. 更新运行报告（追加 final info）
-        with open(report_path, "r", encoding="utf-8") as f:
-            report = json.load(f)
-        report["status"] = "succeeded_with_observations" if observations else "succeeded_empty"
-        report["total_area_m2"] = total_area
-        report["polygon_count"] = len(features_4326)
-        report["derived_assets"] = [r.asset_id for r in derived_assets]
-        with open(report_path, "w", encoding="utf-8") as f:
-            json.dump(report, f, ensure_ascii=False, indent=2)
-
-        # 14. 状态判定
-        status = ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS if observations else ExecutionStatus.SUCCEEDED_EMPTY
-        artifact_ids = [r.asset_id for r in derived_assets]
-
-        return PerceptionResult(
-            perception_result_id=result_id,
-            inference_task_ref=task.task_id,
-            task_spec_ref=task.task_spec_ref,
-            run_id=context.run_id,
-            status=status,
-            observations=observations,
-            artifact_refs=artifact_ids,
-            diagnostics={
-                "total_changed_pixels": int(total_changed),
-                "polygon_count": len(features_4326),
-                "total_area_m2": total_area,
-                "raster_crs": ref.crs,
-                "geojson_crs": "EPSG:4326",
-            },
-            started_at=started_at,
-            finished_at=datetime.now().isoformat(),
-        )
+        return self._execute_pair(task, spec, context, result_id, started_at,
+                                   policy, before_binding, after_binding, actual_mode="pair")
