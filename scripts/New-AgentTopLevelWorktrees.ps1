@@ -11,11 +11,11 @@ if (-not (Test-Path (Join-Path $repo '.git'))) { throw "RepoRoot is not a Git wo
 New-Item -ItemType Directory -Force -Path $root | Out-Null
 
 $agents = @(
-    @{ Id = 'agent-a'; Branch = 'feature/agent-a-top-session' },
-    @{ Id = 'agent-b'; Branch = 'feature/agent-b-top-session' },
-    @{ Id = 'agent-c'; Branch = 'feature/agent-c-top-session' },
-    @{ Id = 'agent-d'; Branch = 'feature/agent-d-top-session' },
-    @{ Id = 'agent-e'; Branch = 'feature/agent-e-top-session' }
+    @{ Id = 'agent-a'; Branch = 'feature/agent-a-top-level-session' },
+    @{ Id = 'agent-b'; Branch = 'feature/agent-b-top-level-session' },
+    @{ Id = 'agent-c'; Branch = 'feature/agent-c-top-level-session' },
+    @{ Id = 'agent-d'; Branch = 'feature/agent-d-top-level-session' },
+    @{ Id = 'agent-e'; Branch = 'feature/agent-e-top-level-session' }
 )
 
 foreach ($agent in $agents) {
