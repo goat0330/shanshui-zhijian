@@ -47,6 +47,30 @@
 - **决策者**: 项目经理_AGENT_E
 - **状态**: ✅ 生效
 
+### D-AGENT-006: 一个长期 Session 对应一个 worktree
+
+- **决策**: A/B/C/D/E 五个可写 Session 使用独立目录和独立分支
+- **理由**: 共享 working tree 已实证造成 HEAD、分支名和未提交文件错位
+- **影响范围**: OpenCode/GeoCode 启动方式、Git 工作目录、handoff
+- **决策者**: 用户最终授权，项目经理_AGENT_E 执行
+- **状态**: ✅ 生效
+
+### D-AGENT-007: 用户保留最终合并权
+
+- **决策**: Agent E 只提出 `MERGE_READY`；integration/develop/main 均需用户明确批准
+- **理由**: 控制面负责编排，不应取得不可逆发布权限
+- **影响范围**: Integration Plan、Release Gate、Ensemble 配置
+- **决策者**: 用户
+- **状态**: ✅ 生效
+
+### D-AGENT-008: Ensemble 仅做隔离试运行
+
+- **决策**: 不接管旧 Session；固定 `mergeOnCleanup: false`，禁止 `team_merge`
+- **理由**: Ensemble 默认 cleanup 会自动合并，和本项目 Gate 冲突
+- **影响范围**: OpenCode 控制面
+- **决策者**: 项目经理_AGENT_E
+- **状态**: ✅ 生效
+
 ---
 
 ## 历史决策（来自 山水智鉴_项目驾驶舱.md）

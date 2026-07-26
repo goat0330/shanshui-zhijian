@@ -36,7 +36,9 @@ CompetitionInput
 
 ## 2. 当前状态
 
-最新 `develop` 状态已经形成重庆两江遥感 V0：
+稳定 `develop` 已形成重庆两江遥感 V0；当前 clean feature branches 又完成了
+Candidate v0.3、可靠性/比赛链、事件完整性和 React 工作台，但尚未正式合入
+integration/develop：
 
 ```text
 GEE 数据
@@ -59,12 +61,16 @@ GEE 数据
 | FastAPI + SQLite + 演示页面 | 已完成 V0 |
 | 人工验证集与量化精度 | 待完成 |
 | 真实 COG → TiTiler → MapLibre | 待修复 |
-| Competition Adapter / SubmissionBundle | 待完成 |
-| Observation → Candidate → Event 正式领域链 | 待迁移 |
+| Competition Adapter / SubmissionBundle | clean branch 已完成，待正式集成 |
+| Observation → Candidate → Event 正式领域链 | clean branch 已完成，待正式集成 |
+| React + MapLibre 研判工作台 | Mock E2E 24/24，待正式集成 |
+| 五 Session 独立 worktree | 已完成 |
 | 高点视频最小纵切 | 待实现 |
 | PostgreSQL/PostGIS、权限、Outbox | 产品化阶段 |
 
-详细状态见 [`docs/06_架构设计/00_当前状态.md`](docs/06_架构设计/00_当前状态.md)。
+当前实测状态见 [`docs/program/STATUS_BOARD.md`](docs/program/STATUS_BOARD.md)，
+多 Session 启动方式见
+[`docs/program/MULTI_SESSION_OPERATIONS.md`](docs/program/MULTI_SESSION_OPERATIONS.md)。
 
 ## 3. 当前唯一 P0
 

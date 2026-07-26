@@ -1,9 +1,9 @@
 # 山水智鉴 — 多 Agent 治理框架
 
-> **版本**: v0.1 (GOV-02)
+> **版本**: v0.2 (MULTISESSION-01)
 > **最新更新**: 2026-07-26
-> **基线分支**: `integration/g0-g1-contract-freeze` (HEAD: `1fe33b0`)
-> **治理分支**: `feature/agent-e-program-governance`
+> **基线分支**: `integration/g0-g1-contract-freeze` (HEAD: `df7b3e7`)
+> **控制分支**: `feature/agent-e-integration-control`
 
 ---
 
@@ -56,6 +56,13 @@ CompetitionInput → InferenceTask → PerceptionResult
 
 禁止：octopus merge、force push develop/main、从旧 Agent 分支创建新分支。
 
+### Session 隔离硬规则
+
+每个长期 Session 必须绑定唯一的 Git worktree 和唯一工作分支。禁止两个
+可写 Session 共用同一工作目录，也禁止在 Session 运行期间切换到其他
+Agent 的分支。实际路径和启动检查见
+[`docs/program/MULTI_SESSION_OPERATIONS.md`](docs/program/MULTI_SESSION_OPERATIONS.md)。
+
 详细规范见 [`docs/program/BRANCH_STRATEGY.md`](docs/program/BRANCH_STRATEGY.md)。
 
 ---
@@ -71,11 +78,14 @@ CompetitionInput → InferenceTask → PerceptionResult
 | 4 | 产品工作台 | D → integration |
 | 5 | ML Readiness | E → integration |
 | 6 | Unified Integration E2E | E |
-| 7 | integration → develop | E |
-| 8 | develop → main → tag v0.1.0 | E |
+| 7 | integration → develop | 用户批准，E 执行或协助 |
+| 8 | develop → main → tag v0.1.0 | 用户批准，E 执行或协助 |
 
 每个 Agent 必须形成 **clean branch**，从最新 `integration/g0-g1-contract-freeze` 创建，
 一次只合入一个 Agent，每次合入后执行统一测试。
+
+Agent E 只有审计、编排和提出 `MERGE_READY` 的权限；没有用户明确批准时，
+不得合并 `integration`、`develop` 或 `main`。
 
 详细集成计划见 [`docs/program/INTEGRATION_PLAN.md`](docs/program/INTEGRATION_PLAN.md)。
 
