@@ -1,0 +1,62 @@
+/* Replay 时间线样式 */
+
+.replay-timeline {
+  padding-left: var(--spacing-md);
+}
+
+.replay-entry {
+  display: flex;
+  position: relative;
+  padding-bottom: var(--spacing-md);
+}
+
+.replay-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 4px;
+  z-index: 1;
+}
+
+.replay-line {
+  position: absolute;
+  left: 4px;
+  top: 14px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border-light);
+}
+
+.replay-content {
+  margin-left: var(--spacing-sm);
+  flex: 1;
+}
+
+.replay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.replay-operation {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.replay-comment {
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.replay-state-change {
+  margin-top: 2px;
+  color: var(--color-text-muted);
+}
