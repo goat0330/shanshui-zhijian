@@ -5,8 +5,14 @@ Red → Green → Refactor 循环：
 1. 写测试 → 运行确认失败 → 实现 → 运行确认通过 → 提交
 """
 
+from typing import TYPE_CHECKING
+
 import pytest
 from pydantic import ValidationError
+
+if TYPE_CHECKING:
+    from core.schemas.contracts.candidate import DetectionCandidate
+    from core.schemas.contracts.candidate_envelope import CandidateDeliveryEnvelope
 
 
 # ── Helper: minimal candidate factory ───────────────────────────────
