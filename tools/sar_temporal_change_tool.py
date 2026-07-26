@@ -21,6 +21,7 @@ RS-01B-1 新增:
 import json
 import sys
 import hashlib
+import logging
 import tempfile
 from pathlib import Path
 from datetime import datetime
@@ -32,6 +33,8 @@ if str(PIPELINE_DIR) not in sys.path:
     sys.path.insert(0, str(PIPELINE_DIR))
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 from core.schemas.contracts import (
     ExecutionStatus, TaskType, ObservationType, ScoreType, AssetRole, Modality,
