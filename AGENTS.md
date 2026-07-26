@@ -1,9 +1,9 @@
 # 山水智鉴 — 多 Agent 治理框架
 
-> **版本**: v0.3 (MULTISESSION-02)
-> **最新更新**: 2026-07-26
-> **基线分支**: `integration/g0-g1-contract-freeze` (HEAD: `caef195`)
-> **控制分支**: `feature/agent-e-dynamic-session-policy`
+> **版本**: v0.4 (ENSEMBLE-SUBSESSION)
+> **最新更新**: 2026-07-27
+> **基线分支**: `integration/g0-g1-contract-freeze`
+> **控制面**: GeoCode 顶层 Agent E + 持久化 Ensemble Subsessions A/B/C/D
 
 ---
 
@@ -31,21 +31,32 @@ CompetitionInput → InferenceTask → PerceptionResult
 
 ---
 
-## 2. 五 Agent 编制
+## 2. 岗位编制
 
-| ID | 正式名称 | 英文代号 | 核心职责 |
-|----|----------|----------|----------|
-| A | 感知算法_AGENT_A | PERCEPTION_AGENT_A | SAR 遥感感知、Observation、DetectionCandidate、ModelArtifact 推理 |
-| B | 工程可靠性_AGENT_B | RELIABILITY_AGENT_B | 元数据、RunManifest、评测链适配、CI |
-| C | 事件治理_AGENT_C | EVENT_AGENT_C | Evidence、Event、Review、Replay、事务与幂等 |
-| D | 产品工作台_AGENT_D | WORKBENCH_AGENT_D | React、MapLibre、Workbench API、OpenAPI Client |
-| E | 项目经理_AGENT_E | PROGRAM_AGENT_E | 项目路线、产品 PRD、Agent 编排、Git 门禁、ML Readiness |
+| ID | 正式名称 | 英文代号 | Agent 类型 | 核心职责 |
+|----|----------|----------|-----------|----------|
+| A | 感知算法_AGENT_A | PERCEPTION_AGENT_A | 持久化 Ensemble child | SAR 遥感感知、Observation、DetectionCandidate、ModelArtifact 推理 |
+| B | 工程可靠性_AGENT_B | RELIABILITY_AGENT_B | 持久化 Ensemble child | 元数据、RunManifest、评测链适配、CI、环境可复现 |
+| C | 事件治理_AGENT_C | EVENT_AGENT_C | 持久化 Ensemble child | Evidence、Event、Review、Replay、事务与幂等 |
+| D | 产品工作台_AGENT_D | WORKBENCH_AGENT_D | 持久化 Ensemble child | React、MapLibre、Workbench API、OpenAPI Client |
+| E | 项目经理_AGENT_E | PROGRAM_AGENT_E | **顶层控制面 Session** | 项目路线、Agent 编排、Git 门禁、ML Readiness |
 
 详细角色定义见 [`agents/`](agents/) 目录。
 
-Agent ID 是稳定身份，不是永久技能限制。每轮职责由 Work Package 定义：
-可只启用部分执行 Agent，也可让 A 在后续改做计算机视觉。职责变化必须同步
-更新允许目录、输入输出合同、验收 Gate 和 Handoff，不得口头漂移。
+Agent ID 是稳定身份，不是永久技能限制。每轮职责由 Work Package 定义。
+职责变化必须同步更新允许目录、输入输出合同、验收 Gate 和 Handoff，
+不得口头漂移。
+
+### 控制关系
+
+```
+用户（最终决策人和 Merge Gate Owner）
+ └── PROGRAM_AGENT_E：唯一顶层控制面 Session
+      ├── PERCEPTION_AGENT_A：持久化 Ensemble child Session
+      ├── RELIABILITY_AGENT_B：持久化 Ensemble child Session
+      ├── EVENT_AGENT_C：持久化 Ensemble child Session
+      └── WORKBENCH_AGENT_D：持久化 Ensemble child Session
+```
 
 ---
 
@@ -57,14 +68,21 @@ Agent ID 是稳定身份，不是永久技能限制。每轮职责由 Work Packa
 | `develop` | 日常开发集成分支 | — | `develop` |
 | `integration/g0-g1-contract-freeze` | G0-G1 集成门禁基线 | `develop` | `develop` |
 | `feature/agent-*-*` | 各 Agent 工作分支 | `integration/g0-g1-contract-freeze` | `integration/g0-g1-contract-freeze` |
+| `ensemble/.../<member>` | Ensemble 自动 worktree 分支 | `integration/g0-g1-contract-freeze` | `integration/g0-g1-contract-freeze` |
+| `archive/legacy-*` | 只读历史存档 | — | — |
 
 禁止：octopus merge、force push develop/main、从旧 Agent 分支创建新分支。
 
 ### Session 隔离硬规则
 
-每个长期 Session 必须绑定唯一的 Git worktree 和唯一工作分支。禁止两个
-可写 Session 共用同一工作目录，也禁止在 Session 运行期间切换到其他
-Agent 的分支。实际路径和启动检查见
+**PROGRAM_AGENT_E** 是唯一顶层控制面 Session。
+**A/B/C/D** 是持久化 Ensemble child Sessions，由 `team_spawn` 以
+`agent=build`、`worktree=true` 和显式模型创建。
+
+每个可写成员必须绑定唯一 worktree 与唯一分支。禁止两个可写 Session
+共用同一工作目录，也禁止成员运行期间切换分支。
+
+实际启动和恢复步骤见
 [`docs/program/MULTI_SESSION_OPERATIONS.md`](docs/program/MULTI_SESSION_OPERATIONS.md)。
 
 详细规范见 [`docs/program/BRANCH_STRATEGY.md`](docs/program/BRANCH_STRATEGY.md)。
@@ -83,15 +101,14 @@ Agent 的分支。实际路径和启动检查见
 | 5 | ML Readiness | E → integration |
 | 6 | Unified Integration E2E | E |
 | 7 | integration → develop | 用户批准，E 执行或协助 |
-| 8 | develop → main → tag v0.1.0 | 用户批准，E 执行或协助 |
+| 8 | develop → main → Release Tag | 用户批准，E 执行或协助 |
 
-每个 Agent 必须形成 **clean branch**，从最新 `integration/g0-g1-contract-freeze` 创建，
-一次只合入一个 Agent，每次合入后执行统一测试。
+每个 Agent 必须形成只含本 Work Package 的独立分支，从最新
+`integration/g0-g1-contract-freeze` 创建；一次只合入一个 Agent，
+每次合入后执行统一测试。Ensemble 自动分支不要求使用 `feature/agent-*` 名称。
 
 Agent E 只有审计、编排和提出 `MERGE_READY` 的权限；没有用户明确批准时，
 不得合并 `integration`、`develop` 或 `main`。
-
-详细集成计划见 [`docs/program/INTEGRATION_PLAN.md`](docs/program/INTEGRATION_PLAN.md)。
 
 ---
 
