@@ -391,10 +391,10 @@ class TestObjectAssociationShift:
                 f"persistent candidate {pc['candidate_id']} has occurrence_count={pc['occurrence_count']}, expected 2"
             # A-G0: source_scene_indices moved to temporal_extent
             te = pc.get("temporal_extent", {})
-            assert te.get("start") == 0, \
-                f"Expected temporal_extent.start=0, got {te.get('start')}"
-            assert te.get("end") == 1, \
-                f"Expected temporal_extent.end=1, got {te.get('end')}"
+            assert te.get("start_index") == 0, \
+                f"Expected temporal_extent.start_index=0, got {te.get('start_index')}"
+            assert te.get("end_index") == 1, \
+                f"Expected temporal_extent.end_index=1, got {te.get('end_index')}"
 
         # Strong: candidate_id stability — re-run with same input produces same IDs
         tool2 = SarTemporalChangeTool(AssetRegistry())

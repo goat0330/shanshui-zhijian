@@ -658,11 +658,11 @@ class SarTemporalChangeTool(PerceptionTool):
                            "change_classify", type(e).__name__, str(e), started_at)
 
         # 确保无 NaN/Inf
-        for name in ["baseline_vh_median", "baseline_vh_mad",
-                      "historical_water_occurrence", "current_vh_median", "robust_zscore"]:
-            arr = locals()[name]
-            if isinstance(arr, np.ndarray):
-                locals()[name] = ensure_no_nan_inf(arr)
+        baseline_vh_median = ensure_no_nan_inf(baseline_vh_median)
+        baseline_vh_mad = ensure_no_nan_inf(baseline_vh_mad)
+        historical_water_occurrence = ensure_no_nan_inf(historical_water_occurrence)
+        current_vh_median = ensure_no_nan_inf(current_vh_median)
+        robust_zscore = ensure_no_nan_inf(robust_zscore)
         history_valid_count = np.where(np.isfinite(history_valid_count), history_valid_count, 0).astype(np.uint16)
 
         # ── RS-01B-3: Per-scene persistence + candidate objects ──────
