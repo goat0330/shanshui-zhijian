@@ -101,7 +101,7 @@ def create_app(
     # ── API ────────────────────────────────────────────────────
 
     @app.post("/api/v2/candidates/intake", status_code=201)
-    async def intake_candidate(req: IntakeRequest):
+    async def intake_candidate(req: CandidateDeliveryEnvelope):
         """摄入 Candidate 并自动生成 Event。"""
         try:
             # 1. Candidate Intake
