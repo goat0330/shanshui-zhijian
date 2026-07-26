@@ -10,10 +10,10 @@
 
 | Agent | Work Package | Clean Branch | Head | 已验证 Gate | 状态 |
 |---|---|---|---|---|---|
-| 工程可靠性_AGENT_B | G0.3-B + Workbench CI | `feature/agent-b-reliability-repair` | `e8bb744` | Python 183 passed, 1 skipped；Ruff correctness；前端 CI 已定义 | `MERGE_READY` |
-| 感知算法_AGENT_A | G0.3-A Candidate v0.3 | `feature/agent-a-candidate-clean` | `a2a3c41` | 合同与快速验证 44 passed；多时相代表性 E2E passed | `MERGE_READY` |
-| 事件治理_AGENT_C | G1.1-C Event Integrity | `feature/agent-c-event-clean` | `6ca477d` | C 域 72 passed；候选集成 Python 294 passed, 1 skipped | `MERGE_READY` |
-| 产品工作台_AGENT_D | D0-D9 Workbench V0 | `feature/agent-d-workbench-clean` | `d58078d` | Vitest 43/43；Build；Playwright 24/24 | `MERGE_READY` |
+| 工程可靠性_AGENT_B | G0.3-B + Workbench CI | `feature/agent-b-reliability-repair` | `e8bb744` | Python 183 passed, 1 skipped；Ruff correctness；远程 CI passed | `MERGE_READY` |
+| 感知算法_AGENT_A | G0.3-A Candidate v0.3 | `feature/agent-a-candidate-clean` | `1278304` | 依赖对齐后 108 passed；远程 CI 待复验 | `MERGE_READY_LOCAL` |
+| 事件治理_AGENT_C | G1.1-C Event Integrity | `feature/agent-c-event-clean` | `6f54437` | 依赖对齐后 141 passed；远程 CI 待复验 | `MERGE_READY_LOCAL` |
+| 产品工作台_AGENT_D | D0-D9 Workbench V0 | `feature/agent-d-workbench-clean` | `950c5cc` | Vitest 43/43；Build；Playwright 24/24；远程 CI 待复验 | `MERGE_READY_LOCAL` |
 | 项目经理_AGENT_E | MULTISESSION-01 | `feature/agent-e-integration-control` | 当前提交 | 治理、候选集成、隔离控制面 | 进行中 |
 
 ## 已核验事实

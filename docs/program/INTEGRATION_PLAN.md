@@ -41,7 +41,7 @@
 
 | 内容 | 详情 |
 |------|------|
-| 分支 | `feature/agent-a-candidate-clean` @ `a2a3c41` |
+| 分支 | `feature/agent-a-candidate-clean` @ `1278304` |
 | 基线 | `integration/g0-g1-contract-freeze` (最新) |
 | 范围 | 仅 `tools/`, `core/schemas/contracts/candidate.py`, `core/schemas/contracts/perception.py`, `core/protocols/` |
 | Gate | Candidate v0.3 冻结、双时相回归不变、多时相测试通过、无 B/C/D 文件 |
@@ -51,7 +51,7 @@
 
 | 内容 | 详情 |
 |------|------|
-| 分支 | `feature/agent-c-event-clean` @ `6ca477d` |
+| 分支 | `feature/agent-c-event-clean` @ `6f54437` |
 | 基线 | `integration/g0-g1-contract-freeze` (最新) |
 | 范围 | 仅 `services/`, `core/schemas/contracts/event.py`, `core/schemas/contracts/evidence.py`, `core/schemas/contracts/review.py`, `core/schemas/contracts/replay.py`, `core/compatibility/` |
 | Gate | 幂等、事务原子、Replay 不重复、Candidate 不被修改、无 A/B/D 文件 |
@@ -61,7 +61,7 @@
 
 | 内容 | 详情 |
 |------|------|
-| 分支 | `feature/agent-d-workbench-clean` @ `d58078d` |
+| 分支 | `feature/agent-d-workbench-clean` @ `950c5cc` |
 | 基线 | `integration/g0-g1-contract-freeze` (最新) |
 | 范围 | 仅 `frontend/`, `apps/workbench_api/`, `docs/product/` |
 | Gate | Mock/Real 双模式、OpenAPI 类型生成、Playwright 通过、不修改领域合同 |
