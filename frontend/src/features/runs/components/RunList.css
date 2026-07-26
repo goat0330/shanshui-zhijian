@@ -1,0 +1,74 @@
+/* Run 列表样式 */
+
+.run-center-layout {
+  display: flex;
+  height: 100%;
+  gap: var(--spacing-lg);
+}
+
+.run-list-panel {
+  width: 400px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.run-list-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+}
+
+.run-list-empty {
+  padding: var(--spacing-xxl);
+  text-align: center;
+}
+
+.run-card {
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xs);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.run-card:hover {
+  background: var(--color-surface-hover);
+}
+
+.run-card--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.run-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.run-card-id {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.run-card-status {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.run-card-task,
+.run-card-meta,
+.run-card-counts {
+  margin-top: 2px;
+}
+
+.run-detail-panel {
+  flex: 1;
+  overflow-y: auto;
+}
