@@ -1,0 +1,81 @@
+{
+  "fixture_type": "candidate_v0.2",
+  "schema_version": "rs-contract.v0.2",
+  "description": "Agent C 候选 Fixture — SAR 水体变化检测候选，S2 光学缺失",
+  "candidate": {
+    "candidate_id": "DET-CQ-0001",
+    "observation_refs": ["obs_sar_t1_t2_001"],
+    "temporal_extent": {"start": "2026-05-15T00:00:00Z", "end": "2026-06-15T00:00:00Z"},
+    "candidate_type": "water_extent_change",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [[[106.56, 29.56], [106.57, 29.56], [106.57, 29.57], [106.56, 29.57], [106.56, 29.56]]]
+    },
+    "score": 0.82,
+    "quality_summary": {"valid_pixel_ratio": 0.95, "sar_quality": "good"},
+    "evidence_refs": ["evd_s1_t1_vh", "evd_s1_t2_vh", "evd_change_mask"],
+    "rule_version": "sar-change-v1@1.0.0"
+  },
+  "observations": [
+    {
+      "schema_version": "rs-contract.v0.2",
+      "observation_id": "obs_sar_t1_t2_001",
+      "perception_result_ref": "pr_cq_001",
+      "source_asset_refs": ["s1_t1", "s1_t2"],
+      "source_task_type": "temporal_change_detection",
+      "observation_type": "sar_backscatter_change",
+      "label": "water_extent_decrease",
+      "score": 0.82,
+      "score_type": "rule_based",
+      "geometry": {"type": "Polygon", "coordinates": [[[106.56, 29.56], [106.57, 29.56], [106.57, 29.57], [106.56, 29.57], [106.56, 29.56]]]},
+      "temporal": {"start": "2026-05-15T00:00:00Z", "end": "2026-06-15T00:00:00Z"},
+      "quality": {"valid_pixel_ratio": 0.95},
+      "coordinate_space": "geographic"
+    }
+  ],
+  "assets": [
+    {
+      "asset_id": "s1_t1",
+      "uri": "data/raw/s1_t1.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "sar",
+      "bands": ["VV", "VH"],
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4545"},
+      "acquisition_time": "2026-05-18T00:00:00Z"
+    },
+    {
+      "asset_id": "s1_t2",
+      "uri": "data/raw/s1_t2.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "sar",
+      "bands": ["VV", "VH"],
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4545"},
+      "acquisition_time": "2026-06-16T00:00:00Z"
+    },
+    {
+      "asset_id": "evd_s1_t1_vh",
+      "uri": "data/derived/s1_t1_vh_cropped.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "mask",
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4545"}
+    },
+    {
+      "asset_id": "evd_s1_t2_vh",
+      "uri": "data/derived/s1_t2_vh_cropped.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "mask",
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4545"}
+    },
+    {
+      "asset_id": "evd_change_mask",
+      "uri": "data/derived/change_mask_cropped.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "mask",
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4545"}
+    }
+  ],
+  "modalities_expected": ["SAR_C", "OPTICAL_MULTI"],
+  "modalities_present": ["SAR_C"],
+  "modalities_missing": ["OPTICAL_MULTI"],
+  "missing_context_notes": "S2 T2 云覆盖，光学模态不可用"
+}

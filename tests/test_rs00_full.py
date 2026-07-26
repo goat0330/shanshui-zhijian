@@ -49,8 +49,14 @@ class TestA2Contracts:
     def test_detection_candidate(self):
         dc = DetectionCandidate(
             candidate_id="cand-001",
+            candidate_track_id="track-cand-001",
             observation_refs=["obs-001", "obs-002"],
-            temporal_extent={"start": "2026-05", "end": "2026-06"},
+            temporal_extent={
+                "start_index": 0,
+                "end_index": 1,
+                "start_time": "2026-05",
+                "end_time": "2026-06",
+            },
             candidate_type="water_extent_change",
             score=0.85,
             rule_version="v1.0",
@@ -357,7 +363,11 @@ class TestA7Regression:
                         )
                     ],
                 )
-                pr = mapper.map_result(result, task)
+                pr = mapper.map_result(
+                    result,
+                    task,
+                    TaskType.TEMPORAL_CHANGE_DETECTION,
+                )
                 all_tasks.append(pr)
 
         bundle = exporter.export(all_tasks, bundle_id="test-e2e-all")
