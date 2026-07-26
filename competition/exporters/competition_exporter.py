@@ -11,7 +11,6 @@ RS-00 — SubmissionBundle + CompetitionExporter
 
 import hashlib
 import json
-from datetime import datetime
 from pathlib import Path
 from pydantic import BaseModel, Field
 
@@ -176,10 +175,20 @@ class CompetitionExporter:
             seen_refs.add(pr.inference_task_ref)
 
         if not bundle_id:
-            ts = datetime.now().strftime("%Y%m%d%H%M%S")
-            bundle_id = f"bundle-{ts}-{len(predictions)}tasks"
             if source_manifest_hash:
-                bundle_id = f"bundle-{source_manifest_hash[:8]}-{len(predictions)}tasks"
+                identity = source_manifest_hash
+            else:
+                prediction_data = [
+                    p.model_dump(mode="json")
+                    for p in sorted(
+                        predictions,
+                        key=lambda p: p.inference_task_ref,
+                    )
+                ]
+                identity = hashlib.sha256(
+                    canonical_json(prediction_data).encode("utf-8")
+                ).hexdigest()
+            bundle_id = f"bundle-{identity[:16]}-{len(predictions)}tasks"
 
         bundle = SubmissionBundle(
             bundle_id=bundle_id,

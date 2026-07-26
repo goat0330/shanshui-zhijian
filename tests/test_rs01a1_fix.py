@@ -392,7 +392,11 @@ class TestMapperPayload:
         task = InferenceTask(task_id="task-test", sample_id="s", task_order=0,
             task_spec_ref="v1@1.0.0",
             asset_bindings=[TaskAssetBinding(asset_ref="a", role=AssetRole.BEFORE)])
-        pr = mapper.map_result(result, task)
+        pr = mapper.map_result(
+            result,
+            task,
+            TaskType.TEMPORAL_CHANGE_DETECTION,
+        )
         assert pr.payload is not None
         if isinstance(pr.payload, ChangePrediction):
             assert pr.payload.change_pixels == 5000, "应使用 diagnostics，不是 len(obs)"

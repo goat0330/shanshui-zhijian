@@ -537,7 +537,11 @@ class TestFullChain:
 
         mapper = CompetitionMapper()
         result = make_minimal_result("end-to-end", "succeeded_with_observations")
-        pr = mapper.map_result(result, tasks[0])
+        pr = mapper.map_result(
+            result,
+            tasks[0],
+            TaskType.TEMPORAL_CHANGE_DETECTION,
+        )
 
         exporter = CompetitionExporter()
         bundle = exporter.export([pr])
@@ -571,11 +575,19 @@ class TestFullChain:
             TaskAssetBinding(asset_ref="a", role=AssetRole.BEFORE)])
 
         r_empty = make_minimal_result("t", "succeeded_empty")
-        pr_empty = mapper.map_result(r_empty, task)
+        pr_empty = mapper.map_result(
+            r_empty,
+            task,
+            TaskType.TEMPORAL_CHANGE_DETECTION,
+        )
         assert pr_empty.execution_status == "succeeded_empty"
 
         r_nodata = make_minimal_result("t", "no_data")
-        pr_nodata = mapper.map_result(r_nodata, task)
+        pr_nodata = mapper.map_result(
+            r_nodata,
+            task,
+            TaskType.TEMPORAL_CHANGE_DETECTION,
+        )
         assert pr_nodata.execution_status == "no_data"
 
         # Different status → different bundle
