@@ -1,9 +1,9 @@
 # 山水智鉴 — 多 Agent 治理框架
 
-> **版本**: v0.2 (MULTISESSION-01)
+> **版本**: v0.3 (MULTISESSION-02)
 > **最新更新**: 2026-07-26
-> **基线分支**: `integration/g0-g1-contract-freeze` (HEAD: `df7b3e7`)
-> **控制分支**: `feature/agent-e-integration-control`
+> **基线分支**: `integration/g0-g1-contract-freeze` (HEAD: `caef195`)
+> **控制分支**: `feature/agent-e-dynamic-session-policy`
 
 ---
 
@@ -42,6 +42,10 @@ CompetitionInput → InferenceTask → PerceptionResult
 | E | 项目经理_AGENT_E | PROGRAM_AGENT_E | 项目路线、产品 PRD、Agent 编排、Git 门禁、ML Readiness |
 
 详细角色定义见 [`agents/`](agents/) 目录。
+
+Agent ID 是稳定身份，不是永久技能限制。每轮职责由 Work Package 定义：
+可只启用部分执行 Agent，也可让 A 在后续改做计算机视觉。职责变化必须同步
+更新允许目录、输入输出合同、验收 Gate 和 Handoff，不得口头漂移。
 
 ---
 
@@ -111,17 +115,20 @@ Agent E 只有审计、编排和提出 `MERGE_READY` 的权限；没有用户明
 | 目录 | 责任 Agent |
 |------|-----------|
 | `core/schemas/contracts/candidate.py` | A |
+| `core/schemas/contracts/perception.py` | A |
 | `core/schemas/contracts/event.py` | C |
 | `core/schemas/contracts/evidence.py` | C |
 | `core/schemas/contracts/review.py` | C |
 | `core/schemas/contracts/replay.py` | C |
 | `core/schemas/contracts/run_manifest.py` | B |
 | `core/schemas/contracts/sar_metadata.py` | B |
+| `core/schemas/contracts/submission_envelope.py` | B |
 | `competition/` | B |
 | `tools/` | A |
 | `services/` | C |
 | `apps/workbench_api/` | D |
 | `frontend/` | D |
+| `docs/product/` | D 负责，E 审批 |
 | `tests/` | 按测试内容对应 Agent |
 
 所有权映射见 [`.github/agent-owners.yml`](.github/agent-owners.yml)。
