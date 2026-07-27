@@ -98,10 +98,23 @@ def get_candidate_geojson():
 # ══════════════════════════════════════════════════════════
 
 def get_evidence(candidate_id: str):
-    logger.warning(
-        "get_evidence(%s): falling back to mock — C EvidenceBundle not yet wired",
-        candidate_id,
-    )
+    from .main import EvidenceItem, QualitySummary
+    session = ensure_db()
+    bundles = session.query(EvidenceBundleRecord).filter_by(candidate_id=candidate_id).all()
+    if bundles:
+        items = []
+        for b in bundles:
+            try:
+                import json
+                parsed = json.loads(b.items) if isinstance(b.items, str) else b.items
+                for ev in parsed:
+                    items.append(EvidenceItem(**ev))
+            except Exception:
+                pass
+        if items:
+            return items
+    logger.warning("get_evidence(%s): falling back to mock", candidate_id)
+    from . import mock_service
     return mock_service.get_evidence(candidate_id)
 
 
@@ -321,9 +334,38 @@ def get_event(event_id: str):
 
 
 def get_event_geojson():
-    logger.warning(
-        "get_event_geojson: falling back to mock — Agent A/C not yet wired"
-    )
+    from . import mock_service
+    session = ensure_db()
+    try:
+        records = session.query(GovernedEventRecord).all()
+        if not records:
+            return mock_service.get_event_geojson()
+        features = []
+        for r in records:
+            payload = {}
+            if r.payload:
+                try:
+                    payload = json.loads(r.payload)
+                except Exception:
+                    pass
+            # Build a point feature from candidate_id or payload
+            coords = payload.get("geometry", None) if isinstance(payload, dict) else None
+            if not coords:
+                continue
+            features.append({
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": coords},
+                "properties": {
+                    "event_id": r.event_id,
+                    "candidate_id": r.candidate_id,
+                    "status": r.status,
+                    "event_type": r.event_type,
+                },
+            })
+        if features:
+            return {"type": "FeatureCollection", "features": features}
+    except Exception:
+        logger.warning("get_event_geojson: real query failed, falling back to mock", exc_info=True)
     return mock_service.get_event_geojson()
 
 
@@ -392,7 +434,27 @@ def get_artifact(artifact_id: str):
 # ══════════════════════════════════════════════════════════
 
 def get_summary():
-    logger.warning(
-        "get_summary: falling back to mock — aggregate from A/B/C not yet wired"
-    )
+    from . import mock_service
+    session = ensure_db()
+    try:
+        from core.event_governance.persistence import CandidateRecord, GovernedEventRecord
+        from .candidate_store import list_candidates
+        cand_items, cand_total = list_candidates()
+        event_count = session.query(GovernedEventRecord).count()
+        # Count by persistence status
+        persistent = sum(1 for c in cand_items if c.get("persistence_status") == "persistent")
+        uncertain = sum(1 for c in cand_items if c.get("persistence_status") == "uncertain")
+        transient = sum(1 for c in cand_items if c.get("persistence_status") == "transient")
+        return {
+            "total_candidates": cand_total,
+            "persistent": persistent,
+            "uncertain": uncertain,
+            "transient": transient,
+            "total_events": event_count,
+            "total_reviews": 0,
+            "recent_activity": [],
+            "source": "real",
+        }
+    except Exception:
+        logger.warning("get_summary: real query failed, falling back to mock", exc_info=True)
     return mock_service.get_summary()
