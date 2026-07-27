@@ -1,8 +1,16 @@
 """
-RS-00 — DetectionCandidate + EvidenceRef
+RS-00 — DetectionCandidate + EvidenceRef + CandidateQualitySummary
 """
 
 from pydantic import BaseModel, Field
+
+
+class CandidateQualitySummary(BaseModel):
+    """标准化质量摘要，替代自由 dict。"""
+    mean_score: float = Field(..., ge=0.0, le=1.0)
+    n_observations: int = Field(..., ge=1)
+    area_consistency: float | None = Field(None, ge=0.0, le=1.0)
+    score_std: float | None = Field(None, ge=0.0, le=1.0)
 
 
 class EvidenceRef(BaseModel):
@@ -27,6 +35,7 @@ class DetectionCandidate(BaseModel):
     candidate_type: str = Field(..., description="water_extent_change / suspected_floating / unknown")
     geometry: dict | None = None
     score: float = Field(..., ge=0.0, le=1.0)
-    quality_summary: dict | None = None
+    quality_summary: CandidateQualitySummary | None = None
+    coordinate_space: str | None = Field(None, pattern=r"^(geographic|pixel|unknown)$")
     evidence_refs: list[str] = Field(default_factory=list, description="只引用 Evidence ID")
     rule_version: str = Field(..., description="聚合规则版本")

@@ -245,13 +245,13 @@ class TestContractFieldCompleteness:
             candidate_type="water_extent_change",
             geometry={"type": "Polygon", "coordinates": [[[0,0],[1,0],[1,1],[0,1],[0,0]]]},
             score=0.85,
-            quality_summary={"mean_confidence": 0.85, "n_observations": 3},
+            quality_summary={"mean_score": 0.85, "n_observations": 3},
             evidence_refs=["ev-001", "ev-002"],
             rule_version="v1.0",
         )
         assert cand.candidate_id == "cand-full"
         assert len(cand.evidence_refs) == 2
-        assert "mean_confidence" in cand.quality_summary
+        assert cand.quality_summary.mean_score == 0.85
 
     def test_evidence_ref_has_all_v03_fields(self):
         """EvidenceRef v0.3 拥有全部可选字段"""

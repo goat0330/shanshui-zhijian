@@ -1,0 +1,18 @@
+{
+  "schema_version": "rs-contract.v0.3",
+  "candidate_id": "DET-CQ-0001",
+  "observation_refs": ["obs_001", "obs_002"],
+  "temporal_extent": {"start": "2026-01", "end": "2026-06"},
+  "candidate_type": "water_extent_change",
+  "score": 0.82,
+  "rule_version": "rc-02-v1",
+  "geometry": {"type": "Point", "coordinates": [106.5, 29.5]},
+  "quality_summary": {
+    "mean_score": 0.82,
+    "n_observations": 2,
+    "area_consistency": 0.95,
+    "score_std": 0.05
+  },
+  "coordinate_space": "geographic",
+  "evidence_refs": ["ev-change-mask-001"]
+}
