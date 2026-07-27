@@ -8,6 +8,7 @@ import { queryClient } from '@/app/providers/queryClient';
 import './AppLayout.css';
 
 const navItems = [
+  { path: '/dashboard', label: '驾驶舱' },
   { path: '/', label: '研判工作台' },
   { path: '/events', label: '事件中心' },
   { path: '/runs', label: '运行记录' },

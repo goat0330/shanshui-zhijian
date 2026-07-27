@@ -6,6 +6,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import AppLayout from './AppLayout';
 
+const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 const WorkbenchPage = lazy(() => import('@/pages/WorkbenchPage'));
 const EventCenterPage = lazy(() => import('@/pages/EventCenterPage'));
 const RunCenterPage = lazy(() => import('@/pages/RunCenterPage'));
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
     path: '/',
     element: <AppLayout />,
     children: [
+      {
+        path: 'dashboard',
+        element: <LazyPage Component={DashboardPage} />,
+      },
       {
         index: true,
         element: <LazyPage Component={WorkbenchPage} />,

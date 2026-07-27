@@ -139,3 +139,74 @@ export function fetchWorkbenchSummary(): Promise<{
 }> {
   return request('/workbench/summary');
 }
+
+// ── Dashboard ──
+
+export interface DashboardSummary {
+  total_candidates: number;
+  persistent_count: number;
+  uncertain_count: number;
+  transient_count: number;
+  events_under_review: number;
+  events_confirmed: number;
+  events_rejected: number;
+  events_needs_evidence: number;
+  total_runs: number;
+  runs_completed: number;
+  runs_failed: number;
+  last_run_at: string;
+  monitoring_area_km2: number;
+}
+
+export interface ChangeTypeDistribution {
+  change_type: string;
+  label: string;
+  count: number;
+  color: string;
+}
+
+export interface MonthlyTrend {
+  month: string;
+  label: string;
+  candidates: number;
+  confirmed: number;
+}
+
+export interface ReviewFunnelStage {
+  stage: string;
+  count: number;
+  description: string;
+}
+
+export interface TypicalCase {
+  id: string;
+  title: string;
+  change_type: string;
+  change_type_label: string;
+  status: string;
+  status_label: string;
+  area_m2: number;
+  detected_at: string;
+  summary: string;
+  severity: 'high' | 'medium' | 'low';
+}
+
+export function fetchDashboardSummary(): Promise<DashboardSummary> {
+  return request('/dashboard/summary');
+}
+
+export function fetchDashboardChangeTypes(): Promise<ChangeTypeDistribution[]> {
+  return request('/dashboard/change-types');
+}
+
+export function fetchDashboardTrend(): Promise<MonthlyTrend[]> {
+  return request('/dashboard/trend');
+}
+
+export function fetchDashboardFunnel(): Promise<ReviewFunnelStage[]> {
+  return request('/dashboard/funnel');
+}
+
+export function fetchDashboardTypicalCases(): Promise<TypicalCase[]> {
+  return request('/dashboard/typical-cases');
+}
