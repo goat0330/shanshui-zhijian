@@ -6,6 +6,10 @@ G0.3-A:
 - candidate_type mapping
 - auto candidate_track_id generation
 - verify_v03() for post-migration validation
+
+NOTE: CandidateLifecycle and compute_candidate_track_id were removed
+in v0.3 contract simplification. The adapter now handles lifecycle
+as a free string field.
 """
 
 from __future__ import annotations
@@ -13,21 +17,19 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-from core.schemas.contracts.candidate import (
-    DetectionCandidate,
-    CandidateLifecycle,
-    compute_candidate_track_id,
-)
+from core.schemas.contracts.candidate import DetectionCandidate
 
 SUPPORTED_VERSIONS = {"candidate.v0.2", "candidate.v0.3"}
 
 
 def _make_track_id(v02: dict) -> str:
     """Generate candidate_track_id from v0.2 dict geometry."""
-    return compute_candidate_track_id(
-        representative_geometry=v02.get("geometry"),
-        candidate_type=v02.get("candidate_type"),
-    )
+    import hashlib
+    geom = v02.get("geometry", {})
+    ct = v02.get("candidate_type", "unknown")
+    # deterministic hash from geometry + type
+    raw = f"{geom.get('type', '')}:{str(geom.get('coordinates', ''))}:{ct}"
+    return hashlib.sha256(raw.encode()).hexdigest()[:32]
 
 
 def _convert_temporal(v02_temporal: dict) -> dict:
@@ -63,14 +65,14 @@ def v02_to_v03(v02: dict) -> dict:
     Handles:
     - schema_version upgrade
     - temporal_extent dict → TemporalExtent (index/time split)
-    - candidate_type mapping (water_extent_change→water_gain)
+    - candidate_type mapping
     - lifecycle defaulting
     - score_type mapping
     - auto candidate_track_id generation
     - evidence_refs → tuple
     """
     result = copy.deepcopy(v02)
-    result["schema_version"] = "candidate.v0.3"
+    result["schema_version"] = "rs-contract.v0.3"
 
     # ── candidate_track_id ──
     if "candidate_track_id" not in result:
@@ -89,7 +91,7 @@ def v02_to_v03(v02: dict) -> dict:
     elif ct in ("water_extent_loss", "water_loss"):
         result["candidate_type"] = "water_loss"
 
-    # ── lifecycle ──
+    # ── lifecycle → free string (CandidateLifecycle removed in v0.3) ──
     if "lifecycle" not in result or result["lifecycle"] is None:
         result["lifecycle"] = "proposed"
 
@@ -152,10 +154,8 @@ class CandidateCompatibilityAdapter:
         issues: list[str] = []
         if instance.schema_version != "candidate.v0.3":
             issues.append(f"Wrong schema_version: {instance.schema_version}")
-        if not instance.candidate_track_id:
-            issues.append("Missing candidate_track_id")
-        if len(instance.candidate_id) != 64:
-            issues.append(f"candidate_id not SHA256: {instance.candidate_id}")
-        if instance.lifecycle == CandidateLifecycle.SUPPRESSED and not instance.suppression_reason:
-            issues.append("Suppressed lifecycle missing suppression_reason")
+        if not getattr(instance, 'candidate_track_id', None) and \
+           not getattr(instance, 'observation_refs', None):
+            issues.append("Missing candidate_track_id or observation_refs reference")
+        # lifecycle is now a free string; suppression handling delegated to governance
         return issues

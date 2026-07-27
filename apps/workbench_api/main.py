@@ -214,8 +214,8 @@ class ArtifactDetail(BaseModel):
 #  In-Memory Store (V0 不连接数据库)
 # ══════════════════════════════════════════════════════════
 
-# Mock data imports
-from .mock_service import get_candidates, get_candidate, get_evidence, get_events, get_event, get_event_replay, get_runs, get_run, get_artifact, get_candidate_geojson, get_event_geojson, get_summary, submit_review
+# Service layer — 使用 real_service (接入 C 的 event_governance)
+from .real_service import get_candidates, get_candidate, get_evidence, get_events, get_event, get_event_replay, get_runs, get_run, get_artifact, get_candidate_geojson, get_event_geojson, get_summary, submit_review
 
 
 # ══════════════════════════════════════════════════════════
