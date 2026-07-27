@@ -64,22 +64,25 @@ def ensure_db():
 
 def get_candidates(persistence_status=None, change_type=None,
                    include_transient=False, sort="score", limit=20):
-    logger.warning(
-        "get_candidates: falling back to mock — Agent A Candidate storage not yet wired"
-    )
-    return mock_service.get_candidates(
-        persistence_status=persistence_status,
-        change_type=change_type,
-        include_transient=include_transient,
-        sort=sort, limit=limit,
-    )
+    from .candidate_store import list_candidates
+    from .main import CandidateListItem
+    items, total = list_candidates()
+    result = []
+    for d in items:
+        try:
+            result.append(CandidateListItem(**d))
+        except Exception:
+            pass
+    return result[:limit], total
 
 
 def get_candidate(candidate_id: str):
-    logger.warning(
-        "get_candidate(%s): falling back to mock — Agent A Candidate storage not yet wired",
-        candidate_id,
-    )
+    from .candidate_store import get_candidate_dict
+    from .main import CandidateDetail
+    d = get_candidate_dict(candidate_id)
+    if d:
+        return CandidateDetail(**d)
+    logger.warning("get_candidate(%s): falling back to mock", candidate_id)
     return mock_service.get_candidate(candidate_id)
 
 
