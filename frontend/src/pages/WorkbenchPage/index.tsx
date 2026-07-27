@@ -3,20 +3,39 @@
    三栏布局：Candidate 队列 | 地图 | Candidate 详情
    ============================================================ */
 
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useWorkbenchStore } from '@/app/store/workbench';
-import { useUrlSync } from '@/shared/hooks/useUrlSync';
 import CandidateList from '@/features/candidates/components/CandidateList';
 import GovernanceMap from '@/features/map/components/GovernanceMap';
 import CandidateDetail from '@/features/candidates/components/CandidateDetail';
 import './index.css';
 
 export default function WorkbenchPage() {
-  useUrlSync();
+  const [searchParams] = useSearchParams();
   const {
     selectedCandidateId,
+    setSelectedCandidateId,
     leftPanelOpen,
     rightPanelOpen,
+    viewport,
+    setViewport,
   } = useWorkbenchStore();
+
+  // Restore URL state on mount
+  useEffect(() => {
+    const candidateId = searchParams.get('candidate_id');
+    if (candidateId) {
+      setSelectedCandidateId(candidateId);
+    }
+    const bbox = searchParams.get('bbox');
+    if (bbox) {
+      const [lng, lat, zoom] = bbox.split(',').map(Number);
+      if (!isNaN(lng) && !isNaN(lat)) {
+        setViewport({ center: [lng, lat], zoom: zoom || 12 });
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="workbench-layout">
