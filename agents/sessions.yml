@@ -49,8 +49,6 @@ members:
     default_role: perception
     prompt: agents/session-prompts/SESS_A_PERCEPTION.md
     branch_policy: 'ensemble/**/perception-agent-a'
-    worktree_path: 'C:\Users\WangChi\.local\share\geocode\worktree\06214d6125af0bed3558b2598c9f559d8c0eed89\ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-dev-fyb8bk-perception-agent-a'
-    current_session_id: 'perception-agent-a'
   RELIABILITY_AGENT_B:
     member_name: engineering-agent-b
     display_name: 工程可靠性_AGENT_B
@@ -58,8 +56,6 @@ members:
     default_role: reliability
     prompt: agents/session-prompts/SESS_B_RELIABILITY.md
     branch_policy: 'ensemble/**/engineering-agent-b'
-    worktree_path: 'C:\Users\WangChi\.local\share\geocode\worktree\06214d6125af0bed3558b2598c9f559d8c0eed89\ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-dev-fyb8bk-engineering-agent-b'
-    current_session_id: 'engineering-agent-b'
   EVENT_AGENT_C:
     member_name: event-agent-c
     display_name: 事件治理_AGENT_C
@@ -67,8 +63,6 @@ members:
     default_role: event
     prompt: agents/session-prompts/SESS_C_EVENT.md
     branch_policy: 'ensemble/**/event-agent-c'
-    worktree_path: 'C:\Users\WangChi\.local\share\geocode\worktree\06214d6125af0bed3558b2598c9f559d8c0eed89\ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-dev-fyb8bk-event-agent-c'
-    current_session_id: 'event-agent-c'
   WORKBENCH_AGENT_D:
     member_name: product-agent-d
     display_name: 产品工作台_AGENT_D
@@ -76,8 +70,6 @@ members:
     default_role: workbench
     prompt: agents/session-prompts/SESS_D_WORKBENCH.md
     branch_policy: 'ensemble/**/product-agent-d'
-    worktree_path: 'C:\Users\WangChi\.local\share\geocode\worktree\06214d6125af0bed3558b2598c9f559d8c0eed89\ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-dev-fyb8bk-product-agent-d'
-    current_session_id: 'product-agent-d'
   PROGRAM_AGENT_E:
     display_name: 项目经理_AGENT_E
     enabled: true

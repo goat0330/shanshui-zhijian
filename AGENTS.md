@@ -62,7 +62,7 @@ CompetitionInput → InferenceTask → PerceptionResult
 | B | 工程可靠性_AGENT_B | RELIABILITY_AGENT_B | 持久化 Ensemble child | 元数据、RunManifest、评测链适配、CI、环境可复现 |
 | C | 事件治理_AGENT_C | EVENT_AGENT_C | 持久化 Ensemble child | Evidence、Event、Review、Replay、事务与幂等 |
 | D | 产品工作台_AGENT_D | WORKBENCH_AGENT_D | 持久化 Ensemble child | React、MapLibre、Workbench API、OpenAPI Client、Dashboard |
-| E | 项目经理_AGENT_E | PROGRAM_AGENT_E | **顶层控制面 Session** | 项目路线、Agent 编排、Git 门禁、ML Readiness、产品效果控制 |
+| E | 项目经理_AGENT_E | PROGRAM_AGENT_E | **顶层控制面 Session** | 项目路线、Agent 编排、Git 门禁、ML Readiness、产品调研与验收组织 |
 
 详细角色定义见 [`agents/`](agents/) 目录。
 
@@ -73,7 +73,7 @@ Agent ID 是稳定身份，不是永久技能限制。每轮职责由 Work Packa
 ### 控制关系
 
 ```
-用户（最终决策人和 Merge Gate Owner、产品验收人、最终 Review 执行人）
+用户（最终决策人、Merge Gate Owner、产品最终验收人）
  └── PROGRAM_AGENT_E：唯一顶层控制面 Session
       ├── PERCEPTION_AGENT_A：持久化 Ensemble child Session
       ├── RELIABILITY_AGENT_B：持久化 Ensemble child Session
@@ -81,21 +81,20 @@ Agent ID 是稳定身份，不是永久技能限制。每轮职责由 Work Packa
       └── WORKBENCH_AGENT_D：持久化 Ensemble child Session
 ```
 
-### 用户 vs E 的职责边界
+### 用户、E 与独立审查人的职责边界
 
-| 职责 | 用户 | AGENT_E |
-|------|:----:|:-------:|
-| 产品角色定义 | ✅ 拍板 | — |
-| 页面信息架构 | ✅ 拍板 | — |
-| 驾驶舱指标 | ✅ 拍板 | — |
-| 视觉方向 | ✅ 拍板 | — |
-| 哪些功能进 V0 | ✅ 拍板 | — |
-| 最终发布 Review | ✅ 执行 | — |
-| Agent 编排派单 | — | ✅ |
-| Git 门禁审计 | — | ✅ |
-| 工程 Review | — | ✅ |
-| MERGE_READY 判断 | — | ✅ |
-| ML Readiness | — | ✅ |
+| 职责 | 用户 | AGENT_E | 独立审查人 |
+|------|:----:|:-------:|:----------:|
+| 用户角色定义、信息架构、驾驶舱指标、视觉方向、V0 范围 | ✅ 拍板 | — | — |
+| 产品最终验收 | ✅ 执行 | — | — |
+| integration→develop 批准、develop→main 最终批准 | ✅ 执行 | — | — |
+| 产品调研、PRD 整理、用户需求记录、产品任务拆分 | — | ✅ | — |
+| 竞品分析、采购需求分析、比赛需求跟踪 | — | ✅ | — |
+| Decision Log、Contract Gap、ML Readiness | — | ✅ | — |
+| Agent 编排派单、工程审计、Git 门禁 | — | ✅ | — |
+| Branch/PR/CI/Worktree 检查、MERGE_READY 判断 | — | ✅ | — |
+| RC 材料整理 | — | ✅ | — |
+| main 前完整 GitHub Review（代码+分支+CI+文档+许可证） | — | — | ✅ |
 
 ---
 
@@ -140,6 +139,12 @@ P5 ｜ INT-01/02 后端集成 + 产品集成
 P6 ｜ RC-01 发布候选
 ```
 
+E 并行工作流（贯穿 P1-P5，不得自动开始正式训练）：
+- PM-01｜用户与产品需求
+- PM-02｜市场与竞品分析
+- PM-03｜采购需求对接
+- MLR-01｜ML Readiness（Dataset Registry、License Matrix、Split Policy）
+
 详细路线图见 [`docs/program/MASTER_ROADMAP.md`](docs/program/MASTER_ROADMAP.md)。
 详细门禁定义见 [`docs/program/RELEASE_GATE.md`](docs/program/RELEASE_GATE.md)。
 
@@ -149,19 +154,14 @@ P6 ｜ RC-01 发布候选
 
 | 操作 | 权限 | 备注 |
 |------|------|------|
-| Clean PR → integration | E 可执行 | 用户授权后，E 可在 Gate 通过后合入 |
-| integration → develop | **用户确认** | E 提出 MERGE_READY，用户批准后执行 |
-| develop → main | **用户确认** | 需完整 GitHub Review 后，用户最终批准 |
+| Clean PR → integration | E 已获常规授权，Gate 通过后可执行 | Product Gate 涉及 D 时，须先取得用户验收 |
+| integration → develop | 用户确认 | E 输出 MERGE_READY_TO_DEVELOP，用户批准后执行 |
+| develop → main | 用户最终确认 | E 完成 RC 审计 + 用户产品验收 + 独立审查人 MERGE_READY_TO_MAIN |
 
-E 没有用户明确批准时，不得合并 `integration`、`develop` 或 `main`。
-
-最终发布到 main 前，必须经过用户的完整 GitHub Review：
-- 各分支 Commit 和 diff
-- PR 状态和 CI
-- 代码质量
-- 测试覆盖
-- 文档一致性
-- 许可证合规
+最终发布到 main 前，必须经过三层审查：
+1. **E 工程审查** — Branch/PR/CI/Worktree/测试/文档
+2. **用户产品验收** — 全功能操作验收
+3. **独立架构审查人** — 完整 GitHub Review（代码、架构边界、测试可信度、文档、许可证）
 
 ---
 
@@ -223,8 +223,9 @@ E 没有用户明确批准时，不得合并 `integration`、`develop` 或 `main
 6. 测试是否 skip
 7. CI 状态
 8. 运行摘要
-9. 文档与代码一致性
-10. 下游兼容性
+9. Agent 自报状态标记为 PENDING_E_VERIFICATION（须 E 验证后才改为 VERIFIED）
+10. 文档与代码一致性
+11. 下游兼容性
 
 Review 结果：
 - **PASS**
@@ -241,8 +242,8 @@ Review 结果：
 每个 Agent 提交后执行：
 
 ```
-Agent 自检
-→ 项目经理_AGENT_E 工程 Review
+Agent 自检 + Agent 自报（PENDING_E_VERIFICATION）
+→ 项目经理_AGENT_E 工程 Review + 验证 → VERIFIED
 → 用户产品验收（如适用）
 → integration
 ```
@@ -270,14 +271,28 @@ Agent 自检
 |:----:|------|--------|
 | D0 | 信息架构：页面结构、路由、组件树、用户流程 | 用户 |
 | D1 | 组件视觉：Design Tokens、Card、地图、图表 | 用户 |
-| D2 | Mock 原型：工作台+驾驶舱可操作 | 用户 |
+| D2 | Mock 原型：工作台+驾驶舱可操作（标注 MOCK/DEMO） | 用户 |
 | D3 | 真实 API 集成 | 用户 |
+
+D2 特别注意：
+- `/dashboard` 使用 Mock 数据完整展示预定业务指标和典型案例
+- 页面明确标注 **MOCK / DEMO**
+- 不得宣称为真实治理成效、真实准确率或真实业务统计
 
 详细条件见 [`docs/program/RELEASE_GATE.md`](docs/program/RELEASE_GATE.md)。
 
 ---
 
-## 12. GitHub Labels
+## 12. Portability
+
+- `agents/sessions.yml` — 仅保存稳定配置，不提交本机 worktree 路径
+- `agents/sessions.local.yml` — 本机 worktree 路径，已在 `.gitignore` 排除
+- `agents/sessions.local.yml.example` — 模板文件，已提交仓库
+- E 每轮通过 `git worktree list --porcelain` 动态发现并核对实际 Worktree
+
+---
+
+## 13. GitHub Labels
 
 | 类别 | Labels |
 |------|--------|
@@ -289,7 +304,7 @@ Agent 自检
 
 ---
 
-## 13. Milestones
+## 14. Milestones
 
 | Milestone | 目标 | 状态 |
 |-----------|------|:----:|
@@ -303,7 +318,31 @@ Agent 自检
 
 ---
 
-## 14. 状态源
+## 15. E 六段式汇报模板
+
+每轮必须按以下格式汇报：
+
+1. **本轮产品效果** — 研判人员能做什么、领导能看到什么、比赛新增什么、还不能做什么
+2. **五 Agent 状态** — A/B/C/D/E 本轮目标、实际完成、工程 Review、产品 Review、是否返工
+3. **Git 状态** — 每个 Agent 的 Branch/Base/Head/PR/Files/CI/Ahead-Behind/Worktree Clean
+4. **P0/P1/P2 问题** — 按优先级和责任 Agent 列出
+5. **下一轮计划** — 每个任务说明：为什么现在做、完成效果、责任 Agent、依赖、工程 Gate、产品 Gate、返工条件
+6. **Merge 与 Training 决策** — 仅用下面 12 个状态之一
+
+决策状态词汇：
+
+- `MERGE_READY_TO_INTEGRATION`
+- `NOT_READY_TO_INTEGRATION`
+- `MERGE_READY_TO_DEVELOP`
+- `NOT_READY_TO_DEVELOP`
+- `MERGE_READY_TO_MAIN`
+- `NOT_READY_TO_MAIN`
+- `PUBLIC_PRETRAINING_READY`
+- `PUBLIC_PRETRAINING_NOT_READY`
+
+---
+
+## 16. 状态源
 
 最新状态见：
 - **驾驶舱**: [`山水智鉴_项目驾驶舱.md`](山水智鉴_项目驾驶舱.md)
