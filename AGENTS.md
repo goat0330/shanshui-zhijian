@@ -152,6 +152,10 @@ E 并行工作流（贯穿 P1-P5，不得自动开始正式训练）：
 
 ## 6. 合并权限
 
+> `auto_merge: false` 表示 Ensemble 插件不会在 cleanup 时自动将 Agent 分支合并至 integration。
+> E 在 Gate 全部通过后，可通过 GitHub PR（`gh pr merge` 或 Web UI）手动将 Clean PR 合入 integration。
+> `integration → develop` 和 `develop → main` 仍须用户确认。
+
 | 操作 | 权限 | 备注 |
 |------|------|------|
 | Clean PR → integration | E 已获常规授权，Gate 通过后可执行 | Product Gate 涉及 D 时，须先取得用户验收 |
@@ -283,16 +287,7 @@ D2 特别注意：
 
 ---
 
-## 12. Portability
-
-- `agents/sessions.yml` — 仅保存稳定配置，不提交本机 worktree 路径
-- `agents/sessions.local.yml` — 本机 worktree 路径，已在 `.gitignore` 排除
-- `agents/sessions.local.yml.example` — 模板文件，已提交仓库
-- E 每轮通过 `git worktree list --porcelain` 动态发现并核对实际 Worktree
-
----
-
-## 13. GitHub Labels
+## 12. GitHub Labels
 
 | 类别 | Labels |
 |------|--------|
@@ -304,7 +299,7 @@ D2 特别注意：
 
 ---
 
-## 14. Milestones
+## 13. Milestones
 
 | Milestone | 目标 | 状态 |
 |-----------|------|:----:|
@@ -318,7 +313,7 @@ D2 特别注意：
 
 ---
 
-## 15. E 六段式汇报模板
+## 14. E 六段式汇报模板
 
 每轮必须按以下格式汇报：
 
@@ -342,7 +337,7 @@ D2 特别注意：
 
 ---
 
-## 16. 状态源
+## 15. 状态源
 
 最新状态见：
 - **驾驶舱**: [`山水智鉴_项目驾驶舱.md`](山水智鉴_项目驾驶舱.md)

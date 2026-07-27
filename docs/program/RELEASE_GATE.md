@@ -14,8 +14,6 @@
 | 4 | Branch 名称一致 | 文档与分支名匹配 |
 | 5 | README、驾驶舱、Status Board 状态一致 | 交叉检查 |
 | 6 | 没有修改 A/B/C/D 领域代码 | `git diff --name-only` vs 禁止目录 |
-| 7 | 未提交本机绝对路径/用户名/临时 Worktree hash | 搜索 `C:\\Users` `\.local\\share\\geocode` 等 |
-| 8 | `agents/sessions.local.yml` 在 `.gitignore` | `git ls-files --ignored` |
 
 ---
 
