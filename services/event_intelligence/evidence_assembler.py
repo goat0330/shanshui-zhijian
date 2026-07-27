@@ -136,7 +136,7 @@ class EvidenceAssembler:
             modalities_present=modalities_present or [],
             modalities_missing=modalities_missing or [],
             spatial_summary={"has_geometry": candidate.geometry is not None},
-            temporal_summary=candidate.temporal_extent.model_dump(),
+            temporal_summary=candidate.temporal_extent if isinstance(candidate.temporal_extent, dict) else candidate.temporal_extent.model_dump(),
             quality_summary=candidate.quality_summary,
             assembler_version=self.VERSION,
         )
