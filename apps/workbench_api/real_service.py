@@ -94,7 +94,7 @@ def get_candidate_geojson():
 
 
 # ══════════════════════════════════════════════════════════
-#  Evidence (V0 回退 mock — 待 C 扩展 Stance/Quality)
+#  Evidence — from event_governance EvidenceBundleRecord
 # ══════════════════════════════════════════════════════════
 
 def get_evidence(candidate_id: str):
@@ -108,8 +108,23 @@ def get_evidence(candidate_id: str):
                 import json
                 parsed = json.loads(b.items) if isinstance(b.items, str) else b.items
                 for ev in parsed:
-                    items.append(EvidenceItem(**ev))
-            except Exception:
+                    # Map stored evidence item to workbench DTO with safe defaults
+                    mapped = {
+                        "evidence_id": ev.get("evidence_id", ""),
+                        "evidence_type": ev.get("evidence_type", ""),
+                        "source_modality": ev.get("source_modality", ev.get("evidence_type", "")),
+                        "source_asset_ref": ev.get("source_asset_ref", ev.get("file_ref", "")),
+                        "derived_asset_ref": ev.get("derived_asset_ref", None),
+                        "captured_at": ev.get("captured_at", ev.get("acquired_at", "")),
+                        "stance": ev.get("stance", "supporting"),
+                        "quality_summary": ev.get("quality_summary",
+                            {"overall": "good", "cloud_cover": None, "geometric_quality": None, "artifact_count": None}),
+                        "provenance": ev.get("provenance", ""),
+                        "unavailable_reason": ev.get("unavailable_reason", None),
+                    }
+                    items.append(EvidenceItem(**mapped))
+            except Exception as exc:
+                logger.warning("get_evidence(%s): item parse error: %s", candidate_id, exc)
                 pass
         if items:
             return items
@@ -430,14 +445,14 @@ def get_artifact(artifact_id: str):
 
 
 # ══════════════════════════════════════════════════════════
-#  Summary — mock (待 A/B/C 全部接入后可做真实聚合)
+#  Summary — 真实聚合 (review + replay counts)
 # ══════════════════════════════════════════════════════════
 
 def get_summary():
     from . import mock_service
     session = ensure_db()
     try:
-        from core.event_governance.persistence import CandidateRecord, GovernedEventRecord
+        from core.event_governance.persistence import CandidateRecord, GovernedEventRecord, ReviewRecord, ReplayRecordDB
         from .candidate_store import list_candidates
         cand_items, cand_total = list_candidates()
         event_count = session.query(GovernedEventRecord).count()
@@ -445,14 +460,33 @@ def get_summary():
         persistent = sum(1 for c in cand_items if c.get("persistence_status") == "persistent")
         uncertain = sum(1 for c in cand_items if c.get("persistence_status") == "uncertain")
         transient = sum(1 for c in cand_items if c.get("persistence_status") == "transient")
+        # Real review counts from governance_reviews table
+        total_reviews = session.query(ReviewRecord).count()
+        # Recent activity from governance_replays table (last 5 entries)
+        recent_rows = (
+            session.query(ReplayRecordDB)
+            .order_by(ReplayRecordDB.replayed_at.desc())
+            .limit(5)
+            .all()
+        )
+        recent_activity = [
+            {
+                "event_id": r.event_id,
+                "action": r.action,
+                "actor_ref": r.actor_ref,
+                "replayed_at": r.replayed_at,
+                "details": r.details,
+            }
+            for r in recent_rows
+        ]
         return {
             "total_candidates": cand_total,
             "persistent": persistent,
             "uncertain": uncertain,
             "transient": transient,
             "total_events": event_count,
-            "total_reviews": 0,
-            "recent_activity": [],
+            "total_reviews": total_reviews,
+            "recent_activity": recent_activity,
             "source": "real",
         }
     except Exception:

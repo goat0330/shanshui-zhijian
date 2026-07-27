@@ -29,9 +29,14 @@ class GovernanceCandidate(BaseModel):
 class EvidenceItem(BaseModel):
     evidence_id: str = Field(..., min_length=1)
     evidence_type: str = Field(..., description="rgb_tile / ndwi / mask / dem / sar")
-    file_ref: str = Field(..., description="file path or URI")
-    description: str = ""
-    acquired_at: str | None = None
+    source_modality: str = Field(default="", description="e.g. optical, sar")
+    source_asset_ref: str = Field(default="", description="file path or URI")
+    derived_asset_ref: str | None = None
+    captured_at: str | None = None
+    stance: str = "supporting"
+    quality_summary: dict | None = None
+    provenance: str = ""
+    unavailable_reason: str | None = None
 
 
 class EvidenceBundle(BaseModel):

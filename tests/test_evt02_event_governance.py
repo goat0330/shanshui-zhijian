@@ -87,7 +87,7 @@ class TestEvidenceAndReview:
         bundle = EvidenceBundle(
             bundle_id="b1",
             candidate_id="e1",
-            items=[EvidenceItem(evidence_id="ev1", evidence_type="ndwi", file_ref="/data/ndwi.tif")],
+            items=[EvidenceItem(evidence_id="ev1", evidence_type="ndwi", source_asset_ref="/data/ndwi.tif")],
         )
         result = attach_evidence(session, bundle)
         assert result.bundle_id == "b1"
