@@ -9,13 +9,7 @@ import { getMockEvents, getMockEvent, getMockReplay, getEventForCandidate } from
 import { getMockRuns, getMockRun } from '@/mocks/data/runs';
 import { getMockReview, addMockReview } from '@/mocks/data/reviews';
 import { getMockArtifact } from '@/mocks/data/artifacts';
-import {
-  getDashboardSummary,
-  getChangeTypeDistribution,
-  getMonthlyTrend,
-  getReviewFunnel,
-  getTypicalCases,
-} from '@/mocks/data/dashboard';
+import { getDashboardSnapshot } from '@/mocks/data/dashboard';
 import type { CandidateDTO, EventDTO, ReviewRequest, PaginatedResponse, ApiError } from '@/shared/types';
 
 const API = '/api/v2';
@@ -281,29 +275,9 @@ export const handlers = [
 
   // ── Dashboard ──
 
-  http.get(`${API}/dashboard/summary`, async () => {
-    await simDelay();
-    return HttpResponse.json(getDashboardSummary());
-  }),
-
-  http.get(`${API}/dashboard/change-types`, async () => {
-    await simDelay();
-    return HttpResponse.json(getChangeTypeDistribution());
-  }),
-
-  http.get(`${API}/dashboard/trend`, async () => {
-    await simDelay();
-    return HttpResponse.json(getMonthlyTrend());
-  }),
-
-  http.get(`${API}/dashboard/funnel`, async () => {
-    await simDelay();
-    return HttpResponse.json(getReviewFunnel());
-  }),
-
-  http.get(`${API}/dashboard/typical-cases`, async () => {
-    await simDelay();
-    return HttpResponse.json(getTypicalCases());
+  http.get(`${API}/dashboard/snapshot`, async () => {
+    await simDelay(200);
+    return HttpResponse.json(getDashboardSnapshot());
   }),
 
   // ── 500 Error ──
