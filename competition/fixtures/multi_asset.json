@@ -1,0 +1,54 @@
+{
+  "fixture_type": "s1_s2_multi_asset",
+  "description": "SAR 双时相变化检测 + 光学辅助",
+  "schema_version": "rs-contract.v0.2",
+  "assets": [
+    {
+      "asset_id": "s1_t1",
+      "uri": "data/raw/s1_t1.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "sar",
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4326"},
+      "bands": ["VV","VH"],
+      "acquisition_time": "2026-05-18T00:00:00Z"
+    },
+    {
+      "asset_id": "s1_t2",
+      "uri": "data/raw/s1_t2.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "sar",
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4326"},
+      "bands": ["VV","VH"],
+      "acquisition_time": "2026-06-16T00:00:00Z"
+    },
+    {
+      "asset_id": "s2_t1",
+      "uri": "data/raw/s2_t1.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "optical",
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4326"},
+      "bands": ["B2","B3","B4","B8"],
+      "acquisition_time": "2026-05-15T00:00:00Z"
+    },
+    {
+      "asset_id": "dem",
+      "uri": "data/raw/dem_glo30.tif",
+      "media_type": "image/tiff; application=geotiff",
+      "modality": "dem",
+      "spatial": {"reliability": "georeferenced", "crs": "EPSG:4326"},
+      "bands": ["DEM"]
+    }
+  ],
+  "inference_task": {
+    "task_id": "task-cq-004",
+    "sample_id": "cq-004",
+    "task_order": 3,
+    "task_spec_ref": "sar-temporal-change-v1@1.0.0",
+    "asset_bindings": [
+      {"asset_ref": "s1_t1", "role": "before"},
+      {"asset_ref": "s1_t2", "role": "after"},
+      {"asset_ref": "s2_t1", "role": "optical_support", "sequence_index": 0},
+      {"asset_ref": "dem", "role": "auxiliary"}
+    ]
+  }
+}

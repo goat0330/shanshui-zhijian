@@ -1,0 +1,22 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "朝天门两江交汇",
+        "description": "山水智鉴 V0 AOI — 朝天门至大佛寺段，约 4×4 km"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [106.554, 29.547],
+          [106.596, 29.547],
+          [106.596, 29.583],
+          [106.554, 29.583],
+          [106.554, 29.547]
+        ]]
+      }
+    }
+  ]
+}

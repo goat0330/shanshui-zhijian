@@ -1,0 +1,27 @@
+/* ============================================================
+   山水智鉴 V0 — Light Theme (默认)
+   ============================================================ */
+
+.light-theme {
+  /* 表面色 */
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f8f9fa;
+  --color-surface-hover: #f0f1f3;
+  --color-surface-overlay: rgba(0, 0, 0, 0.5);
+
+  /* 边框 */
+  --color-border: #dee2e6;
+  --color-border-light: #e9ecef;
+
+  /* 文字 */
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #6c757d;
+  --color-text-muted: #adb5bd;
+  --color-text-inverse: #ffffff;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.16);
+}

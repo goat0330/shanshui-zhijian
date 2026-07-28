@@ -1,0 +1,93 @@
+/* Event 列表样式 */
+
+.event-center-layout {
+  display: flex;
+  height: 100%;
+  gap: var(--spacing-lg);
+}
+
+.event-list-panel {
+  width: 380px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.event-list-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-surface-elevated);
+}
+
+.event-filter-select {
+  font-size: var(--font-size-sm);
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.event-list-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+}
+
+.event-list-empty {
+  padding: var(--spacing-xxl);
+  text-align: center;
+}
+
+.event-card {
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xs);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.event-card:hover {
+  background: var(--color-surface-hover);
+}
+
+.event-card--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xs);
+}
+
+.event-card-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  flex: 1;
+  margin-right: var(--spacing-sm);
+}
+
+.event-card-status {
+  font-size: var(--font-size-xs);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.event-card-meta {
+  display: flex;
+  justify-content: space-between;
+}
+
+.event-detail-panel {
+  flex: 1;
+  overflow-y: auto;
+}

@@ -1,0 +1,67 @@
+{
+  "project": "山水智鉴 V0",
+  "aoi": "朝天门两江交汇 — 大佛寺, ~3x3km",
+  "aoi_file": "aoi.geojson",
+  "purpose": "水域变化候选检测全链路原型验证",
+  "data_level": "public_observation_and_model_derived",
+  "roles": "演练角色（非真实部门用户）",
+  "version": "0.1.0",
+  "created_at": "2026-07-23",
+  "sources": {
+    "s2_t1": {
+      "gee_id": "COPERNICUS/S2_SR_HARMONIZED",
+      "time_range": "2026-05-01 ~ 2026-05-31",
+      "bands": ["B2","B3","B4","B8","B11","B12"],
+      "resolution_m": 10,
+      "composite": "median + Cloud Score+ >= 0.60"
+    },
+    "s2_t2": {
+      "gee_id": "COPERNICUS/S2_SR_HARMONIZED",
+      "time_range": "2026-06-01 ~ 2026-06-30",
+      "bands": ["B2","B3","B4","B8","B11","B12"],
+      "resolution_m": 10,
+      "composite": "median + Cloud Score+ >= 0.60"
+    },
+    "s1_t1": {
+      "gee_id": "COPERNICUS/S1_GRD",
+      "time_range": "2026-05-01 ~ 2026-05-31",
+      "polarization": ["VV","VH"],
+      "resolution_m": 10,
+      "composite": "median"
+    },
+    "s1_t2": {
+      "gee_id": "COPERNICUS/S1_GRD",
+      "time_range": "2026-06-01 ~ 2026-06-30",
+      "polarization": ["VV","VH"],
+      "resolution_m": 10,
+      "composite": "median"
+    },
+    "dem": {
+      "gee_id": "COPERNICUS/DEM/GLO30_2024_1",
+      "resolution_m": 30,
+      "type": "static"
+    },
+    "jrc_water": {
+      "gee_id": "JRC/GSW1_4/GlobalSurfaceWater",
+      "band": "occurrence",
+      "resolution_m": 30,
+      "type": "static (1984-2021)"
+    },
+    "worldcover": {
+      "gee_id": "ESA/WorldCover/v200",
+      "band": "Map",
+      "resolution_m": 10,
+      "type": "static (2021)"
+    }
+  },
+  "processing": {
+    "crs": "EPSG:4545",
+    "model": "ndwi_otsu_change_baseline",
+    "model_version": "0.1.0",
+    "change_min_area_m2": 500,
+    "effective_coverage_thresholds": {
+      "low_quality": 0.5,
+      "normal": 0.7
+    }
+  }
+}

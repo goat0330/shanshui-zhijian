@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山水智鉴 — 事件与工单</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f5; padding: 20px; }
+  h1 { font-size: 20px; margin-bottom: 16px; }
+  h2 { font-size: 16px; margin: 20px 0 10px; }
+  .card { background: white; border-radius: 8px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); font-size: 14px; }
+  .card p { color: #555; margin: 4px 0; font-size: 13px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-open { background: #fef3c7; color: #92400e; }
+  .badge-processing { background: #dbeafe; color: #1e40af; }
+  .badge-completed { background: #dcfce7; color: #166534; }
+  .badge-closed { background: #f3f4f6; color: #374151; }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+  .badge-in_progress { background: #dbeafe; color: #1e40af; }
+  .btn { padding: 4px 12px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 12px; background: white; margin-right: 4px; }
+  .btn:hover { background: #f0f0f0; }
+  .nav { margin-bottom: 16px; }
+  .nav a { color: #2563eb; text-decoration: none; font-size: 13px; margin-right: 12px; }
+  .nav a:hover { text-decoration: underline; }
+  .empty { color: #888; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="nav">
+  <a href="/">← 地图</a>
+  <a href="/review">核验工作台</a>
+  <a href="/replay">Replay 回放</a>
+</div>
+<h1>事件与工单</h1>
+
+<h2>已确认事件</h2>
+<div id="events-list"></div>
+
+<h2>工单列表</h2>
+<div id="work-orders-list"></div>
+
+<script>
+async function loadData() {
+  const [events, orders] = await Promise.all([
+    fetch('/api/v1/events').then(r => r.json()),
+    fetch('/api/v1/work-orders').then(r => r.json()),
+  ]);
+  renderEvents(events);
+  renderOrders(orders);
+}
+
+function renderEvents(events) {
+  const el = document.getElementById('events-list');
+  el.innerHTML = '';
+  if (events.length === 0) { el.innerHTML = '<p class="empty">暂无已确认事件。请在核验工作台确认告警。</p>'; return; }
+  events.forEach(e => {
+    el.innerHTML += `<div class="card">
+      <strong>${e.event_id}</strong>
+      <span class="badge badge-${e.status}">${e.status}</span>
+      <p>${e.title}</p>
+      <p>创建: ${e.created_at}</p>
+      <button class="btn" onclick="createOrder('${e.event_id}')">创建工单</button>
+    </div>`;
+  });
+}
+
+function renderOrders(orders) {
+  const el = document.getElementById('work-orders-list');
+  el.innerHTML = '';
+  if (orders.length === 0) { el.innerHTML = '<p class="empty">暂无工单。请点击事件上的"创建工单"。</p>'; return; }
+  orders.forEach(o => {
+    el.innerHTML += `<div class="card">
+      <strong>${o.order_id}</strong>
+      <span class="badge badge-${o.status}">${o.status}</span>
+      <p>执行人: ${o.assignee}</p>
+      <p>创建: ${o.created_at}</p>
+      ${o.feedback ? `<p>反馈: ${o.feedback}</p>` : ''}
+      ${o.status !== 'completed' ? `
+      <input id="fb-${o.order_id}" placeholder="处置反馈" style="padding:4px;border:1px solid #ccc;border-radius:4px;font-size:12px;margin-top:6px;width:200px;">
+      <button class="btn" onclick="updateOrder('${o.order_id}', 'completed')">完成</button>` : ''}
+    </div>`;
+  });
+}
+
+async function createOrder(eventId) {
+  const r = await fetch(`/api/v1/events/${eventId}/work-orders?assignee=demo_dispatcher`, { method: 'POST' });
+  if (r.ok) loadData();
+  else alert('创建失败: ' + await r.text());
+}
+
+async function updateOrder(orderId, status) {
+  const fb = document.getElementById(`fb-${orderId}`)?.value || '';
+  const r = await fetch(`/api/v1/work-orders/${orderId}/status?status=${status}&feedback=${encodeURIComponent(fb)}`, { method: 'PUT' });
+  if (r.ok) loadData();
+  else alert('更新失败: ' + await r.text());
+}
+
+loadData();
+</script>
+</body>
+</html>

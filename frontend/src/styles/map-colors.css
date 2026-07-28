@@ -1,0 +1,65 @@
+/* ============================================================
+   山水智鉴 V0 — 地图色彩 Token
+   所有地图相关颜色通过 Token 管理，不硬编码
+   ============================================================ */
+
+:root {
+  /* ── Candidate 地图表现色 ── */
+  --map-candidate-persistent-fill: rgba(229, 57, 53, 0.35);
+  --map-candidate-persistent-stroke: #e53935;
+  --map-candidate-persistent-stroke-width: 2;
+
+  --map-candidate-transient-fill: rgba(255, 152, 0, 0.30);
+  --map-candidate-transient-stroke: #ff9800;
+  --map-candidate-transient-stroke-width: 2;
+
+  --map-candidate-uncertain-fill: rgba(158, 158, 158, 0.25);
+  --map-candidate-uncertain-stroke: #9e9e9e;
+  --map-candidate-uncertain-stroke-width: 2;
+
+  --map-candidate-selected-fill: rgba(26, 107, 138, 0.40);
+  --map-candidate-selected-stroke: #1a6b8a;
+  --map-candidate-selected-stroke-width: 3;
+
+  /* ── Event 地图表现色 ── */
+  --map-event-confirmed-fill: rgba(46, 125, 50, 0.30);
+  --map-event-confirmed-stroke: #2e7d32;
+  --map-event-confirmed-stroke-width: 2;
+
+  --map-event-rejected-fill: rgba(108, 117, 125, 0.20);
+  --map-event-rejected-stroke: #6c757d;
+  --map-event-rejected-stroke-width: 1;
+
+  /* ── 底图 ── */
+  --map-bg: #1a1a2e;
+  --map-grid: rgba(255, 255, 255, 0.05);
+}
+
+/* 地图容器样式 */
+.map-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: var(--map-bg);
+}
+
+/* 对比模式分割 */
+.map-split-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.map-split-left,
+.map-split-right {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-split-divider {
+  width: 4px;
+  background: var(--color-border);
+  cursor: col-resize;
+  flex-shrink: 0;
+}

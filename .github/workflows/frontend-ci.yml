@@ -1,0 +1,57 @@
+name: CI — Workbench
+
+on:
+  push:
+    branches: [develop, main, 'integration/**', 'feature/agent-d-*']
+    paths:
+      - 'frontend/**'
+      - 'apps/workbench_api/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [develop, main, 'integration/**']
+    paths:
+      - 'frontend/**'
+      - 'apps/workbench_api/**'
+      - '.github/workflows/frontend-ci.yml'
+
+jobs:
+  frontend:
+    name: Build, unit and browser tests
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect workbench source
+        id: workbench
+        shell: bash
+        working-directory: .
+        run: |
+          if [[ -f frontend/package-lock.json ]]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "Workbench source is not integrated yet; frontend gate is deferred."
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.workbench.outputs.present == 'true'
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        if: steps.workbench.outputs.present == 'true'
+        run: npm ci
+      - name: TypeScript production build
+        if: steps.workbench.outputs.present == 'true'
+        run: npm run build
+      - name: Unit tests
+        if: steps.workbench.outputs.present == 'true'
+        run: npm test
+      - name: Install Playwright Chromium
+        if: steps.workbench.outputs.present == 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Browser E2E
+        if: steps.workbench.outputs.present == 'true'
+        run: npm run test:e2e

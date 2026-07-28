@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山水智鉴 — 重庆水域地图</title>
+<script src="https://unpkg.com/maplibre-gl@3.4.0/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@3.4.0/dist/maplibre-gl.css" rel="stylesheet">
+<style>
+  body, html { margin: 0; padding: 0; height: 100%; font-family: system-ui, sans-serif; }
+  #map { width: 100%; height: 100%; }
+  .layer-control { position: absolute; top: 10px; right: 10px; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; font-size: 14px; }
+  .layer-control label { display: block; margin: 4px 0; }
+  .layer-control input { margin-right: 6px; }
+  .title-bar { position: absolute; top: 10px; left: 10px; background: white; padding: 8px 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10; font-size: 14px; font-weight: 600; }
+  .honesty-badge { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: #ffd700; padding: 4px 10px; border-radius: 4px; font-size: 11px; z-index: 10; }
+</style>
+</head>
+<body>
+<div class="title-bar">山水智鉴 V0 — 重庆朝天门两江交汇</div>
+<div class="layer-control">
+  <strong>图层</strong>
+  <label><input type="checkbox" checked data-layer="t1"> T1 原始 (5月)</label>
+  <label><input type="checkbox" data-layer="t2"> T2 原始 (6月)</label>
+  <label><input type="checkbox" data-layer="water"> 水体掩膜</label>
+  <label><input type="checkbox" data-layer="change"> 变化热力图</label>
+</div>
+<div class="honesty-badge">⚠ 算法候选 · 演练角色 · 非政府认定违法事件</div>
+<div id="map"></div>
+
+<script>
+const map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    sources: {
+      osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256 },
+    },
+    layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
+  },
+  center: [106.575, 29.565],
+  zoom: 13,
+});
+
+map.on('load', () => {
+  // NDWI T1 预览图 (静态PNG叠加)
+  const layers = [
+    { id: 'ndwi_t1', url: '/static/preview_ndwi_t1.png', bounds: [106.554, 29.547, 106.596, 29.583], label: 'NDWI T1', visible: true },
+    { id: 'ndwi_t2', url: '/static/preview_ndwi_t2.png', bounds: [106.554, 29.547, 106.596, 29.583], label: 'NDWI T2', visible: false },
+    { id: 'change', url: '/static/preview_change_mask.png', bounds: [106.554, 29.547, 106.596, 29.583], label: 'Change Mask', visible: false },
+  ];
+  
+  layers.forEach(l => {
+    map.addSource(l.id, { type: 'image', url: l.url, coordinates: [
+      [l.bounds[0], l.bounds[3]], [l.bounds[2], l.bounds[3]],
+      [l.bounds[2], l.bounds[1]], [l.bounds[0], l.bounds[1]],
+    ]});
+    map.addLayer({ id: l.id, type: 'raster', source: l.id, paint: { 'raster-opacity': 0.6 }, layout: { visibility: l.visible ? 'visible' : 'none' } });
+  });
+});
+
+document.querySelectorAll('.layer-control input').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const layer = map.getLayer(cb.dataset.layer);
+    if (layer) map.setLayoutProperty(cb.dataset.layer, 'visibility', cb.checked ? 'visible' : 'none');
+  });
+});
+</script>
