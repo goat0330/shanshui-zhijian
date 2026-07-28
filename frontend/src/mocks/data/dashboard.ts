@@ -52,6 +52,7 @@ export interface TypicalCase {
   area_m2: number;
   detected_at: string;
   summary: string;
+  candidate_id?: string;
 }
 
 export const mockDashboardSnapshot: DashboardSnapshot = {
@@ -103,6 +104,7 @@ export const mockDashboardSnapshot: DashboardSnapshot = {
       area_m2: 45200,
       detected_at: '2026-06-01',
       summary: 'Sentinel-2 多时相分析显示水面面积较上月增加约 15%，SAR 数据交叉验证一致。',
+      candidate_id: 'CAND-0001',
     },
     {
       id: 'EVT-2026-003',
@@ -114,6 +116,7 @@ export const mockDashboardSnapshot: DashboardSnapshot = {
       area_m2: 12800,
       detected_at: '2026-06-15',
       summary: 'NDVI 异常升高，光谱特征与藻类爆发匹配。当前光学影像分辨率不足以确认。',
+      candidate_id: 'CAND-0003',
     },
     {
       id: 'CAND-0004',
@@ -125,6 +128,7 @@ export const mockDashboardSnapshot: DashboardSnapshot = {
       area_m2: 8900,
       detected_at: '2026-06-10',
       summary: '近 2 周水体浑浊度持续性偏高，疑似上游施工影响。',
+      candidate_id: 'CAND-0004',
     },
     {
       id: 'CAND-0007',
@@ -136,6 +140,7 @@ export const mockDashboardSnapshot: DashboardSnapshot = {
       area_m2: 3200,
       detected_at: '2026-06-08',
       summary: '凌晨时段 SAR 后向散射异常升高，时序变化特征与工业排放高度吻合。',
+      candidate_id: 'CAND-0007',
     },
     {
       id: 'CAND-0010',
@@ -147,6 +152,7 @@ export const mockDashboardSnapshot: DashboardSnapshot = {
       area_m2: 5600,
       detected_at: '2026-06-12',
       summary: '岸线位移约 3-5 米，Sentinel-1 时序 InSAR 显示该段存在持续形变。',
+      candidate_id: 'CAND-0010',
     },
   ],
 };

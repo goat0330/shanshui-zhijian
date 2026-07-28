@@ -258,6 +258,7 @@ class TypicalCaseDTO(BaseModel):
     area_m2: float
     detected_at: str
     summary: str
+    candidate_id: Optional[str] = None
 
 
 class DashboardSnapshotResponse(BaseModel):
