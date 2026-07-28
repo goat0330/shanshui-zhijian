@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山水智鉴 — 领导驾驶舱</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f0f2f5; padding: 24px; }
+  h1 { font-size: 22px; margin-bottom: 20px; color: #1a1a2e; }
+  h2 { font-size: 16px; margin-bottom: 12px; color: #333; }
+  .nav { margin-bottom: 20px; }
+  .nav a { color: #2563eb; text-decoration: none; font-size: 13px; margin-right: 16px; }
+  .nav a:hover { text-decoration: underline; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .stat-card .value { font-size: 32px; font-weight: 700; color: #1a1a2e; }
+  .stat-card .label { font-size: 13px; color: #666; margin-top: 4px; }
+  .stat-card .badge { display: inline-block; font-size: 11px; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 8px; margin-top: 6px; }
+  .event-table { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
+  .event-table table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .event-table th { background: #f8fafc; text-align: left; padding: 10px 14px; color: #555; font-weight: 600; border-bottom: 1px solid #eee; }
+  .event-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
+  .event-table tr:last-child td { border-bottom: none; }
+  .status-badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 500; }
+  .status-under_review { background: #fef3c7; color: #92400e; }
+  .status-confirmed { background: #dcfce7; color: #166534; }
+  .status-rejected { background: #fee2e2; color: #991b1b; }
+  .status-reclassified { background: #e0e7ff; color: #3730a3; }
+  .status-needs_more_evidence { background: #fce7f3; color: #9d174d; }
+  .demo-banner { background: #fef9c3; border: 1px solid #fde047; border-radius: 8px; padding: 10px 16px; font-size: 13px; color: #713f12; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div class="nav">
+  <a href="/">← 地图</a>
+  <a href="/review">核验工作台</a>
+  <a href="/events">事件中心</a>
+  <a href="/replay">Replay 回放</a>
+</div>
+
+<div class="demo-banner">
+  ⚡ MOCK / DEMO — 本页展示的是模拟数据结构和业务流程，不代表真实治理成效或业务统计。
+</div>
+
+<h1>领导驾驶舱</h1>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="value">{{ stats.total_candidates }}</div>
+    <div class="label">感知候选</div>
+    <span class="badge">Total Candidates</span>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ stats.total_events }}</div>
+    <div class="label">治理事件</div>
+    <span class="badge">Governed Events</span>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ stats.total_bundles }}</div>
+    <div class="label">证据包</div>
+    <span class="badge">Evidence Bundles</span>
+  </div>
+  <div class="stat-card">
+    <div class="value">{{ stats.total_replay_entries }}</div>
+    <div class="label">操作记录</div>
+    <span class="badge">Replay Entries</span>
+  </div>
+</div>
+
+<h2>最近事件</h2>
+<div class="event-table">
+  <table>
+    <thead>
+      <tr>
+        <th>Event ID</th>
+        <th>Version</th>
+        <th>类型</th>
+        <th>状态</th>
+        <th>创建时间</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for evt in stats.recent_events %}
+      <tr>
+        <td><code>{{ evt.event_id[:20] }}...</code></td>
+        <td>v{{ evt.version }}</td>
+        <td>{{ evt.event_type }}</td>
+        <td><span class="status-badge status-{{ evt.status }}">{{ evt.status }}</span></td>
+        <td>{{ evt.created_at[:19] }}</td>
+      </tr>
+      {% endfor %}
+      {% if stats.recent_events|length == 0 %}
+      <tr><td colspan="5" style="text-align:center;color:#888;">暂无事件数据</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+setTimeout(function(){ window.location.reload(); }, 30000);
+</script>
+</body>
+</html>
