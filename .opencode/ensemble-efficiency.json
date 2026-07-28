@@ -8,7 +8,7 @@
       "fallback": "tests/"
     },
     {
-      "pattern": "core/schemas/contracts/run_manifest*|core/schemas/contracts/sar_metadata*|core/schemas/contracts/submission_envelope*|competition/|.github/workflows/|tests/test_run_manifest*|tests/test_competition*|tests/test_submission*",
+      "pattern": "core/schemas/contracts/run_manifest*|core/schemas/contracts/sar_metadata*|core/schemas/contracts/submission_envelope*|competition/|.github/workflows/|apps/workbench_api/manifest_service*|tests/test_run_manifest*|tests/test_competition*|tests/test_submission*|frontend/tests/e2e/*",
       "owner": "engineering-agent-b",
       "checks": ["ci", "python", "pytest"],
       "fallback": "tests/"
