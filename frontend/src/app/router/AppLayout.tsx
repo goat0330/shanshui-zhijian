@@ -1,15 +1,16 @@
 /* ============================================================
-   山水智鉴 V0 — 应用布局
+    山水智鉴 V0 — 应用布局
    ============================================================ */
 
 import { Outlet, NavLink } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/app/providers/queryClient';
+import DataSourceBadge from '@/shared/ui/DataSourceBadge';
 import './AppLayout.css';
 
 const navItems = [
   { path: '/dashboard', label: '驾驶舱' },
-  { path: '/', label: '研判工作台' },
+  { path: '/workbench', label: '研判工作台' },
   { path: '/events', label: '事件中心' },
   { path: '/runs', label: '运行记录' },
   { path: '/settings', label: '系统设置' },
@@ -29,7 +30,7 @@ export default function AppLayout() {
               <NavLink
                 key={item.path}
                 to={item.path}
-                end={item.path === '/'}
+                end={item.path === '/workbench'}
                 className={({ isActive }) =>
                   `app-nav-item ${isActive ? 'app-nav-item--active' : ''}`
                 }
@@ -39,7 +40,7 @@ export default function AppLayout() {
             ))}
           </nav>
           <div className="app-header-right">
-            <span className="text-sm text-muted">Mock 模式</span>
+            <DataSourceBadge mode="MOCK" />
           </div>
         </header>
         <main className="app-main">

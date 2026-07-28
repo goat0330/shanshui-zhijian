@@ -1,9 +1,9 @@
 # 山水智鉴 — 领导驾驶舱 (Dashboard) 产品需求文档
 
-> 版本: v0.2 (方案审批版)
+> 版本: v0.3 (B2 定稿)
 > 更新: 2026-07-28
 > 负责人: Agent D
-> 状态: 待审批
+> 状态: B2 已确认，骨架实现中
 
 ---
 
@@ -28,14 +28,15 @@
 
 ```
 山水智鉴 V0
-├── 驾驶舱       (/dashboard)   ← 本方案
-├── 研判工作台   (/)            ← 已有实现
-├── 事件中心     (/events)      ← 已有实现
-├── 运行记录     (/runs)        ← 已有实现
-└── 系统设置     (/settings)    ← 已有实现
+├── 驾驶舱       (/dashboard)    ← 本方案
+├── 研判工作台   (/workbench)    ← 路由统一
+├── 事件中心     (/events)
+├── 运行记录     (/runs)
+└── 系统设置     (/settings)
 ```
 
 导航栏项顺序：**驾驶舱排第一**，体现"先看全局、再进细节"的使用逻辑。
+`/` 自动重定向到 `/workbench`。
 
 ### 2.2 驾驶舱页面结构
 
@@ -44,33 +45,30 @@ Dashboard Page  (/dashboard)
 │
 ├── 顶部标题栏
 │   ├── 页面标题 "研判驾驶舱"
-│   ├── MOCK/DEMO 徽标（脉冲动画）
-│   └── 数据说明："数据仅用于演示，不反映真实治理成效"
+│   └── DataSourceBadge: MOCK / FIXTURE / REAL（三态）
 │
-├── [核心区域] 4 个功能区
+├── [KPI 行] 6 张态势卡片（单行）
+│   ├── 异常候选总数
+│   ├── 持久性异常
+│   ├── 瞬态异常
+│   ├── 待研判事件
+│   ├── 已确认事件
+│   └── 监测范围 (km²)
+│
+├── [三栏 B2 布局]（1920×1080 无滚动）
 │   │
-│   ├── ① 态势总览卡 (SituationCards)
-│   │   ├── 异常候选总数
-│   │   ├── 持久性异常
-│   │   ├── 瞬态异常
-│   │   ├── 待研判事件
-│   │   ├── 已确认事件
-│   │   └── 监测范围 (km²)
+│   ├── 左栏: 月度趋势 + 研判链漏斗
+│   │   ├── 趋势图 (TrendChart)
+│   │   └── 漏斗 4 阶段 (ReviewFunnel)
+│   │         候选产生 → 证据就绪 → 已完成研判 → 已生成事件版本
 │   │
-│   ├── ② 空间分布 + 时间趋势 (左侧地图 + 右侧趋势) 或 (左侧趋势 + 右侧空间分布)
-│   │   ├── 地图区域（可选，按布局方案决定是否显示）
-│   │   └── 空间分布柱状图 (SpatialDistribution)
-│   │   └── 月度趋势图 (TrendChart)
+│   ├── 中间: GovernanceMap（主视觉）
+│   │   ├── Candidate GeoJSON 按 change_type 着色
+│   │   └── Event GeoJSON 按 status 着色
 │   │
-│   ├── ③ 研判漏斗 (ReviewFunnel)
-│   │   ├── 总候选
-│   │   ├── 进入研判
-│   │   ├── 已确认
-│   │   └── 已处理
-│   │
-│   └── ④ 典型案例 (TypicalCases)
-│       ├── 案例卡片 1..5
-│       └── 查看全部 → 跳转工作台
+│   └── 右栏: 类型分布 + 典型案例
+│       ├── 变化类型柱状图 (SpatialDistribution)
+│       └── 典型案例卡片 (TypicalCases)
 ```
 
 ---
@@ -80,38 +78,33 @@ Dashboard Page  (/dashboard)
 ### 3.1 管理者日常浏览流
 
 ```
-打开驾驶舱
+打开驾驶舱 (/dashboard)
   │
-  ├─ ① 态势总览 → 6 个关键数字一目了然
-  │     ├─ 异常总量是否上升？
-  │     ├─ 待处理事件积压多少？
-  │     └─ 监测范围变化？
+  ├─ KPI 行: 6 个关键数字一目了然
+  │     ├─ 异常总量？待处理积压？监测范围？
+  │     └─ 数据来源标记 (MOCK / FIXTURE / REAL)
   │
-  ├─ ② 空间分布 + 时间趋势
-  │     ├─ 哪种变化类型最多？（空间分布柱状图）
-  │     ├─ 月度趋势如何？（趋势折线/柱状图）
-  │     └─ 是否需要放大地图查看热点区域？
+  ├─ 中间地图: 空间热点分布
+  │     ├─ Candidate 异常聚集区域
+  │     ├─ Event 按状态可视化
+  │     └─ 缩放/平移探索
   │
-  ├─ ③ 研判漏斗
-  │     ├─ 整体转化率？
-  │     ├─ 从候选到确认的流失率是否合理？
-  │     └─ 哪个环节存在瓶颈？
+  ├─ 左栏: 时间维度 + 流程进度
+  │     ├─ 月度趋势: 候选量/确认量变化
+  │     └─ 研判链漏斗: 各阶段转化率
   │
-  └─ ④ 典型案例
-        ├─ 浏览已确认事件
-        ├─ 点击跳转到工作台查看详情
-        └─ 了解整体治理成果样本
+  └─ 右栏: 分类分析 + 详情入口
+        ├─ 类型分布: 哪种异常最多
+        └─ 典型案例: 点击跳转到工作台
 ```
 
 ### 3.2 与工作台的跳转关系
 
 ```
-驾驶舱 (Dashboard)                    研判工作台 (Workbench)
-─────────────────                    ─────────────────────
-典型案例卡片点击 ──────────────→ 跳转 + 定位到具体 Candidate
-空间分布某项点击 ──────────────→ 跳转 + 按 change_type 筛选
-漏斗某个阶段点击 ──────────────→ 跳转 + 按状态筛选
-           ←──────────────── 研判完成后回到驾驶舱刷新数据
+驾驶舱 (/dashboard)                  研判工作台 (/workbench)
+─────────────────                    ──────────────────────
+典型案例卡片点击 ──────────────→ ?candidate_id=xxx
+           ←──────────────── 研判完成后回到驾驶舱
 ```
 
 ---
@@ -120,11 +113,21 @@ Dashboard Page  (/dashboard)
 
 | 数据维度 | API 端点 | 刷新频率 | 数据量 |
 |----------|----------|----------|--------|
-| 统计概览 | GET /api/v2/dashboard/summary | 页面加载 | 1 条 |
-| 变化类型分布 | GET /api/v2/dashboard/change-types | 页面加载 | ~8 条 |
-| 月度趋势 | GET /api/v2/dashboard/trend | 页面加载 | ~6 条 |
-| 研判漏斗 | GET /api/v2/dashboard/funnel | 页面加载 | 4 阶段 |
-| 典型案例 | GET /api/v2/dashboard/typical-cases | 页面加载 | ~5 条 |
+| 全量驾驶舱数据 | GET /api/v2/dashboard/snapshot | 页面加载 | 1 条复合响应 |
+| Candidate GeoJSON | GET /api/v2/map/candidates.geojson | 地图加载 | ~36 条 |
+| Event GeoJSON | GET /api/v2/map/events.geojson | 地图加载 | ~3 条 |
+
+### Snapshot 响应结构
+
+```json
+{
+  "summary": { "total_candidates": 36, "persistent_count": 12, ... },
+  "change_types": [{ "change_type": "water_extent_increase", "label": "水面扩展", "count": 10, "color": "#1565c0" }, ...],
+  "trend": [{ "month": "2026-03", "label": "3月", "candidates": 8, "confirmed": 0 }, ...],
+  "funnel": [{ "stage": "candidates_created", "count": 36, "description": "算法检测异常候选" }, ...],
+  "typical_cases": [{ "id": "EVT-2026-001", "title": "长江支流 A 段水面异常扩展", ... }]
+}
+```
 
 ---
 
@@ -133,10 +136,10 @@ Dashboard Page  (/dashboard)
 | 要求 | 标准 |
 |------|------|
 | 首屏加载 | < 3 秒 (Mock 模式) |
-| Dashboard 布局 | 1280x720 不破版，1920x1080 最佳 |
-| 大屏适配 | 16:9 比例适配，内容自适应缩放 |
-| 响应式 | 1280px 以上 4 栏 → 1024px 3 栏 → 768px 2 栏 → 1 栏 |
-| 假数据标注 | 必须显式标注 MOCK / DEMO |
+| Dashboard 布局 | 1920×1080 单屏无滚动 |
+| 大屏适配 | 16:9 全屏适配，内容等比缩放 |
+| 响应式 | 低于 1280px 自动降级为单栏滚动 |
+| 数据标注 | 必须显式标注数据来源 (MOCK / FIXTURE / REAL) |
 | 状态完整性 | Loading / Error / Empty 全覆盖 |
 | 数据隔离 | 不访问数据库，不读取文件系统 |
 
@@ -145,6 +148,7 @@ Dashboard Page  (/dashboard)
 ## 6. 禁止事项
 
 - 禁止显示风险概率、准确率、严重度、违法确认、污染确认
+- 禁止"已处理"或 action_taken 字段
 - 禁止宣称"实时数据"或"真实治理成效"
 - 禁止将排序分称为"概率"
 - 禁止自动轮询（页面刷新手动触发）
@@ -156,15 +160,18 @@ Dashboard Page  (/dashboard)
 
 | ID | 标准 | 验证方式 |
 |----|------|----------|
-| D-AC01 | 6 张态势卡片数据显示正确 | Playwright 断言 |
-| D-AC02 | 空间分布柱状图正常渲染 | Playwright 截图对比 |
-| D-AC03 | 月度趋势图正常渲染 | Playwright 截图对比 |
-| D-AC04 | 研判漏斗 4 阶段正确展示 | Playwright 断言 |
-| D-AC05 | 典型案例卡片显示 | Playwright 断言 |
-| D-AC06 | 页面标注 MOCK/DEMO | Playwright 检查文本 |
-| D-AC07 | 1280px 不破版 | Viewport 测试 |
-| D-AC08 | 所有请求有 Loading 态 | 断言 loading 元素 |
-| D-AC09 | API Error 显示 Error State | Mock 500 测试 |
-| D-AC10 | 空数据 Empty State | Mock 空列表测试 |
-| D-AC11 | 点击案例卡片跳转工作台 | Playwright 路由断言 |
-| D-AC12 | 布局方案 A 和 B 可配置切换 | 方案审批后验证 |
+| D-AC01 | 6 张 KPI 卡片数据显示正确 | Playwright 断言 |
+| D-AC02 | 三栏布局渲染（左/中/右） | Playwright 截图对比 |
+| D-AC03 | 地图居中显示、Candidate/Event 图层加载 | 视觉确认 |
+| D-AC04 | 月度趋势柱状图正常渲染 | Playwright 截图对比 |
+| D-AC05 | 研判漏斗 4 阶段正确（候选产生→证据就绪→已完成研判→已生成事件版本） | Playwright 断言文本 |
+| D-AC06 | 空间分布柱状图正常渲染 | Playwright 截图对比 |
+| D-AC07 | 典型案例卡片显示（无 severity 字段） | Playwright 断言 |
+| D-AC08 | DataSourceBadge 显示 MOCK | Playwright 检查文本 |
+| D-AC09 | 1920×1080 不滚动 | Viewport 测试 |
+| D-AC10 | 1280px 以下自动降级单栏 | Viewport 响应式测试 |
+| D-AC11 | 所有请求有 Loading 态 | 断言 loading 元素 |
+| D-AC12 | API Error 显示 Error State | Mock 500 测试 |
+| D-AC13 | 空数据 Empty State | Mock 空数据测试 |
+| D-AC14 | 点击案例卡片跳转 /workbench?candidate_id=xxx | Playwright 路由断言 |
+| D-AC15 | DataSourceBadge 三态切换正确 | 配置验证 |

@@ -30,8 +30,12 @@ export const router = createBrowserRouter([
         element: <LazyPage Component={DashboardPage} />,
       },
       {
-        index: true,
+        path: 'workbench',
         element: <LazyPage Component={WorkbenchPage} />,
+      },
+      {
+        index: true,
+        element: <Navigate to="/workbench" replace />,
       },
       {
         path: 'events',
@@ -47,7 +51,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '*',
-        element: <Navigate to="/" replace />,
+        element: <Navigate to="/workbench" replace />,
       },
     ],
   },

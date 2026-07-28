@@ -142,6 +142,14 @@ export function fetchWorkbenchSummary(): Promise<{
 
 // ── Dashboard ──
 
+export interface DashboardSnapshot {
+  summary: DashboardSummary;
+  change_types: ChangeTypeDistribution[];
+  trend: MonthlyTrend[];
+  funnel: ReviewFunnelStage[];
+  typical_cases: TypicalCase[];
+}
+
 export interface DashboardSummary {
   total_candidates: number;
   persistent_count: number;
@@ -188,25 +196,8 @@ export interface TypicalCase {
   area_m2: number;
   detected_at: string;
   summary: string;
-  severity: 'high' | 'medium' | 'low';
 }
 
-export function fetchDashboardSummary(): Promise<DashboardSummary> {
-  return request('/dashboard/summary');
-}
-
-export function fetchDashboardChangeTypes(): Promise<ChangeTypeDistribution[]> {
-  return request('/dashboard/change-types');
-}
-
-export function fetchDashboardTrend(): Promise<MonthlyTrend[]> {
-  return request('/dashboard/trend');
-}
-
-export function fetchDashboardFunnel(): Promise<ReviewFunnelStage[]> {
-  return request('/dashboard/funnel');
-}
-
-export function fetchDashboardTypicalCases(): Promise<TypicalCase[]> {
-  return request('/dashboard/typical-cases');
+export function fetchDashboardSnapshot(): Promise<DashboardSnapshot> {
+  return request('/dashboard/snapshot');
 }

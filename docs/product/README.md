@@ -1,6 +1,6 @@
 # 山水智鉴 — 产品方案文档
 
-> 版本: v0.2 (方案审批版)
+> 版本: v0.3 (B2 定稿 / 骨架实现中)
 > 更新: 2026-07-28
 
 ---
@@ -9,45 +9,25 @@
 
 | # | 文档 | 内容 |
 |---|------|------|
-| 1 | [DASHBOARD_PRD.md](./DASHBOARD_PRD.md) | 领导驾驶舱产品需求：定位、信息架构、用户流程、验收标准 |
-| 2 | [DASHBOARD_LAYOUT.md](./DASHBOARD_LAYOUT.md) | 两套 16:9 布局方案对比（方案 A / 方案 B） |
-| 3 | [COMPONENT_TREE.md](./COMPONENT_TREE.md) | 完整 React 组件层次、共享组件依赖 |
-| 4 | [DATA_FIELDS.md](./DATA_FIELDS.md) | 各组件绑定的 API 数据字段、类型定义、请求时序 |
-| 5 | [DATA_RELATIONSHIP.md](./DATA_RELATIONSHIP.md) | 五维关系图、数据一致性校验、跳转矩阵 |
+| 1 | [DASHBOARD_PRD.md](./DASHBOARD_PRD.md) | 驾驶舱 PRD — B2 布局、路由统一、snapshot API、DataSourceBadge |
+| 2 | [DASHBOARD_LAYOUT.md](./DASHBOARD_LAYOUT.md) | B2 16:9 单屏布局 — 左(趋势+漏斗)/中(地图)/右(分布+案例) |
+| 3 | [COMPONENT_TREE.md](./COMPONENT_TREE.md) | B2 组件树、数据来源映射 |
+| 4 | [DATA_FIELDS.md](./DATA_FIELDS.md) | 收口 snapshot API 字段绑定 |
+| 5 | [DATA_RELATIONSHIP.md](./DATA_RELATIONSHIP.md) | B2 五维关系图、一致性校验 |
 
 ---
 
-## 决策路径
+## 实现状态
 
-```
-用户审批
-  │
-  ├── 审批通过
-  │     │
-  │     ├── 选定布局方案（A 或 B）
-  │     │
-  │     └── Agent D 开始实现
-  │           ├── Mock 数据 (已有)
-  │           ├── 组件实现 (已有)
-  │           └── 页面集成 (已有)
-  │
-  └── 需要修改
-        └── 按用户反馈调整方案
-```
-
----
-
-## 与现有实现的对应关系
-
-| 文档章节 | 现有实现状态 |
-|----------|-------------|
-| 信息架构 / 路由 | ✅ 已实现 (AppLayout + 5 路由) |
-| 态势总览 SituationCards | ✅ 已实现 (6 卡片) |
-| 空间分布 SpatialDistribution | ✅ 已实现 (CSS 柱状图) |
-| 时间趋势 TrendChart | ✅ 已实现 (SVG 折线图) |
-| 研判漏斗 ReviewFunnel | ✅ 已实现 (4 阶段) |
-| 典型案例 TypicalCases | ✅ 已实现 (5 卡片) |
-| Mock 数据 | ✅ 已实现 (dashboard.ts + MSW handlers) |
-| 布局方案 | 📋 本文档定义，等待审批 |
-| 地图嵌入 (方案 B) | ⏳ 待审批后实现 |
-| 案例跳转工作台 | ⏳ 待审批后实现 |
+| 组件 | 状态 | 备注 |
+|------|------|------|
+| 路由 /workbench + /dashboard | ✅ 骨架已实现 | `/` → `/workbench` redirect |
+| DataSourceBadge 三态 | ✅ 骨架已实现 | MOCK / FIXTURE / REAL |
+| B2 三栏布局 | ✅ 骨架已实现 | left 280px / center flex / right 300px |
+| SituationCards 6 KPI | ✅ 已有实现 | 已适配 snapshot |
+| TrendChart | ✅ 已有实现 | 已适配紧凑 SVG |
+| ReviewFunnel | ✅ 已有实现 | 新 4 阶段 |
+| SpatialDistribution | ✅ 已有实现 | 已适配 snapshot |
+| TypicalCases | ✅ 已有实现 | 已移除 severity |
+| GovernanceMap 嵌入 | ✅ 骨架已实现 | 居中主视觉 |
+| Snapshot API (Mock) | ✅ 已实现 | 单端点收口 5 维数据 |
