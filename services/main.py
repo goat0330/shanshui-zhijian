@@ -1,11 +1,9 @@
 """
-山水智鉴 V0 — FastAPI 后端入口 (SQLite 持久化)
+LEGACY / SPIKE — 山水智鉴 V0 FastAPI 后端入口
 
-集成:
-  - TiTiler (COG 瓦片服务)
-  - 产品链 API (DetectionResult / Alert / Review / Event / WorkOrder / Replay)
-  - Jinja2 前端页面
-  - SQLite 持久化 (服务重启数据不丢)
+注意: 此文件已标记为 Legacy。所有新治理 API 请使用 apps/workbench_api/main.py。
+仅保留 v1 产品链端点 (Alert/Event/WorkOrder) 和 Jinja2 前端页面。
+事件治理 v2 端点已迁移至 apps/workbench_api/main.py。
 """
 
 import json
@@ -24,10 +22,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.models import Base, AlertRecord, EventRecord, WorkOrderRecord
-from core.event_governance.bridge import PerceptionToAlertBridge
 from core.event_governance.pipeline import EventGovernancePipeline
 from core.event_governance.persistence import create_session as create_gov_session
-from core.schemas.contracts.perception import PerceptionResult
 
 # ── 路径 ──────────────────────────────────────────────────────────
 ROOT = Path(__file__).resolve().parent.parent
@@ -231,7 +227,8 @@ async def update_work_order(order_id: str, status: str = Query(...),
 
 
 # ==================================================================
-#   事件治理 v2 API (Perception Ingest + Pipeline)
+#   LEGACY 事件治理 v2 API (仅保留 stats + dashboard)
+#   注: /api/v2/* 新端点请使用 apps/workbench_api/main.py
 # ==================================================================
 
 _gov_session = None
@@ -242,29 +239,6 @@ def _get_gov_session():
     if _gov_session is None:
         _gov_session = create_gov_session()
     return _gov_session
-
-
-@app.post("/api/v2/ingest/perception")
-async def ingest_perception(payload: dict = Body(...)):
-    session = _get_gov_session()
-    try:
-        pr = PerceptionResult(**payload)
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Invalid PerceptionResult: {e}")
-
-    pipeline = EventGovernancePipeline(session)
-    result = pipeline.process(pr)
-    session.commit()
-
-    return {
-        "status": "ingested",
-        "event_id": result.event.event_id,
-        "candidate_id": result.candidate_id,
-        "bundle_id": result.bundle_id,
-        "n_observations": result.n_observations,
-        "event_version": result.event.version,
-        "is_idempotent": result.is_idempotent,
-    }
 
 
 @app.get("/api/v2/governance/stats")

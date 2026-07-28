@@ -1,81 +1,41 @@
 """
-RC-03: 事件治理桥接 + ML 下游适配 — 综合测试
+治理链语义测试 — 正确链: DetectionCandidate → Intake → Review → Event → Replay
 
-测试覆盖:
-  1. PerceptionToAlertBridge 基础摄入
-  2. Bridge 幂等 (同一 PerceptionResult 再次摄入返回相同 Event)
-  3. Bridge 观察值映射为证据条目
-  4. Bridge 事件类型推导 (water_anomaly)
-  5. Bridge 事件类型推导 (backscatter_change)
-  6. Bridge 事件类型推导 (object_detected)
-  7. Pipeline process 返回 IngestionResult
-  8. Pipeline 幂等检测 (is_idempotent=True)
-  9. Pipeline get_stats 返回聚合统计
-  10. Pipeline get_stats 含最近事件列表
-  11. POST /api/v2/ingest/perception 端点接收 PerceptionResult
-  12. API 端点返回正确 event_id 和版本
-  13. API 端点重复请求幂等
-  14. API 端点无效输入返回 422
-  15. GET /api/v2/governance/stats 返回统计数据
+核心断言:
+1. Intake 创建 candidate + bundle，不创建 event
+2. Review 创建 event v1 (如无 event) 或 event v{n+1} (如已有 event)
+3. 未经 Review 不得形成 confirmed/rejected Event
 """
 
 import json
 import pytest
 from datetime import datetime
 
-from core.event_governance.bridge import PerceptionToAlertBridge, _compute_event_id, _compute_candidate_id
-from core.event_governance.pipeline import EventGovernancePipeline
-from core.event_governance.persistence import create_session
-from core.event_governance.models import GovernedEvent, EvidenceBundle, EvidenceItem
-from core.schemas.contracts.perception import PerceptionResult, Observation
-from core.schemas.contracts import (
-    ExecutionStatus,
-    TaskType,
-    ObservationType,
-    ScoreType,
+from core.event_governance.bridge import (
+    CandidateIntakeBridge,
+    EvidenceBridge,
+    ReviewBridge,
+    EventBridge,
+    ReplayBridge,
 )
+from core.event_governance.pipeline import EventGovernancePipeline
+from core.event_governance.persistence import create_session, GovernedEventRecord, CandidateRecord
+from core.event_governance.models import GovernedEvent, OptimisticLockError
+from core.schemas.contracts.candidate import DetectionCandidate
 
 
-def _make_observation(
-    obs_id: str,
-    obs_type: ObservationType = ObservationType.WATER_EXTENT,
-    label: str = "water detected",
-    score: float = 0.92,
-) -> Observation:
-    return Observation(
-        observation_id=obs_id,
-        perception_result_ref="pr_test",
-        source_task_type=TaskType.WATER_EXTRACTION,
-        observation_type=obs_type,
-        label=label,
-        score=score,
-        score_type=ScoreType.MODEL_PROBABILITY,
-        created_at=datetime.now().isoformat(),
+def _make_candidate(candidate_id: str = "cand_test_001",
+                    n_evidence: int = 2) -> DetectionCandidate:
+    return DetectionCandidate(
+        candidate_id=candidate_id,
+        observation_refs=[f"obs_{i}" for i in range(n_evidence)],
+        temporal_extent={"start": "2026-01-01", "end": "2026-01-15"},
+        candidate_type="water_extent_change",
+        score=0.85,
+        evidence_refs=[f"ev_ref_{i}" for i in range(n_evidence)],
+        rule_version="1.0.0",
     )
 
-
-def _make_perception_result(
-    pr_id: str = "pr_test_001",
-    run_id: str = "run_test_001",
-    n_obs: int = 2,
-    obs_type: ObservationType = ObservationType.WATER_EXTENT,
-) -> PerceptionResult:
-    return PerceptionResult(
-        perception_result_id=pr_id,
-        inference_task_ref="task_water_001",
-        task_spec_ref="spec_v1",
-        run_id=run_id,
-        status=ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS,
-        observations=[
-            _make_observation(f"obs_{i}", obs_type=obs_type, score=0.85 + i * 0.05)
-            for i in range(n_obs)
-        ],
-        started_at=datetime.now().isoformat(),
-        finished_at=datetime.now().isoformat(),
-    )
-
-
-# ── Fixtures ──
 
 @pytest.fixture
 def session():
@@ -85,259 +45,295 @@ def session():
 
 
 @pytest.fixture
-def bridge(session):
-    return PerceptionToAlertBridge(session)
-
-
-@pytest.fixture
 def pipeline(session):
     return EventGovernancePipeline(session)
 
 
 @pytest.fixture
-def sample_perception():
-    return _make_perception_result()
+def sample_candidate():
+    return _make_candidate()
 
 
-# ═══════════════════════════════════════════════════════════════
-#  1-6: PerceptionToAlertBridge
-# ═══════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════
+#  1. CandidateIntakeBridge — 只创建 candidate+bundle
+# ═══════════════════════════════════════════════════════════
 
-class TestPerceptionToAlertBridge:
+class TestCandidateIntakeBridge:
+    def test_intake_creates_candidate(self, session, sample_candidate):
+        bridge = CandidateIntakeBridge(session)
+        result = bridge.intake(sample_candidate)
+        assert result["candidate_id"] == "cand_test_001"
+        assert result["bundle_id"].startswith("bundle_")
+        assert result["n_evidence_items"] == 2
+        assert result["status"] == "intake_complete"
 
-    def test_bridge_ingest_creates_event(self, bridge, sample_perception):
-        event = bridge.ingest(sample_perception)
-        assert event is not None
-        assert event.event_id.startswith("evt_")
-        assert event.version == 1
-        assert event.status == "under_review"
-        assert event.candidate_id.startswith("cand_")
-        assert event.event_type == "water_anomaly"
+    def test_intake_does_not_create_event(self, session, sample_candidate):
+        bridge = CandidateIntakeBridge(session)
+        bridge.intake(sample_candidate)
+        events = session.query(GovernedEventRecord).count()
+        assert events == 0, "Intake must NOT create events"
 
-    def test_bridge_idempotent_returns_same_event(self, bridge, sample_perception):
-        event1 = bridge.ingest(sample_perception)
-        event2 = bridge.ingest(sample_perception)
-        assert event1.event_id == event2.event_id
-        assert event1.version == event2.version
-        assert event1.candidate_id == event2.candidate_id
+    def test_intake_idempotent(self, session, sample_candidate):
+        bridge = CandidateIntakeBridge(session)
+        r1 = bridge.intake(sample_candidate)
+        r2 = bridge.intake(sample_candidate)
+        assert r2["status"] == "already_ingested"
+        assert r1["candidate_id"] == r2["candidate_id"]
 
-    def test_bridge_maps_observations_to_evidence(self, bridge, sample_perception):
-        bridge.ingest(sample_perception)
-        from core.event_governance.persistence import EvidenceBundleRecord
-        bundles = bridge._session.query(EvidenceBundleRecord).all()
-        assert len(bundles) >= 1
-        items = json.loads(bundles[0].items)
-        assert len(items) == 2
-        assert items[0]["evidence_type"] == "water_extent"
-
-    def test_bridge_event_type_water_anomaly(self, bridge, session):
-        pr = _make_perception_result(
-            pr_id="pr_water", n_obs=1,
-            obs_type=ObservationType.OPTICAL_WATER_INDEX,
+    def test_intake_with_zero_evidence(self, session):
+        c = DetectionCandidate(
+            candidate_id="cand_no_ev",
+            observation_refs=["obs_1"],
+            temporal_extent={"start": "2026-01-01", "end": "2026-01-15"},
+            candidate_type="water_extent_change",
+            score=0.85,
+            evidence_refs=[],
+            rule_version="1.0.0",
         )
-        event = bridge.ingest(pr)
-        assert event.event_type == "water_anomaly"
+        bridge = CandidateIntakeBridge(session)
+        result = bridge.intake(c)
+        assert result["n_evidence_items"] == 0
+        assert result["status"] == "intake_complete"
 
-    def test_bridge_event_type_backscatter_change(self, bridge, session):
-        pr = _make_perception_result(
-            pr_id="pr_sar", n_obs=1,
-            obs_type=ObservationType.SAR_BACKSCATTER_CHANGE,
+    def test_intake_stores_payload(self, session, sample_candidate):
+        bridge = CandidateIntakeBridge(session)
+        bridge.intake(sample_candidate)
+        record = session.query(CandidateRecord).filter_by(candidate_id="cand_test_001").first()
+        assert record is not None
+        assert record.source == "water_extent_change"
+
+
+# ═══════════════════════════════════════════════════════════
+#  2. ReviewBridge — 在 event 不存在时创建 event v1
+# ═══════════════════════════════════════════════════════════
+
+class TestReviewBridge:
+    @pytest.fixture
+    def rv_bridge(self, session, sample_candidate):
+        CandidateIntakeBridge(session).intake(sample_candidate)
+        return ReviewBridge(session)
+
+    def test_review_creates_event_v1(self, rv_bridge, session):
+        rv_bridge.submit(
+            bundle_id="bundle_cand_test_001", reviewer="alice",
+            decision="confirm", expected_version=1,
         )
-        event = bridge.ingest(pr)
-        assert event.event_type == "backscatter_change"
+        events = session.query(GovernedEventRecord).all()
+        assert len(events) == 1
+        assert events[0].version == 1
+        assert events[0].status == "confirmed"
 
-    def test_bridge_event_type_object_detected(self, bridge, session):
-        pr = _make_perception_result(
-            pr_id="pr_obj", n_obs=1,
-            obs_type=ObservationType.OBJECT_DETECTION,
+    def test_review_event_id_stable(self, rv_bridge, session):
+        rv_bridge.submit(
+            bundle_id="bundle_cand_test_001", reviewer="alice",
+            decision="confirm", expected_version=1,
         )
-        event = bridge.ingest(pr)
-        assert event.event_type == "object_detected"
+        e = session.query(GovernedEventRecord).first()
+        assert e.event_id.startswith("evt_")
 
-    def test_bridge_creates_replay_entry(self, bridge, sample_perception):
-        bridge.ingest(sample_perception)
-        from core.event_governance.persistence import ReplayRecordDB
-        entries = bridge._session.query(ReplayRecordDB).all()
+    def test_review_reject_creates_event(self, rv_bridge, session):
+        rv_bridge.submit(
+            bundle_id="bundle_cand_test_001", reviewer="bob",
+            decision="reject", expected_version=1,
+        )
+        e = session.query(GovernedEventRecord).first()
+        assert e.status == "rejected"
+
+    def test_review_needs_more_evidence(self, rv_bridge, session):
+        rv_bridge.submit(
+            bundle_id="bundle_cand_test_001", reviewer="carol",
+            decision="needs_more_evidence", expected_version=1,
+        )
+        e = session.query(GovernedEventRecord).first()
+        assert e.status == "needs_more_evidence"
+
+    def test_second_review_increments_version(self, rv_bridge, session):
+        rv_bridge.submit(bundle_id="bundle_cand_test_001", reviewer="a",
+                         decision="confirm", expected_version=1)
+        rv_bridge.submit(bundle_id="bundle_cand_test_001", reviewer="b",
+                         decision="needs_more_evidence", expected_version=2,
+                         comment="need more data")
+        events = session.query(GovernedEventRecord).order_by(GovernedEventRecord.version).all()
+        assert len(events) == 2
+        assert events[0].version == 1 and events[0].status == "confirmed"
+        assert events[1].version == 2 and events[1].status == "needs_more_evidence"
+
+    def test_review_version_conflict(self, rv_bridge, session):
+        rv_bridge.submit(bundle_id="bundle_cand_test_001", reviewer="a",
+                         decision="confirm", expected_version=1)
+        with pytest.raises(OptimisticLockError):
+            rv_bridge.submit(bundle_id="bundle_cand_test_001", reviewer="b",
+                             decision="confirm", expected_version=1)
+
+    def test_review_list(self, rv_bridge, session):
+        rv_bridge.submit(bundle_id="bundle_cand_test_001", reviewer="a",
+                         decision="confirm", expected_version=1)
+        reviews = rv_bridge.list_reviews()
+        assert len(reviews) == 1
+        assert reviews[0]["decision"] == "confirm"
+
+
+# ═══════════════════════════════════════════════════════════
+#  3. EventBridge — 只查已有 event
+# ═══════════════════════════════════════════════════════════
+
+class TestEventBridge:
+    @pytest.fixture
+    def evt_setup(self, session):
+        ci = CandidateIntakeBridge(session)
+        ci.intake(_make_candidate("cand_ev_1"))
+        ci.intake(_make_candidate("cand_ev_2"))
+        rb = ReviewBridge(session)
+        rb.submit(bundle_id="bundle_cand_ev_1", reviewer="a",
+                  decision="confirm", expected_version=1)
+        rb.submit(bundle_id="bundle_cand_ev_2", reviewer="b",
+                  decision="reject", expected_version=1)
+        return EventBridge(session)
+
+    def test_list_events(self, evt_setup):
+        events = evt_setup.list_events()
+        assert len(events) == 2
+
+    def test_list_by_status(self, evt_setup):
+        confirmed = evt_setup.list_events(status="confirmed")
+        rejected = evt_setup.list_events(status="rejected")
+        assert len(confirmed) == 1
+        assert len(rejected) == 1
+
+    def test_get_event(self, evt_setup):
+        events = evt_setup.list_events()
+        e = evt_setup.get_event(events[0]["event_id"])
+        assert e is not None
+
+    def test_get_event_nonexistent(self, evt_setup):
+        assert evt_setup.get_event("nonexistent") is None
+
+    def test_events_by_status(self, evt_setup):
+        counts = evt_setup.get_events_by_status()
+        assert counts.get("confirmed", 0) >= 1
+        assert counts.get("rejected", 0) >= 1
+
+    def test_no_events_before_review(self, session):
+        ci = CandidateIntakeBridge(session)
+        ci.intake(_make_candidate("cand_no_evt"))
+        eb = EventBridge(session)
+        assert eb.list_events() == []
+
+
+# ═══════════════════════════════════════════════════════════
+#  4. ReplayBridge
+# ═══════════════════════════════════════════════════════════
+
+class TestReplayBridge:
+    @pytest.fixture
+    def rp_setup(self, session):
+        ci = CandidateIntakeBridge(session)
+        ci.intake(_make_candidate("cand_rp"))
+        rb = ReviewBridge(session)
+        rb.submit(bundle_id="bundle_cand_rp", reviewer="a",
+                  decision="confirm", expected_version=1)
+        return ReplayBridge(session)
+
+    def test_timeline_not_empty(self, rp_setup):
+        from core.event_governance.bridge import EventBridge
+        eb = EventBridge(rp_setup._session)
+        events = eb.list_events()
+        assert len(events) >= 1
+        timeline = rp_setup.get_timeline(events[0]["event_id"])
+        assert len(timeline) >= 1
+
+    def test_timeline_unknown_event(self, rp_setup):
+        assert rp_setup.get_timeline("nonexistent") == []
+
+    def test_recent_entries(self, rp_setup):
+        entries = rp_setup.get_recent_entries()
         assert len(entries) >= 1
-        assert entries[0].action == "replayed"
-        assert entries[0].actor_ref == "perception_bridge"
 
 
-# ═══════════════════════════════════════════════════════════════
-#  7-10: EventGovernancePipeline
-# ═══════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════
+#  5. Pipeline 集成
+# ═══════════════════════════════════════════════════════════
 
-class TestEventGovernancePipeline:
-
-    def test_pipeline_process_returns_ingestion_result(self, pipeline, sample_perception):
-        result = pipeline.process(sample_perception)
-        assert result.event is not None
-        assert result.candidate_id.startswith("cand_")
-        assert result.bundle_id.startswith("bundle_")
-        assert result.n_observations == 2
+class TestPipeline:
+    def test_pipeline_intake_only(self, pipeline, sample_candidate):
+        result = pipeline.intake(sample_candidate)
+        assert result.candidate_id == "cand_test_001"
         assert result.is_idempotent is False
+        assert not hasattr(result, "event")
 
-    def test_pipeline_idempotent_detection(self, pipeline, sample_perception):
-        result1 = pipeline.process(sample_perception)
-        assert result1.is_idempotent is False
-        result2 = pipeline.process(sample_perception)
-        assert result2.is_idempotent is True
-        assert result1.event.event_id == result2.event.event_id
+    def test_pipeline_intake_idempotent(self, pipeline, sample_candidate):
+        r1 = pipeline.intake(sample_candidate)
+        r2 = pipeline.intake(sample_candidate)
+        assert r1.candidate_id == r2.candidate_id
+        assert r2.is_idempotent is True
 
-    def test_pipeline_get_stats_returns_aggregates(self, pipeline, sample_perception):
-        pipeline.process(sample_perception)
+    def test_pipeline_get_stats(self, pipeline, sample_candidate):
+        pipeline.intake(sample_candidate)
         stats = pipeline.get_stats()
         assert stats["total_candidates"] >= 1
-        assert stats["total_events"] >= 1
-        assert stats["total_bundles"] >= 1
-        assert stats["total_replay_entries"] >= 1
 
-    def test_pipeline_get_stats_includes_recent_events(self, pipeline, sample_perception):
-        pipeline.process(sample_perception)
-        stats = pipeline.get_stats()
-        assert len(stats["recent_events"]) >= 1
-        latest = stats["recent_events"][0]
-        assert "event_id" in latest
-        assert "status" in latest
-        assert "event_type" in latest
+    def test_pipeline_snapshot_empty(self, pipeline):
+        snap = pipeline.get_snapshot()
+        assert snap["totals"]["candidates"] == 0
+        assert snap["totals"]["events_distinct"] == 0
 
-    def test_pipeline_process_multiple_perceptions(self, pipeline, session):
-        pr1 = _make_perception_result(pr_id="pr_multi_1", run_id="run_m1")
-        pr2 = _make_perception_result(pr_id="pr_multi_2", run_id="run_m2")
-        r1 = pipeline.process(pr1)
-        r2 = pipeline.process(pr2)
-        assert r1.event.event_id != r2.event.event_id
-        stats = pipeline.get_stats()
-        assert stats["total_events"] >= 2
+    def test_pipeline_snapshot_after_intake(self, pipeline, session, sample_candidate):
+        pipeline.intake(sample_candidate)
+        snap = pipeline.get_snapshot()
+        assert snap["totals"]["candidates"] >= 1
+        assert snap["totals"]["events_distinct"] == 0
+        assert snap["funnel"]["candidates_ingested"] >= 1
 
-    def test_pipeline_empty_observations(self, pipeline, session):
-        pr = PerceptionResult(
-            perception_result_id="pr_empty",
-            inference_task_ref="task_empty",
-            task_spec_ref="spec_v1",
-            run_id="run_empty",
-            status=ExecutionStatus.SUCCEEDED_EMPTY,
-            observations=[],
+    def test_pipeline_snapshot_funnel(self, pipeline, session, sample_candidate):
+        pipeline.intake(sample_candidate)
+        rb = ReviewBridge(session)
+        rb.submit(bundle_id="bundle_cand_test_001", reviewer="a",
+                  decision="confirm", expected_version=1)
+        snap = pipeline.get_snapshot()
+        assert snap["funnel"]["candidates_ingested"] >= 1
+        assert snap["funnel"]["candidates_reviewed"] >= 1
+        assert snap["funnel"]["events_created"] >= 1
+
+    def test_pipeline_snapshot_with_reviews(self, pipeline, session, sample_candidate):
+        pipeline.intake(sample_candidate)
+        rb = ReviewBridge(session)
+        rb.submit(bundle_id="bundle_cand_test_001", reviewer="alice",
+                  decision="confirm", expected_version=1)
+        snap = pipeline.get_snapshot()
+        assert snap["totals"]["reviews"] >= 1
+        assert len(snap["recent_reviews"]) >= 1
+        assert snap["events_by_status"].get("confirmed", 0) >= 1
+
+
+# ═══════════════════════════════════════════════════════════
+#  6. 语义约束验证
+# ═══════════════════════════════════════════════════════════
+
+class TestSemanticGuarantees:
+    def test_no_candidate_no_event(self, session):
+        assert session.query(GovernedEventRecord).count() == 0
+
+    def test_no_event_without_review(self, session):
+        """No event exists until a review decision is submitted."""
+        CandidateIntakeBridge(session).intake(_make_candidate("cand_sem"))
+        assert session.query(GovernedEventRecord).count() == 0
+        ReviewBridge(session).submit(
+            bundle_id="bundle_cand_sem", reviewer="a",
+            decision="confirm", expected_version=1,
         )
-        result = pipeline.process(pr)
-        assert result.n_observations == 0
-        assert result.event is not None
+        assert session.query(GovernedEventRecord).count() == 1
 
+    def test_review_without_candidate_raises(self, session):
+        rb = ReviewBridge(session)
+        with pytest.raises(Exception):
+            rb.submit(bundle_id="bundle_nonexistent", reviewer="a",
+                      decision="confirm", expected_version=1)
 
-# ═══════════════════════════════════════════════════════════════
-#  11-15: API Endpoints
-# ═══════════════════════════════════════════════════════════════
-
-class TestIngestAPI:
-
-    @pytest.fixture
-    def client(self):
-        import sys
-        import tempfile
-        import os
-        from pathlib import Path
-        svc_path = str(Path(__file__).resolve().parent.parent / "services")
-        if svc_path not in sys.path:
-            sys.path.insert(0, svc_path)
-
-        from core.event_governance.persistence import create_session as make_gov_session, Base as GovBase
-        from sqlalchemy import create_engine
-
-        gov_db = os.path.join(tempfile.gettempdir(), f"test_gov_{os.urandom(4).hex()}.db")
-        gov_engine = create_engine(
-            f"sqlite:///{gov_db}",
-            echo=False,
-            connect_args={"check_same_thread": False},
-        )
-        GovBase.metadata.create_all(gov_engine)
-
-        from sqlalchemy.orm import sessionmaker
-        GovSession = sessionmaker(bind=gov_engine)
-        gov_session = GovSession()
-
-        import services.main
-        services.main._gov_session = gov_session
-
-        from fastapi.testclient import TestClient
-        client = TestClient(services.main.app)
-        yield client
-
-        try:
-            gov_session.close()
-            gov_engine.dispose()
-        except Exception:
-            pass
-        try:
-            for _ in range(5):
-                try:
-                    os.remove(gov_db)
-                    break
-                except PermissionError:
-                    import time
-                    time.sleep(0.1)
-        except Exception:
-            pass
-
-    def test_api_ingest_perception(self, client):
-        payload = _make_perception_result().model_dump()
-        resp = client.post("/api/v2/ingest/perception", json=payload)
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["status"] == "ingested"
-        assert data["event_id"].startswith("evt_")
-        assert data["n_observations"] == 2
-        assert data["event_version"] == 1
-
-    def test_api_ingest_returns_correct_ids(self, client):
-        pr = _make_perception_result(pr_id="pr_api_002")
-        payload = pr.model_dump()
-        resp = client.post("/api/v2/ingest/perception", json=payload)
-        data = resp.json()
-        expected_event_id = _compute_event_id("pr_api_002")
-        expected_candidate_id = _compute_candidate_id("pr_api_002")
-        assert data["event_id"] == expected_event_id
-        assert data["candidate_id"] == expected_candidate_id
-
-    def test_api_ingest_idempotent(self, client):
-        payload = _make_perception_result(pr_id="pr_idem").model_dump()
-        resp1 = client.post("/api/v2/ingest/perception", json=payload)
-        resp2 = client.post("/api/v2/ingest/perception", json=payload)
-        assert resp1.status_code == 200
-        assert resp2.status_code == 200
-        assert resp1.json()["event_id"] == resp2.json()["event_id"]
-        assert resp2.json()["is_idempotent"] is True
-
-    def test_api_ingest_invalid_input(self, client):
-        resp = client.post(
-            "/api/v2/ingest/perception",
-            json={"bad_field": "no perception result"},
-        )
-        assert resp.status_code == 422
-
-    def test_api_governance_stats(self, client):
-        pr = _make_perception_result(pr_id="pr_stats").model_dump()
-        client.post("/api/v2/ingest/perception", json=pr)
-        resp = client.get("/api/v2/governance/stats")
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["total_candidates"] >= 1
-        assert data["total_events"] >= 1
-        assert "recent_events" in data
-
-
-# ═══════════════════════════════════════════════════════════════
-#  额外: 辅助函数测试
-# ═══════════════════════════════════════════════════════════════
-
-class TestBridgeHelpers:
-
-    def test_compute_event_id_stable(self):
-        id1 = _compute_event_id("test_input")
-        id2 = _compute_event_id("test_input")
-        assert id1 == id2
-        assert id1.startswith("evt_")
-
-    def test_compute_event_id_different_inputs_differ(self):
-        id1 = _compute_event_id("input_a")
-        id2 = _compute_event_id("input_b")
-        assert id1 != id2
+    def test_event_only_after_review(self, session, sample_candidate):
+        ci = CandidateIntakeBridge(session)
+        ci.intake(sample_candidate)
+        assert session.query(GovernedEventRecord).count() == 0
+        rb = ReviewBridge(session)
+        rb.submit(bundle_id="bundle_cand_test_001", reviewer="a",
+                  decision="confirm", expected_version=1)
+        assert session.query(GovernedEventRecord).count() == 1

@@ -1,12 +1,8 @@
 """
-山水智鉴 V0 — Workbench API Real Service
+山水智鉴 V0 — Workbench API Real Service (Real Only)
 
 接入 Agent C 的 event_governance 持久化层。
-V0-MOCK 不可用数据回退到 mock_service（带警告日志，不静默）。
-
-TODO (Agent B/RunManifest):
-  - get_runs, get_run, get_artifact 接入 B 的 RunManifest
-  - get_candidates, get_candidate 接入 A 的 Candidate 存储
+Real 模式禁止回退 mock_service。数据不存在时返回空/None/0，不静默回退。
 """
 
 import json
@@ -42,7 +38,8 @@ from .main import (
     EvidenceItem, ReviewDecision, EventDetail, EventVersion,
     RunDetail, ArtifactRef, ArtifactDetail,
 )
-from . import mock_service
+from core.event_governance.pipeline import EventGovernancePipeline
+from core.schemas.contracts.candidate import DetectionCandidate
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +53,23 @@ def ensure_db():
     if _session is None:
         _session = create_session()
     return _session
+
+
+# ══════════════════════════════════════════════════════════
+#  Candidate Intake
+# ══════════════════════════════════════════════════════════
+
+def do_intake(session, candidate: DetectionCandidate) -> dict:
+    """Intake a DetectionCandidate via the Pipeline (no event created)."""
+    pipeline = EventGovernancePipeline(session)
+    result = pipeline.intake(candidate)
+    return {
+        "candidate_id": result.candidate_id,
+        "bundle_id": result.bundle_id,
+        "n_evidence_items": result.n_evidence_items,
+        "is_idempotent": result.is_idempotent,
+        "status": "intake_complete",
+    }
 
 
 # ══════════════════════════════════════════════════════════
@@ -82,15 +96,11 @@ def get_candidate(candidate_id: str):
     d = get_candidate_dict(candidate_id)
     if d:
         return CandidateDetail(**d)
-    logger.warning("get_candidate(%s): falling back to mock", candidate_id)
-    return mock_service.get_candidate(candidate_id)
+    return None
 
 
 def get_candidate_geojson():
-    logger.warning(
-        "get_candidate_geojson: falling back to mock — Agent A not yet wired"
-    )
-    return mock_service.get_candidate_geojson()
+    return {"type": "FeatureCollection", "features": []}
 
 
 # ══════════════════════════════════════════════════════════
@@ -101,36 +111,28 @@ def get_evidence(candidate_id: str):
     from .main import EvidenceItem, QualitySummary
     session = ensure_db()
     bundles = session.query(EvidenceBundleRecord).filter_by(candidate_id=candidate_id).all()
-    if bundles:
-        items = []
-        for b in bundles:
-            try:
-                import json
-                parsed = json.loads(b.items) if isinstance(b.items, str) else b.items
-                for ev in parsed:
-                    # Map stored evidence item to workbench DTO with safe defaults
-                    mapped = {
-                        "evidence_id": ev.get("evidence_id", ""),
-                        "evidence_type": ev.get("evidence_type", ""),
-                        "source_modality": ev.get("source_modality", ev.get("evidence_type", "")),
-                        "source_asset_ref": ev.get("source_asset_ref", ev.get("file_ref", "")),
-                        "derived_asset_ref": ev.get("derived_asset_ref", None),
-                        "captured_at": ev.get("captured_at", ev.get("acquired_at", "")),
-                        "stance": ev.get("stance", "supporting"),
-                        "quality_summary": ev.get("quality_summary",
-                            {"overall": "good", "cloud_cover": None, "geometric_quality": None, "artifact_count": None}),
-                        "provenance": ev.get("provenance", ""),
-                        "unavailable_reason": ev.get("unavailable_reason", None),
-                    }
-                    items.append(EvidenceItem(**mapped))
-            except Exception as exc:
-                logger.warning("get_evidence(%s): item parse error: %s", candidate_id, exc)
-                pass
-        if items:
-            return items
-    logger.warning("get_evidence(%s): falling back to mock", candidate_id)
-    from . import mock_service
-    return mock_service.get_evidence(candidate_id)
+    items = []
+    for b in bundles:
+        try:
+            parsed = json.loads(b.items) if isinstance(b.items, str) else b.items
+            for ev in parsed:
+                mapped = {
+                    "evidence_id": ev.get("evidence_id", ""),
+                    "evidence_type": ev.get("evidence_type", ""),
+                    "source_modality": ev.get("source_modality", ev.get("evidence_type", "")),
+                    "source_asset_ref": ev.get("source_asset_ref", ev.get("file_ref", "")),
+                    "derived_asset_ref": ev.get("derived_asset_ref", None),
+                    "captured_at": ev.get("captured_at", ev.get("acquired_at", "")),
+                    "stance": ev.get("stance", "supporting"),
+                    "quality_summary": ev.get("quality_summary",
+                        {"overall": "good", "cloud_cover": None, "geometric_quality": None, "artifact_count": None}),
+                    "provenance": ev.get("provenance", ""),
+                    "unavailable_reason": ev.get("unavailable_reason", None),
+                }
+                items.append(EvidenceItem(**mapped))
+        except Exception as exc:
+            logger.warning("get_evidence(%s): item parse error: %s", candidate_id, exc)
+    return items
 
 
 # ══════════════════════════════════════════════════════════
@@ -349,73 +351,55 @@ def get_event(event_id: str):
 
 
 def get_event_geojson():
-    from . import mock_service
     session = ensure_db()
-    try:
-        records = session.query(GovernedEventRecord).all()
-        if not records:
-            return mock_service.get_event_geojson()
-        features = []
-        for r in records:
-            payload = {}
-            if r.payload:
-                try:
-                    payload = json.loads(r.payload)
-                except Exception:
-                    pass
-            # Build a point feature from candidate_id or payload
-            coords = payload.get("geometry", None) if isinstance(payload, dict) else None
-            if not coords:
-                continue
-            features.append({
-                "type": "Feature",
-                "geometry": {"type": "Point", "coordinates": coords},
-                "properties": {
-                    "event_id": r.event_id,
-                    "candidate_id": r.candidate_id,
-                    "status": r.status,
-                    "event_type": r.event_type,
-                },
-            })
-        if features:
-            return {"type": "FeatureCollection", "features": features}
-    except Exception:
-        logger.warning("get_event_geojson: real query failed, falling back to mock", exc_info=True)
-    return mock_service.get_event_geojson()
+    records = session.query(GovernedEventRecord).all()
+    features = []
+    for r in records:
+        payload = {}
+        if r.payload:
+            try:
+                payload = json.loads(r.payload)
+            except Exception:
+                pass
+        coords = payload.get("geometry", None) if isinstance(payload, dict) else None
+        if not coords:
+            continue
+        features.append({
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": coords},
+            "properties": {
+                "event_id": r.event_id,
+                "candidate_id": r.candidate_id,
+                "status": r.status,
+                "event_type": r.event_type,
+            },
+        })
+    return {"type": "FeatureCollection", "features": features}
 
 
 def get_event_replay(event_id: str):
     session = ensure_db()
-    try:
-        # Try looking up timeline by the event's associated bundle
-        event = get_governed_event(session, event_id)
-        if event:
-            bundle_id = f"BUNDLE-{event.candidate_id}"
-            timeline = get_timeline(session, bundle_id)
-        else:
-            timeline = get_timeline(session, event_id)
-
-        return [
-            {
-                "replay_id": t.replay_id,
-                "event_id": t.event_id,
-                "sequence_number": t.sequence_number,
-                "actor_type": t.actor_type,
-                "actor_ref": t.actor_ref,
-                "action": t.action,
-                "object_type": t.object_type,
-                "object_ref": t.object_ref,
-                "details": t.details,
-                "replayed_at": t.replayed_at,
-            }
-            for t in timeline
-        ]
-    except Exception:
-        logger.warning(
-            "get_event_replay(%s): real query failed, falling back to mock",
-            event_id, exc_info=True,
-        )
-    return mock_service.get_event_replay(event_id)
+    event = get_governed_event(session, event_id)
+    if event:
+        bundle_id = f"BUNDLE-{event.candidate_id}"
+        timeline = get_timeline(session, bundle_id)
+    else:
+        timeline = get_timeline(session, event_id)
+    return [
+        {
+            "replay_id": t.replay_id,
+            "event_id": t.event_id,
+            "sequence_number": t.sequence_number,
+            "actor_type": t.actor_type,
+            "actor_ref": t.actor_ref,
+            "action": t.action,
+            "object_type": t.object_type,
+            "object_ref": t.object_ref,
+            "details": t.details,
+            "replayed_at": t.replayed_at,
+        }
+        for t in timeline
+    ]
 
 
 # ══════════════════════════════════════════════════════════
@@ -423,6 +407,7 @@ def get_event_replay(event_id: str):
 # ══════════════════════════════════════════════════════════
 
 def get_runs(execution_status=None):
+<<<<<<< HEAD
     from .manifest_service import get_runs as _get_manifests
     runs = _get_manifests(execution_status=execution_status)
     if runs:
@@ -450,6 +435,20 @@ def get_artifact(artifact_id: str):
         artifact_id,
     )
     return mock_service.get_artifact(artifact_id)
+=======
+    logger.warning("get_runs: real data not available — Agent B RunManifest not yet wired")
+    return []
+
+
+def get_run(run_id: str):
+    logger.warning("get_run(%s): real data not available — Agent B RunManifest not yet wired", run_id)
+    return None
+
+
+def get_artifact(artifact_id: str):
+    logger.warning("get_artifact(%s): real data not available — Agent B RunManifest not yet wired", artifact_id)
+    return None
+>>>>>>> origin/cycle3/event-agent-c
 
 
 # ══════════════════════════════════════════════════════════
@@ -457,54 +456,65 @@ def get_artifact(artifact_id: str):
 # ══════════════════════════════════════════════════════════
 
 def get_summary():
-    from . import mock_service
+    from core.event_governance.persistence import GovernedEventRecord, ReviewRecord, ReplayRecordDB
+    from core.event_governance.persistence import CandidateRecord
     session = ensure_db()
-    try:
-        from core.event_governance.persistence import CandidateRecord, GovernedEventRecord, ReviewRecord, ReplayRecordDB
-        from .candidate_store import list_candidates
-        cand_items, cand_total = list_candidates()
-        event_count = session.query(GovernedEventRecord).count()
-        # Count by persistence status
-        persistent = sum(1 for c in cand_items if c.get("persistence_status") == "persistent")
-        uncertain = sum(1 for c in cand_items if c.get("persistence_status") == "uncertain")
-        transient = sum(1 for c in cand_items if c.get("persistence_status") == "transient")
-        # Real review counts from governance_reviews table
-        total_reviews = session.query(ReviewRecord).count()
-        # Recent activity from governance_replays table (last 5 entries)
-        recent_rows = (
-            session.query(ReplayRecordDB)
-            .order_by(ReplayRecordDB.replayed_at.desc())
-            .limit(5)
-            .all()
-        )
-        recent_activity = [
-            {
-                "event_id": r.event_id,
-                "action": r.action,
-                "actor_ref": r.actor_ref,
-                "replayed_at": r.replayed_at,
-                "details": r.details,
-            }
+    cand_total = session.query(CandidateRecord).count()
+    event_count = session.query(GovernedEventRecord).count()
+    total_reviews = session.query(ReviewRecord).count()
+    recent_rows = (
+        session.query(ReplayRecordDB)
+        .order_by(ReplayRecordDB.replayed_at.desc())
+        .limit(5)
+        .all()
+    )
+    return {
+        "total_candidates": cand_total,
+        "total_events": event_count,
+        "total_reviews": total_reviews,
+        "recent_activity": [
+            {"event_id": r.event_id, "action": r.action,
+             "actor_ref": r.actor_ref, "replayed_at": r.replayed_at,
+             "details": r.details}
             for r in recent_rows
-        ]
-        return {
-            "total_candidates": cand_total,
-            "persistent": persistent,
-            "uncertain": uncertain,
-            "transient": transient,
-            "total_events": event_count,
-            "total_reviews": total_reviews,
-            "recent_activity": recent_activity,
-            "source": "real",
-        }
-    except Exception:
-        logger.warning("get_summary: real query failed, falling back to mock", exc_info=True)
-    return mock_service.get_summary()
+        ],
+        "source": "real",
+    }
 
 
 # ══════════════════════════════════════════════════════════
-#  Dashboard Snapshot — 真实聚合回退 mock
+#  Dashboard Snapshot — 真实聚合
 # ══════════════════════════════════════════════════════════
 
 def get_dashboard_snapshot():
-    return mock_service.get_dashboard_snapshot()
+    from .main import (
+        DashboardSnapshotResponse, DashboardSummaryDTO,
+        ChangeTypeDTO, MonthlyTrendDTO, FunnelStageDTO, TypicalCaseDTO,
+    )
+    session = ensure_db()
+    pipeline = EventGovernancePipeline(session)
+    snap = pipeline.get_snapshot()
+
+    t = snap["totals"]
+    funnel = snap.get("funnel", {})
+    ebs = snap.get("events_by_status", {})
+
+    return DashboardSnapshotResponse(
+        summary=DashboardSummaryDTO(
+            total_candidates=t.get("candidates", 0),
+            events_under_review=ebs.get("under_review", 0),
+            events_confirmed=ebs.get("confirmed", 0),
+            events_rejected=ebs.get("rejected", 0),
+            events_needs_evidence=ebs.get("needs_more_evidence", 0),
+            total_runs=0,
+        ),
+        change_types=[],
+        trend=[],
+        funnel=[
+            FunnelStageDTO(stage="candidates_ingested", count=funnel.get("candidates_ingested", 0), description="已摄入候选"),
+            FunnelStageDTO(stage="candidates_with_bundle", count=funnel.get("candidates_with_bundle", 0), description="已生成证据包"),
+            FunnelStageDTO(stage="candidates_reviewed", count=funnel.get("candidates_reviewed", 0), description="已人工核验"),
+            FunnelStageDTO(stage="events_created", count=funnel.get("events_created", 0), description="已创建事件"),
+        ],
+        typical_cases=[],
+    )

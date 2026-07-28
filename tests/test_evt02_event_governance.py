@@ -248,17 +248,21 @@ class TestEvidenceAndReview:
         assert ev_v2 is not None
         assert ev_v2.status == "confirmed"
 
-    def test_review_without_event_raises_error(self, session):
-        """If no event exists for the candidate, review_bundle should raise."""
-        c = GovernanceCandidate(candidate_id="noevt", source="src")
+    def test_review_creates_event_if_none_exists(self, session):
+        """Review should auto-create event v1 if none exists for candidate."""
+        c = GovernanceCandidate(candidate_id="auto_evt", source="src")
         intake_candidate(session, c)
-        attach_evidence(session, EvidenceBundle(bundle_id="noevt_bnd", candidate_id="noevt"))
+        attach_evidence(session, EvidenceBundle(bundle_id="auto_evt_bnd", candidate_id="auto_evt"))
         decision = ReviewDecision(
-            review_id="r_noevt", bundle_id="noevt_bnd", reviewer="alice",
+            review_id="r_auto_evt", bundle_id="auto_evt_bnd", reviewer="alice",
             decision="confirm", expected_version=1,
         )
-        with pytest.raises(EventGovernanceError, match="No existing GovernedEventRecord"):
-            review_bundle(session, decision)
+        result = review_bundle(session, decision)
+        assert result.decision == "confirm"
+        ev = get_event(session, "evt_auto_evt")
+        assert ev is not None
+        assert ev.version == 1
+        assert ev.status == "confirmed"
 
 
 # ─── 3. Event 整数版本 ───
@@ -435,7 +439,7 @@ class TestReplayTimeline:
             decision="confirm", expected_version=1,
         ))
 
-        timeline = get_timeline(session, "tl5_bnd")
+        timeline = get_timeline(session, "tl5_evt")
         assert len(timeline) >= 1
         entry = timeline[0]
         assert entry.action == "review_confirm"
