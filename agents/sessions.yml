@@ -49,40 +49,40 @@ members:
     enabled: true
     default_role: perception
     prompt: agents/session-prompts/SESS_A_PERCEPTION.md
-    branch_policy: 'ensemble/**/perception-agent-a'
-    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\a000c91ad0a8e7738f536ede25fad1c661f98fe8\ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-openchamber-6x5sey-perception-agent-a'
-    current_branch: 'opencode/ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-openchamber-6x5sey-perception-agent-a'
-    current_session_id: 'ses_05b744cd2ffeuzSaDkmo69ze1j'
+    branch_policy: 'cycle3/perception-agent-a'
+    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\cycle3\perception-agent-a'
+    current_branch: 'cycle3/perception-agent-a'
+    current_session_id: 'ses_058f1f1feffewL0Yp3w3PegtzO'
   RELIABILITY_AGENT_B:
     member_name: engineering-agent-b
     display_name: 工程可靠性_AGENT_B
     enabled: true
     default_role: reliability
     prompt: agents/session-prompts/SESS_B_RELIABILITY.md
-    branch_policy: 'ensemble/**/engineering-agent-b'
-    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\a000c91ad0a8e7738f536ede25fad1c661f98fe8\ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-openchamber-6x5sey-engineering-agent-b'
-    current_branch: 'opencode/ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-openchamber-6x5sey-engineering-agent-b'
-    current_session_id: 'ses_05b6f01fcffemIxBr3dIWCZ2Sf'
+    branch_policy: 'cycle3/engineering-agent-b'
+    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\cycle3\engineering-agent-b'
+    current_branch: 'cycle3/engineering-agent-b'
+    current_session_id: 'ses_05917c3e1ffeTNgp6dgdzKiOS9'
   EVENT_AGENT_C:
     member_name: event-agent-c
     display_name: 事件治理_AGENT_C
     enabled: true
     default_role: event
     prompt: agents/session-prompts/SESS_C_EVENT.md
-    branch_policy: 'ensemble/**/event-agent-c'
-    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\a000c91ad0a8e7738f536ede25fad1c661f98fe8\ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-openchamber-6x5sey-event-agent-c'
-    current_branch: 'opencode/ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-openchamber-6x5sey-event-agent-c'
-    current_session_id: 'ses_05b6e8812ffedowg1xMach7iK1'
+    branch_policy: 'cycle3/event-agent-c'
+    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\cycle3\event-agent-c'
+    current_branch: 'cycle3/event-agent-c'
+    current_session_id: 'ses_059177a42ffeWFjOOSB1W0HPsk'
   WORKBENCH_AGENT_D:
     member_name: product-agent-d
     display_name: 产品工作台_AGENT_D
     enabled: true
     default_role: workbench
     prompt: agents/session-prompts/SESS_D_WORKBENCH.md
-    branch_policy: 'ensemble/**/product-agent-d'
-    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\a000c91ad0a8e7738f536ede25fad1c661f98fe8\ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-openchamber-6x5sey-product-agent-d'
-    current_branch: 'opencode/ensemble-geocode-ensemble-mvp-test-shanshui-zhijian-openchamber-6x5sey-product-agent-d'
-    current_session_id: 'ses_05b6e05f3ffezLnMGjSgCGEVrl'
+    branch_policy: 'cycle3/product-agent-d'
+    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\cycle3\product-agent-d'
+    current_branch: 'cycle3/product-agent-d'
+    current_session_id: 'ses_05933ab26ffeyQbUb28Tt67qI9'
   PROGRAM_AGENT_E:
     display_name: 项目经理_AGENT_E
     enabled: true
