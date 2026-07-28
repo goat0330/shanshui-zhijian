@@ -33,6 +33,11 @@ mlruns/
 *.onnx
 *.ckpt
 *.h5
+*.joblib
+ml/data/checkpoint.joblib
+ml/data/*_metrics.json
+ml/data/inference_result.json
+ml/data/detection_result.json
 
 # GeoAgent project memory (internal notes, not for public)
 geocode_memory.md
