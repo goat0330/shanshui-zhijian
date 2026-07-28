@@ -1,0 +1,48 @@
+{
+  "base_branch": "integration/g0-g1-contract-freeze",
+  "base_refs": ["origin/integration/g0-g1-contract-freeze", "origin/master"],
+  "routes": [
+    {
+      "patterns": ["core/schemas/contracts/**"],
+      "owner": "project-manager-agent-e",
+      "checks": ["contract-tests"],
+      "escalate": ["core/"]
+    },
+    {
+      "patterns": ["ml/**", "tools/persistence*.py", "tools/sar_*.py"],
+      "owner": "perception-agent-a",
+      "checks": ["ml-tests", "pytest-ml"],
+      "fallback_owner": "engineering-agent-b"
+    },
+    {
+      "patterns": ["competition/**", "ml/run_manifest.py", ".github/workflows/**"],
+      "owner": "engineering-agent-b",
+      "checks": ["pytest", "ci-yaml"],
+      "escalate_size_bytes": 51200
+    },
+    {
+      "patterns": ["core/event_governance/**", "services/**"],
+      "owner": "event-agent-c",
+      "checks": ["pytest-event"],
+      "fallback_owner": "project-manager-agent-e"
+    },
+    {
+      "patterns": ["frontend/**", "docs/product/**"],
+      "owner": "product-agent-d",
+      "checks": ["tsc", "vitest"],
+      "escalate": ["frontend/src/app/router/**"]
+    },
+    {
+      "patterns": ["tests/**"],
+      "owner": null,
+      "checks": ["pytest"],
+      "minimum_checks": ["pytest"]
+    },
+    {
+      "patterns": ["**"],
+      "owner": "project-manager-agent-e",
+      "checks": ["pytest"],
+      "fallback_owner": null
+    }
+  ]
+}
