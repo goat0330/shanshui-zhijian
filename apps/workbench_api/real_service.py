@@ -419,26 +419,34 @@ def get_event_replay(event_id: str):
 
 
 # ══════════════════════════════════════════════════════════
-#  Runs + Artifacts — 回退 mock (待 B 接入)
+#  Runs + Artifacts — 接入 B 的 RunManifest
 # ══════════════════════════════════════════════════════════
 
 def get_runs(execution_status=None):
-    logger.warning(
-        "get_runs: falling back to mock — Agent B RunManifest not yet wired"
-    )
+    from .manifest_service import get_runs as _get_manifests
+    runs = _get_manifests(execution_status=execution_status)
+    if runs:
+        return runs
+    logger.warning("get_runs: no RunManifest files found, falling back to mock")
     return mock_service.get_runs(execution_status=execution_status)
 
 
 def get_run(run_id: str):
-    logger.warning(
-        "get_run(%s): falling back to mock — Agent B RunManifest not yet wired", run_id
-    )
+    from .manifest_service import get_run as _get_manifest
+    run = _get_manifest(run_id)
+    if run:
+        return run
+    logger.warning("get_run(%s): not found in RunManifest, falling back to mock", run_id)
     return mock_service.get_run(run_id)
 
 
 def get_artifact(artifact_id: str):
+    from .manifest_service import get_artifact as _get_artifact
+    artifact = _get_artifact(artifact_id)
+    if artifact:
+        return artifact
     logger.warning(
-        "get_artifact(%s): falling back to mock — Agent B RunManifest not yet wired",
+        "get_artifact(%s): not found in RunManifest, falling back to mock",
         artifact_id,
     )
     return mock_service.get_artifact(artifact_id)

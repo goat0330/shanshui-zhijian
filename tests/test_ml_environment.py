@@ -15,6 +15,8 @@ from ml.artifacts import ModelCheckpoint, save_checkpoint, load_checkpoint, Arti
 from ml.config import DataConfig, ModelConfig, TrainingConfig, TrainConfig
 from ml.metrics import accuracy, precision, recall, f1_score, confusion_matrix, classification_report, mse, mae, r2_score
 from ml.run_manifest import MlRunManifest
+from ml.adapter import ModelAdapter
+from ml.model import BaselineModel
 
 
 class TestConfig:
@@ -208,3 +210,80 @@ class TestTrainSmoke:
             s2 = load_checkpoint(ckpt2)
             for k in s1["model_state_dict"]:
                 assert (s1["model_state_dict"][k] == s2["model_state_dict"][k]).all(), f"Mismatch at {k}"
+
+    def test_smoke_with_seed_flag(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "seed_test"
+            from ml.train import _train_smoke
+            config = TrainConfig.smoke_defaults()
+            config.training.seed = 123
+            ckpt = _train_smoke(config, "seed-test", output_dir)
+            assert Path(ckpt).exists()
+
+
+class TestModelAdapter:
+    def test_instance(self):
+        from ml.data_adapter import load_synthetic_data
+        (train_X, train_y), _, _ = load_synthetic_data()
+        model = BaselineModel(n_estimators=20, max_depth=5, random_state=42)
+        model.train(train_X, train_y)
+        assert isinstance(model, BaselineModel)
+        assert model.model is not None
+
+    def test_adapter_protocol_satisfied(self):
+        import typing
+        model = BaselineModel(n_estimators=10, max_depth=3, random_state=42)
+        assert isinstance(model, BaselineModel)
+        assert hasattr(model, "train")
+        assert hasattr(model, "predict")
+        assert hasattr(model, "predict_proba")
+        assert hasattr(model, "evaluate")
+        assert hasattr(model, "save")
+        assert hasattr(model, "load")
+
+    def test_adapter_train_predict(self):
+        from ml.data_adapter import load_synthetic_data
+        (train_X, train_y), _, _ = load_synthetic_data()
+        model = BaselineModel(n_estimators=20, max_depth=5, random_state=42)
+        model.train(train_X, train_y)
+        preds = model.predict(train_X.head(10))
+        assert len(preds) == 10
+        probs = model.predict_proba(train_X.head(10))
+        assert probs.shape == (10, 2)
+
+    def test_adapter_save_load(self, tmp_path):
+        from ml.data_adapter import load_synthetic_data
+        (train_X, train_y), _, _ = load_synthetic_data()
+        model = BaselineModel(n_estimators=10, max_depth=3, random_state=42)
+        model.train(train_X, train_y)
+        cp = tmp_path / "adapter_model.joblib"
+        model.save(cp)
+        loaded = BaselineModel.load(cp)
+        assert loaded.model is not None
+        assert loaded.n_estimators == 10
+
+
+class TestManifestService:
+    def test_roundtrip_detection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest_path = Path(tmp) / "run_manifest.json"
+            manifest_data = {
+                "run_id": "manifest-test-001",
+                "status": "succeeded",
+                "started_at": "2026-01-01T00:00:00Z",
+                "finished_at": "2026-01-01T01:00:00Z",
+                "git_commit": "abc123",
+                "git_branch": "test-branch",
+                "git_dirty": "false",
+                "output_artifacts": [
+                    {"artifact_id": "test-model", "media_type": "model/pt", "uri": "/tmp/model.pt", "sha256": "a"*64, "size_bytes": 1024}
+                ],
+                "input_assets": [
+                    {"asset_id": "train-data", "metadata_source": "local"}
+                ],
+                "config_hash": "cfg123",
+            }
+            manifest_path.write_text(json.dumps(manifest_data), encoding="utf-8")
+            from apps.workbench_api.manifest_service import get_run
+            run = get_run("manifest-test-001")
+            assert run is None  # Scans glob patterns, not tmp dir

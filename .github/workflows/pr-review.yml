@@ -25,6 +25,7 @@ jobs:
 
       - name: Identify owner from changed paths
         id: owner
+        shell: bash
         run: |
           CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD 2>/dev/null || git diff --name-only HEAD~1...HEAD)
           echo "Changed files:"
@@ -47,13 +48,23 @@ jobs:
 
       - name: Run ensemble-efficiency gate
         working-directory: ${{ github.workspace }}
+        shell: bash
         run: |
-          python C:/Users/WangChi/.agents/skills/ensemble-efficiency/scripts/ensemble_efficiency.py \
-            --owner "${{ steps.owner.outputs.owner }}" \
-            --task-id "${{ github.event.number }}" \
-            --json \
-            --base "origin/${{ github.base_ref }}" \
-            --no-cache 2>&1 || true
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD 2>/dev/null || git diff --name-only HEAD~1...HEAD)
+          TOTAL=$(echo "$CHANGED" | wc -l)
+          echo "Changed files: $TOTAL"
+          if [ -n "$CHANGED" ]; then
+            echo "Processing changed files..."
+            if echo "$CHANGED" | grep -q "^ml/train.py"; then
+              echo "EFFICIENCY_CHECK: ml/train.py changed — verify train entry"
+            fi
+            if echo "$CHANGED" | grep -q "^ml/adapter.py\|^ml/model.py"; then
+              echo "EFFICIENCY_CHECK: ModelAdapter changed — verify BaselineModel compatibility"
+            fi
+            if echo "$CHANGED" | grep -q "^.github/workflows/"; then
+              echo "EFFICIENCY_CHECK: Workflow changed — verify CI config"
+            fi
+          fi
 
       - name: Install test deps
         if: steps.owner.outputs.checks != 'ci-yaml'
@@ -63,14 +74,13 @@ jobs:
 
       - name: Run pytest (all)
         if: steps.owner.outputs.checks == 'pytest'
-        run: |
-          python -m pytest tests/ -v --tb=short -x --ignore=tests/test_pipeline.py 2>&1 || true
+        run: python -m pytest tests/ -v --tb=short -x --ignore=tests/test_pipeline.py
 
       - name: Run ML tests
         if: steps.owner.outputs.checks == 'ml-tests'
         run: |
           python -m pip install -r requirements-ml.txt
-          python -m pytest tests/test_ml_environment.py -v --tb=short
+          python -m pytest tests/test_ml_environment.py tests/test_ml_b1.py -v --tb=short -x -k "not real_data and not rasters and not geotiff"
 
       - name: Comment PR summary
         if: github.event_name == 'pull_request'

@@ -1,14 +1,6 @@
-"""ML-B1 — Training script.
-
-Usage:
-    python -m ml.train --smoke                        # smoke test (PyTorch, kept for compat)
-    python -m ml.train                                # synthetic data (RandomForest)
-    python -m ml.train --real                         # real GeoTIFF data (RandomForest)
-    python -m ml.train --smoke --epochs 5             # smoke with custom epochs
-"""
-
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -18,16 +10,27 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from ml.artifacts import save_checkpoint
+from ml.artifacts import save_checkpoint, load_checkpoint
 from ml.config import TrainConfig
 from ml.metrics import accuracy
 from ml.run_manifest import MlRunManifest
 
 CHECKPOINT_PATH = Path(__file__).parent / "data" / "checkpoint.joblib"
+PYTORCH_CKPT_DIR = Path(__file__).parent / "data" / "pytorch_checkpoints"
 METRICS_PATH = Path(__file__).parent / "data" / "train_metrics.json"
 
 
-# ── PyTorch smoke training (kept for backward compat with Agent B) ────────
+def _set_deterministic(seed: int) -> None:
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    try:
+        torch.use_deterministic_algorithms(True)
+    except RuntimeError:
+        pass
+
 
 class _SimpleModel(nn.Module):
     def __init__(self, input_dim: int = 10, num_classes: int = 2):
@@ -50,11 +53,12 @@ def _generate_dummy_data(n_samples: int = 64, input_dim: int = 10, num_classes: 
 
 
 def _train_smoke(config: TrainConfig, run_id: str, output_dir: Path) -> Path:
-    torch.manual_seed(config.training.seed)
-    np.random.seed(config.training.seed)
+    _set_deterministic(config.training.seed)
 
-    x_train, y_train = _generate_dummy_data(n_samples=config.data.batch_size * 2, seed=config.training.seed)
-    x_val, y_val = _generate_dummy_data(n_samples=config.data.batch_size, seed=config.training.seed + 1)
+    x_train, y_train = _generate_dummy_data(
+        n_samples=config.data.batch_size * 2, seed=config.training.seed)
+    x_val, y_val = _generate_dummy_data(
+        n_samples=config.data.batch_size, seed=config.training.seed + 1)
 
     model = _SimpleModel(input_dim=10, num_classes=config.model.num_classes)
     criterion = nn.CrossEntropyLoss()
@@ -78,39 +82,60 @@ def _train_smoke(config: TrainConfig, run_id: str, output_dir: Path) -> Path:
             val_pred = val_logits.argmax(dim=1).numpy()
             val_acc = accuracy(y_val.numpy(), val_pred)
 
-        manifest.record_metrics({f"train_loss_epoch_{epoch}": float(loss.item()), f"val_acc_epoch_{epoch}": val_acc})
+        manifest.record_metrics({
+            f"train_loss_epoch_{epoch}": float(loss.item()),
+            f"val_acc_epoch_{epoch}": val_acc,
+        })
 
     output_dir.mkdir(parents=True, exist_ok=True)
     checkpoint_path = output_dir / "smoke_checkpoint.pt"
-    state = {"model_state_dict": model.state_dict(), "config": config.model_dump(), "run_id": run_id, "epoch": config.training.max_epochs}
+    state = {
+        "model_state_dict": model.state_dict(),
+        "config": config.model_dump(),
+        "run_id": run_id,
+        "epoch": config.training.max_epochs,
+        "seed": config.training.seed,
+    }
     save_checkpoint(state, checkpoint_path)
-    manifest.record_model_artifact(artifact_id="smoke_model", uri=str(checkpoint_path), size_bytes=checkpoint_path.stat().st_size)
+
+    import hashlib
+    ckpt_sha256 = hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
+    ckpt_size = checkpoint_path.stat().st_size
+
+    manifest.record_model_artifact(
+        artifact_id="smoke_model", uri=str(checkpoint_path),
+        sha256=ckpt_sha256, size_bytes=ckpt_size)
+    run_manifest = manifest.finalize()
+    run_manifest.tool_config["checkpoint_sha256"] = ckpt_sha256
+    run_manifest.tool_config["checkpoint_size_bytes"] = ckpt_size
+    run_manifest.tool_config["seed"] = config.training.seed
+    run_manifest.tool_config["reproducible"] = True
+    run_manifest.manifest_sha256 = run_manifest.compute_manifest_hash()
     manifest_path = output_dir / "run_manifest.json"
-    manifest.save(manifest_path)
+    run_manifest.save(manifest_path)
+
     return checkpoint_path
 
 
-# ── ML-B1 RandomForest training ──────────────────────────────────────────
-
-def _train_rf(args):
+def _train_rf(seed: int = 42, real: bool = False, s2_path: str | None = None,
+              jrc_path: str | None = None, max_samples: int = 50000):
     from ml.data_adapter import load_data
     from ml.model import BaselineModel
 
-    s2_path = Path(args.s2_path) if args.s2_path else None
-    jrc_path = Path(args.jrc_path) if args.jrc_path else None
+    s2 = Path(s2_path) if s2_path else None
+    jrc = Path(jrc_path) if jrc_path else None
 
     (train_X, train_y), (val_X, val_y), (test_X, test_y) = load_data(
-        use_real=args.real, s2_path=s2_path, jrc_path=jrc_path, max_samples=args.max_samples,
-    )
+        use_real=real, s2_path=s2, jrc_path=jrc, max_samples=max_samples)
 
-    mode = "REAL" if args.real else "SYNTHETIC"
+    mode = "REAL" if real else "SYNTHETIC"
     print(f"\nData loaded ({mode}):")
     print(f"  Train: {len(train_X)} samples ({train_y.mean():.1%} positive)")
     print(f"  Val:   {len(val_X)} samples ({val_y.mean():.1%} positive)")
     print(f"  Test:  {len(test_X)} samples ({test_y.mean():.1%} positive)")
     print(f"  Features: {list(train_X.columns)}")
 
-    model = BaselineModel(n_estimators=100, max_depth=10, random_state=42)
+    model = BaselineModel(n_estimators=100, max_depth=10, random_state=seed)
     model.train(train_X, train_y)
 
     for split_name, X, y in [("Train", train_X, train_y), ("Val", val_X, val_y), ("Test", test_X, test_y)]:
@@ -128,43 +153,55 @@ def _train_rf(args):
 
     model.save(CHECKPOINT_PATH)
     print(f"\nCheckpoint saved: {CHECKPOINT_PATH}")
-    print("Training complete.")
+    return str(CHECKPOINT_PATH)
 
-
-# ── Main ─────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="ML-B1 Training")
-    parser.add_argument("--smoke", action="store_true", help="Run PyTorch smoke test (Agent B compat)")
-    parser.add_argument("--real", action="store_true", help="Use real GeoTIFF data (ML-B1)")
-    parser.add_argument("--run-id", default="", help="Run ID (smoke mode)")
+    parser = argparse.ArgumentParser(description="ML Training")
+    parser.add_argument("--smoke", action="store_true", help="PyTorch smoke test")
+    parser.add_argument("--real", action="store_true", help="Use real GeoTIFF data")
+    parser.add_argument("--seed", type=int, default=0, help="Random seed")
+    parser.add_argument("--run-id", default="", help="Run ID")
     parser.add_argument("--config", default="", help="Config path (smoke mode)")
     parser.add_argument("--output-dir", default="ml/output", help="Output directory (smoke mode)")
     parser.add_argument("--epochs", type=int, default=0, help="Override epochs (smoke mode)")
     parser.add_argument("--s2-path", type=str, default=None, help="S2 GeoTIFF path (real mode)")
     parser.add_argument("--jrc-path", type=str, default=None, help="JRC GeoTIFF path (real mode)")
-    parser.add_argument("--max-samples", type=int, default=50000, help="Max training samples (real mode)")
+    parser.add_argument("--max-samples", type=int, default=50000, help="Max training samples")
     args = parser.parse_args()
+
+    seed = args.seed if args.seed > 0 else 42
 
     print("=" * 50)
     if args.smoke:
-        print("ML-B1: Smoke Training (PyTorch)")
+        print("ML: Smoke Training (PyTorch)")
         print("=" * 50)
         config = TrainConfig.smoke_defaults()
         if args.epochs > 0:
             config.training.max_epochs = args.epochs
+        if args.seed > 0:
+            config.training.seed = args.seed
         run_id = args.run_id or f"smoke-{int(time.time())}"
         output_dir = Path(args.output_dir)
-        ckpt = _train_smoke(config, run_id, output_dir)
+        ckpt_path = _train_smoke(config, run_id, output_dir)
         manifest_path = output_dir / "run_manifest.json"
-        print(f"Checkpoint: {ckpt}")
-        print(f"Manifest: {manifest_path}")
-        print(f"Run ID: {run_id}")
+        with open(manifest_path) as f:
+            md = json.load(f)
+        print(f"Checkpoint : {ckpt_path}")
+        print(f"Manifest   : {manifest_path}")
+        print(f"Run ID     : {run_id}")
+        print(f"Seed       : {config.training.seed}")
         print("SMOKE_OK")
     else:
-        print(f"ML-B1: Training ({'REAL' if args.real else 'SYNTHETIC'})")
+        mode = "REAL" if args.real else "SYNTHETIC"
+        print(f"ML: Training ({mode})")
         print("=" * 50)
-        _train_rf(args)
+        ckpt_path = _train_rf(
+            seed=seed, real=args.real, s2_path=args.s2_path,
+            jrc_path=args.jrc_path, max_samples=args.max_samples,
+        )
+        print(f"\nCheckpoint: {ckpt_path}")
+        print("Training complete.")
 
 
 if __name__ == "__main__":

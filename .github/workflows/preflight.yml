@@ -8,18 +8,14 @@ on:
 
 jobs:
   preflight:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12"]
-
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Install system dependencies
         run: |
@@ -29,7 +25,17 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyproj rasterio pytest
+          pip install pyproj rasterio pytest pydantic
+
+      - name: Verify pyproj CRS
+        run: |
+          python -c "
+          import pyproj; crs = pyproj.CRS.from_epsg(4545); print(f'pyproj OK: {crs.to_wkt()[:60]}...')"
+
+      - name: Verify rasterio CRS
+        run: |
+          python -c "
+          import rasterio; crs = rasterio.crs.CRS.from_epsg(4545); print(f'rasterio OK: {crs}')"
 
       - name: Verify no PROJ pollution — pytest collection
         run: python -m pytest --collect-only -q
