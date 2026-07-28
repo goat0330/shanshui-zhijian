@@ -210,12 +210,71 @@ class ArtifactDetail(BaseModel):
     metadata: dict = {}
 
 
+# ── Dashboard DTO ──
+
+class DashboardSummaryDTO(BaseModel):
+    total_candidates: int = 0
+    persistent_count: int = 0
+    uncertain_count: int = 0
+    transient_count: int = 0
+    events_under_review: int = 0
+    events_confirmed: int = 0
+    events_rejected: int = 0
+    events_needs_evidence: int = 0
+    total_runs: int = 0
+    runs_completed: int = 0
+    runs_failed: int = 0
+    last_run_at: str = ""
+    monitoring_area_km2: float = 0.0
+
+
+class ChangeTypeDTO(BaseModel):
+    change_type: str
+    label: str
+    count: int
+    color: str
+
+
+class MonthlyTrendDTO(BaseModel):
+    month: str
+    label: str
+    candidates: int
+    confirmed: int
+
+
+class FunnelStageDTO(BaseModel):
+    stage: str
+    count: int
+    description: str
+
+
+class TypicalCaseDTO(BaseModel):
+    id: str
+    title: str
+    change_type: str
+    change_type_label: str
+    status: str
+    status_label: str
+    area_m2: float
+    detected_at: str
+    summary: str
+    candidate_id: Optional[str] = None
+
+
+class DashboardSnapshotResponse(BaseModel):
+    summary: DashboardSummaryDTO
+    change_types: list[ChangeTypeDTO]
+    trend: list[MonthlyTrendDTO]
+    funnel: list[FunnelStageDTO]
+    typical_cases: list[TypicalCaseDTO]
+
+
 # ══════════════════════════════════════════════════════════
 #  In-Memory Store (V0 不连接数据库)
 # ══════════════════════════════════════════════════════════
 
-# Mock data imports
-from .mock_service import get_candidates, get_candidate, get_evidence, get_events, get_event, get_event_replay, get_runs, get_run, get_artifact, get_candidate_geojson, get_event_geojson, get_summary, submit_review
+# Service layer — 使用 real_service (接入 C 的 event_governance)
+from . import real_service as _rs
 
 
 # ══════════════════════════════════════════════════════════
@@ -226,10 +285,10 @@ from .mock_service import get_candidates, get_candidate, get_evidence, get_event
 async def generic_error_handler(request, exc):
     if isinstance(exc, HTTPException):
         raise exc
-    return ApiErrorResponse(
-        code="SERVICE_ERROR",
-        message="服务内部错误",
-        details={"error": str(exc)},
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        status_code=500,
+        content={"code": "SERVICE_ERROR", "message": "服务内部错误", "details": {"error": str(exc)}},
     )
 
 
@@ -241,10 +300,41 @@ async def generic_error_handler(request, exc):
 
 @app.get("/api/v2/workbench/summary")
 async def summary():
-    return get_summary()
+    return _rs.get_summary()
 
 
 # ── Candidates ──
+
+class CandidateIntakeRequest(BaseModel):
+    candidate_id: str
+    observation_refs: list[str]
+    temporal_extent: dict
+    candidate_type: str
+    score: float
+    geometry: dict | None = None
+    evidence_refs: list[str] = []
+    rule_version: str = "1.0.0"
+
+
+@app.post("/api/v2/candidates/intake")
+async def intake_candidate(req: CandidateIntakeRequest):
+    from core.schemas.contracts.candidate import DetectionCandidate, CandidateQualitySummary
+    candidate = DetectionCandidate(
+        candidate_id=req.candidate_id,
+        observation_refs=req.observation_refs,
+        temporal_extent=req.temporal_extent,
+        candidate_type=req.candidate_type,
+        score=req.score,
+        geometry=req.geometry,
+        evidence_refs=req.evidence_refs,
+        rule_version=req.rule_version,
+    )
+    from .real_service import ensure_db, do_intake
+    session = ensure_db()
+    result = do_intake(session, candidate)
+    session.commit()
+    return result
+
 
 @app.get("/api/v2/candidates")
 async def list_candidates(
@@ -260,7 +350,7 @@ async def list_candidates(
     sort: Optional[str] = "score",
     include_transient: bool = False,
 ):
-    items, total = get_candidates(
+    items, total = _rs.get_candidates(
         persistence_status=persistence_status,
         change_type=change_type,
         include_transient=include_transient,
@@ -275,7 +365,7 @@ async def list_candidates(
 
 @app.get("/api/v2/candidates/{candidate_id}")
 async def get_candidate_detail(candidate_id: str):
-    candidate = get_candidate(candidate_id)
+    candidate = _rs.get_candidate(candidate_id)
     if not candidate:
         raise HTTPException(
             status_code=404,
@@ -289,7 +379,7 @@ async def get_candidate_detail(candidate_id: str):
 
 @app.get("/api/v2/candidates/{candidate_id}/evidence")
 async def list_evidence(candidate_id: str):
-    return [e.model_dump() for e in get_evidence(candidate_id)]
+    return [e.model_dump() for e in _rs.get_evidence(candidate_id)]
 
 
 @app.get("/api/v2/candidates/{candidate_id}/artifacts")
@@ -317,8 +407,18 @@ async def create_review(candidate_id: str, review: ReviewRequest):
             ).model_dump(),
         )
 
-    result = submit_review(candidate_id, review.model_dump())
-    return result.model_dump()
+    gov_result = _rs.submit_review(candidate_id, review.model_dump())
+    return ReviewDecision(
+        review_id=gov_result.review_id,
+        candidate_id=candidate_id,
+        action=gov_result.decision,
+        category=gov_result.category,
+        comment=gov_result.comment or gov_result.reason,
+        evidence_refs=[],
+        actor_ref=gov_result.reviewer,
+        base_version=gov_result.expected_version,
+        reviewed_at=gov_result.reviewed_at,
+    ).model_dump()
 
 
 # ── Events ──
@@ -332,7 +432,7 @@ async def list_events(
     time_from: Optional[str] = None,
     time_to: Optional[str] = None,
 ):
-    items = get_events(status=status)
+    items = _rs.get_events(status=status)
     return PaginatedResponse(
         data=[item.model_dump() for item in items],
         pagination=Pagination(total=len(items)),
@@ -341,7 +441,7 @@ async def list_events(
 
 @app.get("/api/v2/events/{event_id}")
 async def get_event_detail(event_id: str):
-    event = get_event(event_id)
+    event = _rs.get_event(event_id)
     if not event:
         raise HTTPException(
             status_code=404,
@@ -355,7 +455,7 @@ async def get_event_detail(event_id: str):
 
 @app.get("/api/v2/events/{event_id}/versions")
 async def get_event_versions(event_id: str):
-    event = get_event(event_id)
+    event = _rs.get_event(event_id)
     if not event:
         raise HTTPException(status_code=404, detail={"code": "NOT_FOUND", "message": "Event 不存在"})
     return [v.model_dump() for v in event.versions]
@@ -363,7 +463,7 @@ async def get_event_versions(event_id: str):
 
 @app.get("/api/v2/events/{event_id}/replay")
 async def get_event_replay(event_id: str):
-    return get_event_replay(event_id)
+    return _rs.get_event_replay(event_id)
 
 
 # ── Runs ──
@@ -376,7 +476,7 @@ async def list_runs(
     time_from: Optional[str] = None,
     time_to: Optional[str] = None,
 ):
-    items = get_runs(execution_status=execution_status)
+    items = _rs.get_runs(execution_status=execution_status)
     return PaginatedResponse(
         data=[item.model_dump() for item in items],
         pagination=Pagination(total=len(items)),
@@ -385,7 +485,7 @@ async def list_runs(
 
 @app.get("/api/v2/runs/{run_id}")
 async def get_run_detail(run_id: str):
-    run = get_run(run_id)
+    run = _rs.get_run(run_id)
     if not run:
         raise HTTPException(
             status_code=404,
@@ -401,7 +501,7 @@ async def get_run_detail(run_id: str):
 
 @app.get("/api/v2/artifacts/{artifact_id}")
 async def get_artifact_detail(artifact_id: str):
-    artifact = get_artifact(artifact_id)
+    artifact = _rs.get_artifact(artifact_id)
     if not artifact:
         raise HTTPException(
             status_code=404,
@@ -415,7 +515,7 @@ async def get_artifact_detail(artifact_id: str):
 
 @app.get("/api/v2/artifacts/{artifact_id}/tilejson")
 async def get_artifact_tilejson(artifact_id: str):
-    artifact = get_artifact(artifact_id)
+    artifact = _rs.get_artifact(artifact_id)
     if not artifact:
         raise HTTPException(status_code=404, detail={"code": "NOT_FOUND", "message": "Artifact 不存在"})
     return {
@@ -433,12 +533,19 @@ async def get_artifact_tilejson(artifact_id: str):
 
 @app.get("/api/v2/map/candidates.geojson")
 async def map_candidates_geojson():
-    return get_candidate_geojson()
+    return _rs.get_candidate_geojson()
 
 
 @app.get("/api/v2/map/events.geojson")
 async def map_events_geojson():
-    return get_event_geojson()
+    return _rs.get_event_geojson()
+
+
+# ── Dashboard ──
+
+@app.get("/api/v2/dashboard/snapshot", response_model=DashboardSnapshotResponse)
+async def dashboard_snapshot():
+    return _rs.get_dashboard_snapshot()
 
 
 # ══════════════════════════════════════════════════════════

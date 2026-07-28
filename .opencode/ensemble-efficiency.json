@@ -1,0 +1,41 @@
+{
+  "base_branch": "integration/g0-g1-contract-freeze",
+  "routes": [
+    {
+      "pattern": "core/schemas/contracts/candidate.py|core/schemas/contracts/perception.py|ml/|tools/|tests/test_ml_b2*|tests/test_candidate*",
+      "owner": "perception-agent-a",
+      "checks": ["python", "pytest"],
+      "fallback": "tests/"
+    },
+    {
+      "pattern": "core/schemas/contracts/run_manifest*|core/schemas/contracts/sar_metadata*|core/schemas/contracts/submission_envelope*|competition/|.github/workflows/|apps/workbench_api/manifest_service*|tests/test_run_manifest*|tests/test_competition*|tests/test_submission*|frontend/tests/e2e/*",
+      "owner": "engineering-agent-b",
+      "checks": ["ci", "python", "pytest"],
+      "fallback": "tests/"
+    },
+    {
+      "pattern": "core/schemas/contracts/event*|core/schemas/contracts/evidence*|core/schemas/contracts/review*|core/schemas/contracts/replay*|core/event_governance/|services/|tests/test_event*|tests/test_evidence*|tests/test_review*|tests/test_replay*",
+      "owner": "event-agent-c",
+      "checks": ["python", "pytest", "e2e"],
+      "fallback": "tests/"
+    },
+    {
+      "pattern": "frontend/|apps/workbench_api/|docs/program/ACCEPTANCE*",
+      "owner": "product-agent-d",
+      "checks": ["typescript", "vitest", "playwright"],
+      "fallback": "tests/",
+      "escalate": ["theme_layout", "product_gate"]
+    }
+  ],
+  "minimum_checks": {
+    "perception-agent-a": ["pytest"],
+    "engineering-agent-b": ["ci", "pytest"],
+    "event-agent-c": ["pytest", "e2e"],
+    "product-agent-d": ["vitest", "playwright"]
+  },
+  "escalation": {
+    "size_limit_kb": 200,
+    "cross_domain_paths": ["core/schemas/contracts/"],
+    "product_gate_paths": ["frontend/src/app/", "docs/product/"]
+  }
+}

@@ -754,54 +754,49 @@ def rank_candidates(
 def _candidate_object_to_detection_candidate(
     c: CandidateObject, rule_version: str = "candidate.v0.3"
 ) -> dict:
-    """Convert a CandidateObject to a DetectionCandidate-compatible dict."""
+    """Convert a CandidateObject to a DetectionCandidate-compatible dict (v0.3 schema).
+
+    Extra CandidateObject attributes that do not have dedicated fields in v0.3
+    DetectionCandidate are packed into quality_summary or appended as extra keys
+    in the output dict for downstream consumers.
+    """
     from core.schemas.contracts.candidate import (
         DetectionCandidate,
-        TemporalExtent,
-        CandidateLifecycle,
-        ScoreType,
-        CandidateStatus,
-        compute_candidate_track_id,
+        CandidateQualitySummary,
     )
     geom = c.union_geometry or c.representative_geometry
     dc = DetectionCandidate(
-        schema_version="candidate.v0.3",
+        schema_version="rs-contract.v0.3",
         candidate_id=c.candidate_id,
-        candidate_track_id=compute_candidate_track_id(
-            representative_geometry=c.representative_geometry,
-        ),
         observation_refs=c.source_observation_ids,
-        temporal_extent=TemporalExtent(
-            start_index=c.first_seen,
-            end_index=c.last_seen,
-        ),
+        temporal_extent={
+            "start": c.first_seen,
+            "end": c.last_seen,
+        },
         candidate_type=c.change_type,
         geometry=geom,
-        representative_geometry=c.representative_geometry,
-        union_geometry=c.union_geometry,
-        score=c.candidate_rank_score,
-        score_type=ScoreType.WITHIN_RUN_RANKING,
-        score_components=c.score_components,
-        quality_summary={
-            "median_area_m2": c.median_area_m2,
-            "maximum_area_m2": c.maximum_area_m2,
-            "robust_z_mean": c.robust_z_mean,
-            "robust_z_max": c.robust_z_max,
-            "water_occurrence_mean": c.water_occurrence_mean,
-            "occurrence_count": c.occurrence_count,
-            "persistence_ratio": c.persistence_ratio,
-        },
+        score=min(c.candidate_rank_score, 1.0),
+        quality_summary=CandidateQualitySummary(
+            mean_score=min(c.candidate_rank_score, 1.0),
+            n_observations=max(c.occurrence_count, 1),
+            area_consistency=min(c.persistence_ratio, 1.0),
+            score_std=None,
+        ),
+        coordinate_space="geographic",
         rule_version=rule_version,
-        lifecycle=CandidateLifecycle(c.lifecycle) if c.lifecycle else None,
-        suppression_reason=c.suppression_reason,
-        supersedes=c.supersedes,
-        superseded_by=c.superseded_by,
-        source_modality=c.source_modality,
-        persistence_status=CandidateStatus(c.persistence_status) if c.persistence_status else None,
-        occurrence_count=c.occurrence_count,
-        persistence_ratio=c.persistence_ratio,
     )
-    return dc.model_dump(exclude_none=True)
+    result = dc.model_dump(exclude_none=True)
+    # Append extra fields not in v0.3 schema but needed downstream
+    result["persistence_status"] = c.persistence_status
+    result["occurrence_count"] = c.occurrence_count
+    result["persistence_ratio"] = c.persistence_ratio
+    result["score_type"] = "within_run_ranking"
+    result["score_components"] = c.score_components
+    result["median_area_m2"] = c.median_area_m2
+    result["robust_z_mean"] = c.robust_z_mean
+    result["robust_z_max"] = c.robust_z_max
+    result["water_occurrence_mean"] = c.water_occurrence_mean
+    return result
 
 
 def candidates_to_geojson(candidates: list[CandidateObject]) -> list[dict]:

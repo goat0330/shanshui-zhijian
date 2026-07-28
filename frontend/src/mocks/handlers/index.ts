@@ -9,6 +9,7 @@ import { getMockEvents, getMockEvent, getMockReplay, getEventForCandidate } from
 import { getMockRuns, getMockRun } from '@/mocks/data/runs';
 import { getMockReview, addMockReview } from '@/mocks/data/reviews';
 import { getMockArtifact } from '@/mocks/data/artifacts';
+import { getDashboardSnapshot } from '@/mocks/data/dashboard';
 import type { CandidateDTO, EventDTO, ReviewRequest, PaginatedResponse, ApiError } from '@/shared/types';
 
 const API = '/api/v2';
@@ -270,6 +271,13 @@ export const handlers = [
       total_runs: 2,
       last_run_at: '2026-06-10T08:45:00Z',
     });
+  }),
+
+  // ── Dashboard ──
+
+  http.get(`${API}/dashboard/snapshot`, async () => {
+    await simDelay(200);
+    return HttpResponse.json(getDashboardSnapshot());
   }),
 
   // ── 500 Error ──

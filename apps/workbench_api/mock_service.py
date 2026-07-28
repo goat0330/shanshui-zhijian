@@ -12,15 +12,23 @@ from .main import (
     CandidateListItem, CandidateDetail, QualitySummary,
     EvidenceItem, ReviewDecision, EventDetail, EventVersion,
     RunDetail, ArtifactRef, ArtifactDetail,
+    DashboardSummaryDTO, ChangeTypeDTO, MonthlyTrendDTO,
+    FunnelStageDTO, TypicalCaseDTO, DashboardSnapshotResponse,
 )
 
 # ══════════════════════════════════════════════════════════
 #  Mock Data
 # ══════════════════════════════════════════════════════════
 
+_CHANGE_TYPES = [
+    "water_extent_increase", "water_extent_decrease", "turbidity_anomaly", "algae_bloom",
+    "bank_collapse", "suspected_discharge", "sediment_anomaly", "vegetation_change",
+]
+
 _candidates = [
     CandidateListItem(
-        candidate_id=f"CAND-{str(i+1).zfill(4)}", change_type="water_extent_increase",
+        candidate_id=f"CAND-{str(i+1).zfill(4)}",
+        change_type=_CHANGE_TYPES[i % len(_CHANGE_TYPES)],
         persistence_status="persistent" if i < 8 else ("uncertain" if i < 12 else "transient"),
         occurrence_count=3 + (i % 6), persistence_ratio=0.5 + (i % 5) * 0.1,
         within_run_ranking=i + 1, batch_rank=i + 1,
@@ -83,6 +91,18 @@ _events = [
                 status="under_review", title="B 河流域浑浊度异常",
                 created_at="2026-06-10T09:00:00Z", updated_at="2026-06-10T09:00:00Z",
                 versions=[EventVersion(version=1, status="under_review", changed_by="system", changed_at="2026-06-10T09:00:00Z", summary="Candidate 创建")]),
+    EventDetail(event_id="EVT-2026-003", candidate_id="CAND-0005", event_type="algae_bloom",
+                status="needs_more_evidence", title="C 水库疑似藻类爆发",
+                created_at="2026-06-15T08:00:00Z", updated_at="2026-06-15T08:00:00Z",
+                versions=[EventVersion(version=1, status="needs_more_evidence", changed_by="system", changed_at="2026-06-15T08:00:00Z", summary="Candidate 创建")]),
+    EventDetail(event_id="EVT-2026-004", candidate_id="CAND-0007", event_type="suspected_discharge",
+                status="under_review", title="E 断面疑似夜间排污",
+                created_at="2026-06-08T06:00:00Z", updated_at="2026-06-08T06:00:00Z",
+                versions=[EventVersion(version=1, status="under_review", changed_by="system", changed_at="2026-06-08T06:00:00Z", summary="Candidate 创建")]),
+    EventDetail(event_id="EVT-2026-005", candidate_id="CAND-0010", event_type="bank_collapse",
+                status="under_review", title="F 河岸局部坍塌",
+                created_at="2026-06-12T10:00:00Z", updated_at="2026-06-12T10:00:00Z",
+                versions=[EventVersion(version=1, status="under_review", changed_by="system", changed_at="2026-06-12T10:00:00Z", summary="Candidate 创建")]),
 ]
 
 _runs = [
@@ -124,10 +144,15 @@ _summary = {
     "persistent_count": 12,
     "uncertain_count": 4,
     "transient_count": 20,
-    "events_under_review": 1,
+    "events_under_review": 3,
     "events_confirmed": 1,
-    "total_runs": 1,
-    "last_run_at": "2026-05-30T10:30:00Z",
+    "events_rejected": 0,
+    "events_needs_evidence": 1,
+    "total_runs": 2,
+    "runs_completed": 2,
+    "runs_failed": 0,
+    "last_run_at": "2026-06-15T08:00:00Z",
+    "monitoring_area_km2": 156.42,
 }
 
 
@@ -213,3 +238,98 @@ def get_event_geojson():
 
 def get_summary():
     return _summary
+
+
+# ══════════════════════════════════════════════════════════
+#  Dashboard Snapshot
+# ══════════════════════════════════════════════════════════
+
+_CHANGE_TYPE_META = {
+    "water_extent_increase": ("水面扩展", "#1565c0"),
+    "water_extent_decrease": ("水面缩减", "#e53935"),
+    "turbidity_anomaly": ("浑浊度异常", "#f57c00"),
+    "algae_bloom": ("藻类爆发", "#2e7d32"),
+    "bank_collapse": ("岸线变化", "#6a1b9a"),
+    "suspected_discharge": ("疑似排污", "#d32f2f"),
+    "sediment_anomaly": ("泥沙异常", "#795548"),
+    "vegetation_change": ("植被变化", "#388e3c"),
+}
+
+_MONTHLY_LABELS = {
+    "2026-03": "3月",
+    "2026-04": "4月",
+    "2026-05": "5月",
+    "2026-06": "6月",
+}
+
+
+def get_dashboard_snapshot():
+    s = _summary
+    # Change types: group candidates
+    ct_map: dict[str, int] = {}
+    for c in _candidates:
+        ct = c.change_type
+        ct_map[ct] = ct_map.get(ct, 0) + 1
+
+    change_types = [
+        ChangeTypeDTO(change_type=ct, label=_CHANGE_TYPE_META.get(ct, (ct, "#888"))[0],
+                      count=count, color=_CHANGE_TYPE_META.get(ct, ("", "#888"))[1])
+        for ct, count in sorted(ct_map.items(), key=lambda x: -x[1])
+    ]
+
+    trend = [
+        MonthlyTrendDTO(month=month, label=_MONTHLY_LABELS.get(month, month),
+                        candidates=cand, confirmed=conf)
+        for month, cand, conf in [
+            ("2026-03", 8, 0),
+            ("2026-04", 12, 0),
+            ("2026-05", 10, 1),
+            ("2026-06", 6, 0),
+        ]
+    ]
+
+    total = s.get("total_candidates", 0)
+    funnel = [
+        FunnelStageDTO(stage="candidates_created", count=total, description="候选产生"),
+        FunnelStageDTO(stage="evidence_ready", count=max(0, total - 8), description="证据就绪"),
+        FunnelStageDTO(stage="reviewed", count=s.get("events_under_review", 0) + s.get("events_confirmed", 0) + s.get("events_needs_evidence", 0), description="已完成研判"),
+        FunnelStageDTO(stage="event_versioned", count=s.get("events_confirmed", 0), description="已生成事件版本"),
+    ]
+
+    typical_cases = [
+        TypicalCaseDTO(
+            id=e.event_id,
+            title=e.title,
+            change_type=e.event_type,
+            change_type_label=_CHANGE_TYPE_META.get(e.event_type, (e.event_type, "#888"))[0],
+            status=e.status,
+            status_label={"confirmed": "已确认", "under_review": "研判中", "needs_more_evidence": "待补证", "rejected": "已驳回"}.get(e.status, e.status),
+            area_m2=12000.0,
+            detected_at=e.created_at[:10],
+            summary=f"{e.event_type} 类型异常，当前状态: {e.status}",
+            candidate_id=e.candidate_id,
+        )
+        for e in _events
+    ]
+
+    return DashboardSnapshotResponse(
+        summary=DashboardSummaryDTO(
+            total_candidates=s.get("total_candidates", 0),
+            persistent_count=s.get("persistent_count", 0),
+            uncertain_count=s.get("uncertain_count", 0),
+            transient_count=s.get("transient_count", 0),
+            events_under_review=s.get("events_under_review", 0),
+            events_confirmed=s.get("events_confirmed", 0),
+            events_rejected=s.get("events_rejected", 0),
+            events_needs_evidence=s.get("events_needs_evidence", 0),
+            total_runs=s.get("total_runs", 0),
+            runs_completed=s.get("runs_completed", 0),
+            runs_failed=s.get("runs_failed", 0),
+            last_run_at=s.get("last_run_at", ""),
+            monitoring_area_km2=s.get("monitoring_area_km2", 156.42),
+        ),
+        change_types=change_types,
+        trend=trend,
+        funnel=funnel,
+        typical_cases=typical_cases,
+    )

@@ -1,46 +1,37 @@
 # 山水智鉴 — Agent 状态面板
 
-> 更新：2026-07-26
+> 更新：2026-07-28
 >
-> 正式 integration：`integration/g0-g1-contract-freeze` @ `df7b3e7`（未改动）
+> 正式 integration：`integration/g0-g1-contract-freeze` @ `2841bd0`（含 3c55d5f + 607fa5d + CANDIDATE_V0_3）
 >
-> 候选集成视图：`feature/agent-e-integration-control`
+> OpenChamber Ensemble 团队：`shanshui-zhijian-openchamber`（持久化 `persistent=true`）
+> 模型统一：`opencode-go/deepseek-v4-flash/max`
+> 用户无法直接与子 Agent 对话，由 E 中转。
 
-## 当前状态
+## 当前 Cycle PR
 
-| Agent | Work Package | Clean Branch | Head | 已验证 Gate | 状态 |
-|---|---|---|---|---|---|
-| 工程可靠性_AGENT_B | G0.3-B + Workbench CI | `feature/agent-b-reliability-repair` | `e8bb744` | Python 183 passed, 1 skipped；Ruff correctness；远程 CI passed | `MERGE_READY` |
-| 感知算法_AGENT_A | G0.3-A Candidate v0.3 | `feature/agent-a-candidate-clean` | `bc81e45` | 依赖对齐后 108 passed；远程 CI passed | `MERGE_READY` |
-| 事件治理_AGENT_C | G1.1-C Event Integrity | `feature/agent-c-event-clean` | `91e7b9c` | C 域 72 passed；依赖对齐后 141 passed；远程 CI passed | `MERGE_READY` |
-| 产品工作台_AGENT_D | D0-D9 Workbench V0 | `feature/agent-d-workbench-clean` | `d48204c` | Vitest 43/43；Build；Playwright 24/24；远程 Python CI passed | `MERGE_READY` |
-| 项目经理_AGENT_E | MULTISESSION-01 | `feature/agent-e-integration-control` | 当前 branch HEAD | 治理、候选集成、隔离 OpenCode 控制面；远程 CI passed | `MERGE_READY` |
+| PR | Agent | 工作包 | Branch | 状态 |
+|:--:|:-----:|--------|--------|:----:|
+| #22 | A | ML-SMOKE-00 训练冒烟管线（需改名+修复） | `pr/agent-a-ml-baseline` | CHANGES_REQUIRED — 保留现存实现，A 继续 |
+| #24 | B | ML 环境 + RunManifest + Smoke CI | `pr/agent-b-ml-environment` | ✅ 等待 A/D/Gate 后合入 |
+| #25 | C | RC-03 桥接 + ingest API + dashboard | `pr/agent-c-event-governance` | ✅ 等待 A/D/Gate 后合入 |
+| #23 | D | Dashboard 产品方案（B2 布局，需修正+实现骨架） | `pr/agent-d-product-plan` | 产品方向通过 — D 按 B2 继续 |
 
-## 已核验事实
+## 各 Agent 当前工作
 
-- 原五个 OpenCode/GeoCode Session 曾共用一个 working tree，产生 HEAD 与
-  分支名错位；根因已由 reflog 和工作区状态确认。
-- 原共享目录保持不变，并建立 recovery branch 与经过 `git bundle verify`
-  的恢复包。
-- A/B/C/D/E 现在各有独立 worktree；正式 integration 尚未合入任何 clean
-  branch。
-- C 和 D 的 clean branch 为便于端到端验证，本地包含上游依赖合并；正式
-  集成仍必须按 B → A → C → D 顺序执行。
+| Agent | 工作包 | 当前任务 | 状态 |
+|:-----:|--------|---------|:----:|
+| A | ML-SMOKE-00 | 修复 PR #22：改名、删除 CSV、修复 data_adapter、标记 synthetic | working |
+| B | ML 环境 | 补充可选依赖 + ML Smoke CI + RunManifest + branch 检查脚本 | working |
+| C | RC-03 | Evidence/Review/Event/Replay 桥接 + DashboardSnapshot 聚合 | working |
+| D | Dashboard B2 | 修正文档 + 实现 React 骨架 + 单端点 snapshot | working |
+| E | 控制面 | Git 门禁 + 合同冲突处理 + 最终集成 | working |
 
-## 当前阻断
+## 合入顺序
 
-1. 正式 integration 合并等待用户批准。
-2. Ensemble 只能用于新建的隔离团队，不能自动接管五个旧 sibling Session。
-3. 外部 CARTO 底图在受限网络下可能不可达，但 Mock 工作台核心 E2E 不受影响。
-
-## 下一 Gate
-
-1. 用户审查本报告并决定是否授权 B → A → C → D 逐项合入 integration。
-2. 每次正式合入后重新运行 Python、前端单测、Build 和 Playwright。
-3. 用户决定是否在新的官方 OpenCode Agent E Session 中启用 Ensemble 团队。
+B → A → C → D（A/D 就绪后快速 Gate 检查，四个全部合入后再跑完整测试+E2E）
 
 ## 不再作为当前状态源的旧分支
 
-旧 `agent-a-*`、`agent-b-*`、`agent-c-*` 混合分支和旧 D clone 只保留为
-历史来源，不再继续开发，也不得直接合入 integration。具体恢复过程见
-`MULTI_SESSION_OPERATIONS.md`。
+旧 `agent-a-*`、`agent-b-*`、`agent-c-*` 混合分支、`feature/agent-d-workbench-v0` 已删除。
+`integration-base` 作为纯净基线分支远程保留。

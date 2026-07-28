@@ -27,12 +27,20 @@ competition/spikes/chongqing_rs_demo/products/
 .idea/
 
 # ML artifacts
+ml/output/
 mlruns/
 *.pt
 *.pth
 *.onnx
 *.ckpt
 *.h5
+*.joblib
+ml/data/*.csv
+ml/data/*.tif
+ml/data/train_metrics.json
+ml/data/eval_metrics.json
+ml/data/inference_result.json
+ml/data/detection_result.json
 
 # GeoAgent project memory (internal notes, not for public)
 geocode_memory.md
@@ -56,3 +64,9 @@ Thumbs.db
 _backup_before_docs_update/
 _update_pkg/
 更新说明_*.md
+
+# Redundant directories
+/8.1开始_山水智鉴比赛/
+/shanshui-zhijian/
+/山水智鉴_Git工作区/
+

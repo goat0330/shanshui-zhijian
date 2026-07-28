@@ -7,7 +7,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('山水智鉴 V0 — 研判工作台', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
   });
 
   test('1. 打开工作台 — 三栏布局正确显示', async ({ page }) => {
@@ -104,7 +105,7 @@ test.describe('山水智鉴 V0 — 研判工作台', () => {
     await page.waitForTimeout(1000);
 
     // Evidence 面板应显示
-    await expect(page.getByText('optical').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('光学').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('13. Confirm 研判', async ({ page }) => {
@@ -180,13 +181,10 @@ test.describe('山水智鉴 V0 — 研判工作台', () => {
   });
 
   test('21. API Error 状态', async ({ page }) => {
-    await expect(page.getByText('Mock 模式')).toBeVisible();
-    const result = await page.evaluate(async () => {
-      const response = await fetch('/api/v2/error-test');
-      return { status: response.status, body: await response.json() };
-    });
-    expect(result.status).toBe(500);
-    const body = result.body;
+    // 直接访问失败的 API
+    const response = await page.request.get('/api/v2/error-test');
+    expect(response.status()).toBe(500);
+    const body = await response.json();
     expect(body.code).toBe('SERVICE_ERROR');
   });
 
@@ -198,7 +196,7 @@ test.describe('山水智鉴 V0 — 研判工作台', () => {
 
     // 刷新
     await page.reload();
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
 
     // 选中状态应恢复

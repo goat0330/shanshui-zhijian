@@ -33,7 +33,7 @@ class InputSlotSpec(BaseModel):
 
 class TaskSpec(BaseModel):
     """一类任务的规则定义。不携带具体资产，不携带工具参数。"""
-    schema_version: str = Field("rs-contract.v0.2", pattern=r"^rs-contract\.v[\d.]+$")
+    schema_version: str = Field("rs-contract.v0.3", pattern=r"^rs-contract\.v[\d.]+$")
     task_spec_id: str = Field(..., min_length=1, description="规则 ID，如 sar-temporal-change-v1")
     version: str = Field(..., pattern=r"^\d+\.\d+\.\d+$", description="语义版本")
     task_type: TaskType
@@ -49,7 +49,7 @@ class TaskSpec(BaseModel):
 
 class InferenceTask(BaseModel):
     """比赛评测链的输入单元。携带具体样本上下文和资产绑定。"""
-    schema_version: str = Field("rs-contract.v0.2", pattern=r"^rs-contract\.v[\d.]+$")
+    schema_version: str = Field("rs-contract.v0.3", pattern=r"^rs-contract\.v[\d.]+$")
     task_id: str = Field(..., min_length=1, description="系统内任务 ID")
     sample_id: str = Field(..., min_length=1, description="样本标识")
     task_order: int = Field(..., ge=0, description="内部顺序，从 0 开始；提交时由 Exporter 映射")
@@ -60,7 +60,7 @@ class InferenceTask(BaseModel):
 
 class RunContext(BaseModel):
     """工具运行时的配置、版本和输出目录。"""
-    schema_version: str = Field("rs-contract.v0.2", pattern=r"^rs-contract\.v[\d.]+$")
+    schema_version: str = Field("rs-contract.v0.3", pattern=r"^rs-contract\.v[\d.]+$")
     run_id: str = Field(..., min_length=1)
     run_fingerprint: str = Field("", description="tool_config + model_version 的 sha256 前缀，可在 __init__ 后手动计算")
     tool_config: dict = Field(default_factory=dict, description="工具参数，如 Otsu 网格/最小面积/滤波器")

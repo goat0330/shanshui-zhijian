@@ -14,8 +14,9 @@ from .asset import SpatialMetadata
 
 class Observation(BaseModel):
     """单次结构化观测。产品链从这里开始。"""
-    schema_version: str = Field("rs-contract.v0.2", pattern=r"^rs-contract\.v[\d.]+$")
+    schema_version: str = Field("rs-contract.v0.3", pattern=r"^rs-contract\.v[\d.]+$")
     observation_id: str = Field(..., min_length=1)
+    track_id: str | None = Field(None, description="跨时相追踪 ID，同一地物多期观测共享同一 track_id")
     perception_result_ref: str = Field(..., min_length=1)
     source_asset_refs: list[str] = Field(default_factory=list)
     source_task_type: TaskType
@@ -74,7 +75,7 @@ class QualityReport(BaseModel):
 
 class PerceptionResult(BaseModel):
     """感知工具的唯一返回对象。产品链和比赛链都从这里分叉。"""
-    schema_version: str = Field("rs-contract.v0.2", pattern=r"^rs-contract\.v[\d.]+$")
+    schema_version: str = Field("rs-contract.v0.3", pattern=r"^rs-contract\.v[\d.]+$")
     perception_result_id: str = Field(..., min_length=1)
     inference_task_ref: str = Field(..., min_length=1)
     task_spec_ref: str = Field(..., min_length=1)

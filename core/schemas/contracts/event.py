@@ -1,12 +1,14 @@
 """
 C0 — AnomalyEvent 版本化异常事件
 
+Event 只存在于 Review 确认(approved)之后。未经 Review 确认不得创建 Event。
+未通过 Review (reject/needs_more_evidence) 的 Candidate 只有 ReviewRecord，没有 Event。
+
 V0 状态只允许:
   under_review, confirmed, rejected, needs_more_evidence
 
 禁止使用: illegal, violation_confirmed, closed, dispatched
 
-除非已有人工或业务规则证据支持。
 Event 的状态迁移必须通过 ReviewDecision。
 """
 

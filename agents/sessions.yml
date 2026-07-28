@@ -1,53 +1,96 @@
-version: 2
+version: 5
+
 authority:
   final_decision_owner: user
   control_plane: PROGRAM_AGENT_E
   auto_merge: false
+
+runtime:
+  mode: ensemble_persistent_team
+  project_root: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\integration'
+  baseline_branch: integration/g0-g1-contract-freeze
+  team_name: shanshui-zhijian-openchamber
+  persistent: true
+  dashboard: http://127.0.0.1:4747/
+  plugin: '@hueyexe/opencode-ensemble@0.15.2+local-lifecycle-patch'
+  merge_on_cleanup: false
+
 staffing:
   min_worker_sessions: 1
   max_worker_sessions: 4
   allow_partial_team: true
   roles_assignable_per_work_package: true
+
 interaction:
-  persistent_sessions: visible_top_level
-  ensemble_members: child_sessions_via_team_view
-  human_may_message_any_session: true
-recovery:
-  legacy_checkout: 'D:\研究生作业\人工智能实践比赛\8.1开始_山水智鉴比赛'
-  branch: recovery/shared-worktree-event-c-20260726-104210
-sessions:
+  human_may_chat_with_members: false
+  lead_controls_members: true
+  member_visibility: lead_only
+  model: deepseek/deepseek-v4-flash
+  spawn_requires_explicit_model: true
+  runtime_model: opencode-go/deepseek-v4-flash/max
+  write_agent_key: build
+  read_agent_keys: [plan, explore]
+  forbidden_agent_aliases: [general, Sisyphus, ultraworker]
+
+git:
+  member_worktree: true
+  unique_worktree_required: true
+  unique_branch_required: true
+  protected_branches:
+    - integration/g0-g1-contract-freeze
+    - develop
+    - main
+  merge_requires_user_approval: true
+
+members:
   PERCEPTION_AGENT_A:
+    member_name: perception-agent-a
     display_name: 感知算法_AGENT_A
-    enabled: false
-    status: idle
+    enabled: true
     default_role: perception
-    worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-a'
-    branch_policy: feature/agent-a-*
+    prompt: agents/session-prompts/SESS_A_PERCEPTION.md
+    branch_policy: 'cycle3/perception-agent-a'
+    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\cycle3\perception-agent-a'
+    current_branch: 'cycle3/perception-agent-a'
+    current_session_id: 'ses_058f1f1feffewL0Yp3w3PegtzO'
   RELIABILITY_AGENT_B:
+    member_name: engineering-agent-b
     display_name: 工程可靠性_AGENT_B
-    enabled: false
-    status: idle
+    enabled: true
     default_role: reliability
-    worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-b'
-    branch_policy: feature/agent-b-*
+    prompt: agents/session-prompts/SESS_B_RELIABILITY.md
+    branch_policy: 'cycle3/engineering-agent-b'
+    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\cycle3\engineering-agent-b'
+    current_branch: 'cycle3/engineering-agent-b'
+    current_session_id: 'ses_05917c3e1ffeTNgp6dgdzKiOS9'
   EVENT_AGENT_C:
+    member_name: event-agent-c
     display_name: 事件治理_AGENT_C
-    enabled: false
-    status: idle
+    enabled: true
     default_role: event
-    worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-c'
-    branch_policy: feature/agent-c-*
+    prompt: agents/session-prompts/SESS_C_EVENT.md
+    branch_policy: 'cycle3/event-agent-c'
+    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\cycle3\event-agent-c'
+    current_branch: 'cycle3/event-agent-c'
+    current_session_id: 'ses_059177a42ffeWFjOOSB1W0HPsk'
   WORKBENCH_AGENT_D:
+    member_name: product-agent-d
     display_name: 产品工作台_AGENT_D
-    enabled: false
-    status: idle
+    enabled: true
     default_role: workbench
-    worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-d'
-    branch_policy: feature/agent-d-*
+    prompt: agents/session-prompts/SESS_D_WORKBENCH.md
+    branch_policy: 'cycle3/product-agent-d'
+    worktree_path: 'C:\Users\WangChi\.local\share\opencode\worktree\cycle3\product-agent-d'
+    current_branch: 'cycle3/product-agent-d'
+    current_session_id: 'ses_05933ab26ffeyQbUb28Tt67qI9'
   PROGRAM_AGENT_E:
     display_name: 项目经理_AGENT_E
     enabled: true
-    status: active
     default_role: program_control
-    worktree: 'D:\研究生作业\人工智能实践比赛\山水智鉴_Git工作区\agent-e'
-    branch_policy: feature/agent-e-*
+    prompt: agents/session-prompts/SESS_E_PROGRAM.md
+
+recovery:
+  legacy_checkout: 'D:\研究生作业\人工智能实践比赛\8.1开始_山水智鉴比赛'
+  legacy_branch: 'feature/agent-a-g0.3-candidate-final'
+  branch: recovery/shared-worktree-event-c-20260726-104210
+  delete_only_after_user_approval: true

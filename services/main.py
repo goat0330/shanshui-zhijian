@@ -1,11 +1,9 @@
 """
-山水智鉴 V0 — FastAPI 后端入口 (SQLite 持久化)
+LEGACY / SPIKE — 山水智鉴 V0 FastAPI 后端入口
 
-集成:
-  - TiTiler (COG 瓦片服务)
-  - 产品链 API (DetectionResult / Alert / Review / Event / WorkOrder / Replay)
-  - Jinja2 前端页面
-  - SQLite 持久化 (服务重启数据不丢)
+注意: 此文件已标记为 Legacy。所有新治理 API 请使用 apps/workbench_api/main.py。
+仅保留 v1 产品链端点 (Alert/Event/WorkOrder) 和 Jinja2 前端页面。
+事件治理 v2 端点已迁移至 apps/workbench_api/main.py。
 """
 
 import json
@@ -13,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -24,6 +22,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.models import Base, AlertRecord, EventRecord, WorkOrderRecord
+from core.event_governance.pipeline import EventGovernancePipeline
+from core.event_governance.persistence import create_session as create_gov_session
 
 # ── 路径 ──────────────────────────────────────────────────────────
 ROOT = Path(__file__).resolve().parent.parent
@@ -224,6 +224,40 @@ async def update_work_order(order_id: str, status: str = Query(...),
     db.commit()
     db.close()
     return {"order_id": wo.order_id, "status": wo.status, "feedback": wo.feedback}
+
+
+# ==================================================================
+#   LEGACY 事件治理 v2 API (仅保留 stats + dashboard)
+#   注: /api/v2/* 新端点请使用 apps/workbench_api/main.py
+# ==================================================================
+
+_gov_session = None
+
+
+def _get_gov_session():
+    global _gov_session
+    if _gov_session is None:
+        _gov_session = create_gov_session()
+    return _gov_session
+
+
+@app.get("/api/v2/governance/stats")
+async def governance_stats():
+    session = _get_gov_session()
+    pipeline = EventGovernancePipeline(session)
+    return pipeline.get_stats()
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request):
+    session = _get_gov_session()
+    pipeline = EventGovernancePipeline(session)
+    stats = pipeline.get_stats()
+    return HTMLResponse(
+        jinja_env.get_template("dashboard.html").render(
+            {"request": request, "stats": stats}
+        )
+    )
 
 
 @app.get("/api/v1/replay")
