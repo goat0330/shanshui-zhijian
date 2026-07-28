@@ -14,7 +14,7 @@ from pydantic import ValidationError
 from ml.artifacts import ModelCheckpoint, save_checkpoint, load_checkpoint, ArtifactMetadata
 from ml.config import DataConfig, ModelConfig, TrainingConfig, TrainConfig
 from ml.metrics import accuracy, precision, recall, f1_score, confusion_matrix, classification_report, mse, mae, r2_score
-from ml.run_manifest import MlRunManifest
+from ml.run_manifest import MlRunManifest, build_ml_manifest
 
 
 class TestConfig:
@@ -208,3 +208,137 @@ class TestTrainSmoke:
             s2 = load_checkpoint(ckpt2)
             for k in s1["model_state_dict"]:
                 assert (s1["model_state_dict"][k] == s2["model_state_dict"][k]).all(), f"Mismatch at {k}"
+
+
+class TestBuildManifest:
+    def test_build_minimal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = build_ml_manifest(run_id="build-min")
+            assert manifest.run_id == "build-min"
+            assert manifest.status.value == "succeeded"
+            assert len(manifest.manifest_sha256) == 64
+
+    def test_build_with_metrics(self):
+        manifest = build_ml_manifest(
+            run_id="build-metrics",
+            metrics={"accuracy": 0.95, "f1_score": 0.93},
+        )
+        assert manifest.tool_config["metrics"]["accuracy"] == 0.95
+        assert manifest.tool_config["metrics"]["f1_score"] == 0.93
+
+    def test_build_with_checkpoint(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ckpt_path = Path(tmp) / "model.pt"
+            from ml.artifacts import save_checkpoint
+            save_checkpoint({"epoch": 3}, ckpt_path)
+            manifest = build_ml_manifest(
+                run_id="build-ckpt",
+                checkpoint_path=ckpt_path,
+            )
+            artifacts = manifest.output_artifacts
+            assert len(artifacts) == 1
+            assert artifacts[0].artifact_id == "model_checkpoint"
+            assert len(artifacts[0].sha256) == 64
+
+    def test_build_with_dataset(self):
+        manifest = build_ml_manifest(
+            run_id="build-ds",
+            dataset_paths={"train": "data/train", "val": "data/val"},
+        )
+        assert len(manifest.input_assets) == 2
+        assert manifest.input_assets[0].asset_id == "train"
+
+    def test_build_with_seed(self):
+        manifest = build_ml_manifest(run_id="build-seed", seed=777)
+        assert manifest.random_seed == 777
+
+
+class TestPipeline:
+    def test_pipeline_smoke_creates_outputs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "pipe_output"
+            from ml.pipeline import train_pipeline
+            config = TrainConfig.smoke_defaults()
+            result = train_pipeline(config, "pipe-test", output_dir, use_smoke=True)
+            assert Path(result["checkpoint"]).exists()
+            assert Path(result["manifest"]).exists()
+            assert result["run_id"] == "pipe-test"
+            assert len(result["checkpoint_sha256"]) == 64
+
+    def test_pipeline_metrics_recorded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "pipe_metrics"
+            from ml.pipeline import train_pipeline
+            config = TrainConfig.smoke_defaults()
+            result = train_pipeline(config, "pipe-metrics", output_dir, use_smoke=True)
+            assert "val_acc_epoch_0" in result["metrics"]
+            assert "val_f1_epoch_0" in result["metrics"]
+            assert result["metrics"]["val_acc_epoch_0"] >= 0
+
+    def test_pipeline_manifest_has_config(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "pipe_config"
+            from ml.pipeline import train_pipeline
+            config = TrainConfig.smoke_defaults()
+            train_pipeline(config, "pipe-cfg", output_dir, use_smoke=True)
+            manifest_data = json.loads((output_dir / "run_manifest.json").read_text(encoding="utf-8"))
+            assert "training_config" in manifest_data.get("tool_config", {})
+            assert manifest_data["tool_config"]["training_config"]["training"]["seed"] == 42
+
+
+class TestEvaluate:
+    def test_evaluate_smoke(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            from ml.pipeline import train_pipeline
+            config = TrainConfig.smoke_defaults()
+            train_result = train_pipeline(config, "eval-train", Path(tmp) / "train", use_smoke=True)
+
+            from ml.evaluate import evaluate_checkpoint
+            eval_result = evaluate_checkpoint(
+                checkpoint_path=train_result["checkpoint"],
+                config=config,
+                run_id="eval-smoke",
+                output_dir=Path(tmp) / "eval",
+                use_smoke=True,
+            )
+            assert eval_result["num_test_samples"] > 0
+            assert 0 <= eval_result["metrics"]["accuracy"] <= 1.0
+            assert 0 <= eval_result["metrics"]["f1_score"] <= 1.0
+
+    def test_evaluate_manifest_created(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            from ml.pipeline import train_pipeline
+            config = TrainConfig.smoke_defaults()
+            train_result = train_pipeline(config, "eval-manifest", Path(tmp) / "train", use_smoke=True)
+
+            from ml.evaluate import evaluate_checkpoint
+            eval_result = evaluate_checkpoint(
+                checkpoint_path=train_result["checkpoint"],
+                config=config,
+                run_id="eval-manifest-test",
+                output_dir=Path(tmp) / "eval",
+                use_smoke=True,
+            )
+            manifest_path = Path(eval_result["manifest"])
+            assert manifest_path.exists()
+            manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
+            assert manifest_data["run_id"] == "eval-manifest-test"
+            assert manifest_data["status"] == "succeeded"
+
+    def test_evaluate_confusion_matrix(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            from ml.pipeline import train_pipeline
+            config = TrainConfig.smoke_defaults()
+            train_result = train_pipeline(config, "eval-cm", Path(tmp) / "train", use_smoke=True)
+
+            from ml.evaluate import evaluate_checkpoint
+            eval_result = evaluate_checkpoint(
+                checkpoint_path=train_result["checkpoint"],
+                config=config,
+                run_id="eval-cm-test",
+                output_dir=Path(tmp) / "eval",
+                use_smoke=True,
+            )
+            cm = eval_result["confusion_matrix"]
+            assert len(cm) == 2  # binary classification
+            assert len(cm[0]) == 2

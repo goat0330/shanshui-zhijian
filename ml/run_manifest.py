@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -15,15 +16,20 @@ class MlRunManifest:
         self._builder = RunManifestBuilder()
         self._builder.record_start(run_id=run_id)
         self._metrics: dict[str, float] = {}
+        self._full_config: dict | None = None
 
     def record_config(self, config: Any) -> None:
-        if hasattr(config, "model_dump_json"):
-            config_str = config.model_dump_json()
+        if hasattr(config, "model_dump"):
+            raw = config.model_dump(mode="json")
+        elif hasattr(config, "model_dump_json"):
+            raw = json.loads(config.model_dump_json())
         else:
-            import json
-            config_str = json.dumps(config, default=str)
+            raw = dict(config) if isinstance(config, dict) else {"raw": str(config)}
+        self._full_config = raw
         self._builder.record_config_hash(
-            self._hash_str(config_str)
+            hashlib.sha256(
+                json.dumps(raw, sort_keys=True).encode("utf-8")
+            ).hexdigest()
         )
 
     def record_dataset(self, name: str, path: str | Path, sha256: str = "") -> None:
@@ -52,11 +58,10 @@ class MlRunManifest:
     def finalize(self, status: RunStatus = RunStatus.SUCCEEDED) -> RunManifest:
         manifest = self._builder.finalize(status)
         manifest.tool_config["metrics"] = self._metrics
+        if self._full_config:
+            manifest.tool_config["training_config"] = self._full_config
         manifest.producer_version = "ml-train@v0.1.0"
-        manifest.run_command = (
-            f"python -m ml.train --run-id={self.run_id}"
-        )
-        manifest.random_seed = 42
+        manifest.run_command = f"python -m ml.train --run-id={self.run_id}"
         manifest.code_version = "0.1.0"
         manifest.manifest_sha256 = manifest.compute_manifest_hash()
         return manifest
@@ -65,13 +70,42 @@ class MlRunManifest:
         manifest = self.finalize()
         return manifest.save(path)
 
-    @staticmethod
-    def _hash_str(text: str) -> str:
-        import hashlib
-        return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
-    @staticmethod
-    def create_from_manifest(manifest: RunManifest) -> "MlRunManifest":
-        wrapped = MlRunManifest(manifest.run_id)
-        wrapped._builder._manifest = manifest
-        return wrapped
+def build_ml_manifest(
+    run_id: str,
+    config: Any = None,
+    metrics: dict[str, float] | None = None,
+    checkpoint_path: str | Path | None = None,
+    dataset_paths: dict[str, str] | None = None,
+    seed: int | None = None,
+    status: RunStatus = RunStatus.SUCCEEDED,
+) -> RunManifest:
+    manifest = MlRunManifest(run_id=run_id)
+    if config is not None:
+        manifest.record_config(config)
+
+    if metrics:
+        manifest.record_metrics(metrics)
+
+    if dataset_paths:
+        for name, path in dataset_paths.items():
+            manifest.record_dataset(name, path)
+
+    if checkpoint_path:
+        p = Path(checkpoint_path)
+        sha = ""
+        size = 0
+        if p.exists():
+            sha = hashlib.sha256(p.read_bytes()).hexdigest()
+            size = p.stat().st_size
+        manifest.record_model_artifact(
+            artifact_id="model_checkpoint",
+            uri=str(p),
+            sha256=sha,
+            size_bytes=size,
+        )
+
+    run_manifest = manifest.finalize(status)
+    run_manifest.random_seed = seed
+    run_manifest.manifest_sha256 = run_manifest.compute_manifest_hash()
+    return run_manifest

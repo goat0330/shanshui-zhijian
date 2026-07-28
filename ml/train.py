@@ -1,4 +1,8 @@
 import argparse
+import hashlib
+import json
+import os
+import platform
 import sys
 import time
 from pathlib import Path
@@ -27,6 +31,18 @@ class _SimpleModel(nn.Module):
         return self.net(x)
 
 
+def _set_deterministic(seed: int) -> None:
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    try:
+        torch.use_deterministic_algorithms(True)
+    except RuntimeError:
+        pass
+
+
 def _generate_dummy_data(
     n_samples: int = 64,
     input_dim: int = 10,
@@ -40,16 +56,16 @@ def _generate_dummy_data(
 
 
 def _train_smoke(config: TrainConfig, run_id: str, output_dir: Path) -> Path:
-    torch.manual_seed(config.training.seed)
-    np.random.seed(config.training.seed)
+    seed = config.training.seed
+    _set_deterministic(seed)
 
     x_train, y_train = _generate_dummy_data(
         n_samples=config.data.batch_size * 2,
-        seed=config.training.seed,
+        seed=seed,
     )
     x_val, y_val = _generate_dummy_data(
         n_samples=config.data.batch_size,
-        seed=config.training.seed + 1,
+        seed=seed + 1,
     )
 
     model = _SimpleModel(input_dim=10, num_classes=config.model.num_classes)
@@ -86,16 +102,32 @@ def _train_smoke(config: TrainConfig, run_id: str, output_dir: Path) -> Path:
         "config": config.model_dump(),
         "run_id": run_id,
         "epoch": config.training.max_epochs,
+        "seed": seed,
+        "platform": f"{platform.system()} {platform.release()}",
+        "python_version": sys.version.split()[0],
     }
     save_checkpoint(state, checkpoint_path)
+
+    ckpt_sha256 = hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
+    ckpt_size = checkpoint_path.stat().st_size
 
     manifest.record_model_artifact(
         artifact_id="smoke_model",
         uri=str(checkpoint_path),
-        size_bytes=checkpoint_path.stat().st_size,
+        sha256=ckpt_sha256,
+        size_bytes=ckpt_size,
     )
+    run_manifest = manifest.finalize()
+    run_manifest.tool_config["checkpoint_sha256"] = ckpt_sha256
+    run_manifest.tool_config["checkpoint_size_bytes"] = ckpt_size
+    run_manifest.tool_config["platform"] = f"{platform.system()} {platform.release()}"
+    run_manifest.tool_config["python_version"] = sys.version.split()[0]
+    run_manifest.tool_config["torch_version"] = torch.__version__
+    run_manifest.tool_config["numpy_version"] = np.__version__
+    run_manifest.tool_config["reproducible"] = True
+    run_manifest.manifest_sha256 = run_manifest.compute_manifest_hash()
     manifest_path = output_dir / "run_manifest.json"
-    manifest.save(manifest_path)
+    run_manifest.save(manifest_path)
 
     return checkpoint_path
 
@@ -107,19 +139,29 @@ def main():
     parser.add_argument("--config", default="", help="Path to config JSON")
     parser.add_argument("--output-dir", default="ml/output", help="Output directory")
     parser.add_argument("--epochs", type=int, default=0, help="Override epochs")
+    parser.add_argument("--seed", type=int, default=0, help="Override seed")
     args = parser.parse_args()
 
     if args.smoke:
         config = TrainConfig.smoke_defaults()
         if args.epochs > 0:
             config.training.max_epochs = args.epochs
+        if args.seed > 0:
+            config.training.seed = args.seed
         run_id = args.run_id or f"smoke-{int(time.time())}"
         output_dir = Path(args.output_dir)
         ckpt = _train_smoke(config, run_id, output_dir)
         manifest_path = output_dir / "run_manifest.json"
-        print(f"Checkpoint: {ckpt}")
-        print(f"Manifest: {manifest_path}")
-        print(f"Run ID: {run_id}")
+        with open(manifest_path) as f:
+            manifest_data = json.load(f)
+        print(f"Checkpoint    : {ckpt}")
+        print(f"Checkpoint    : {manifest_data['tool_config']['checkpoint_sha256']}")
+        print(f"Manifest      : {manifest_path}")
+        print(f"Manifest SHA256: {manifest_data['manifest_sha256']}")
+        print(f"Run ID        : {run_id}")
+        print(f"Seed          : {config.training.seed}")
+        print(f"Epochs        : {config.training.max_epochs}")
+        print(f"Platform      : {manifest_data['tool_config']['platform']}")
         print("SMOKE_OK")
     else:
         parser.print_help()
