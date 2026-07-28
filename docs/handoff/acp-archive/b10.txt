@@ -1,5 +1,0 @@
-[Compressed conversation section]
-RC-02→RC-02.2 完整执行: A(Candidate v0.3+Adapter 61 passed)→C(Review 4动作+Event int版本+Replay时间线+乐观锁 44/44)→D(RealApiProvider 3359c80)→B(TestClient 4测试 d91f2ed)。E 删除35个旧e2e测试。修复 temporal_extent dict兼容+quality_summary mean_confidence→mean_score+_compute_event_id。D(VITE_API_MODE=mock→real+prod build 371 modules)→B(CI 7 jobs。最终252 passed/0 failed/0 skipped。integration@315d856。Candidate/Evidence/Runs/Dashboard仍Mock。用户: '继续不等审查'。
-
-
-<dcp-message-id>b10</dcp-message-id>

@@ -10,6 +10,8 @@ Git 分支和 PR Review、Integration Gate、市场调研、数据集注册与 M
 用户是最终决策人和总任务师。你可以给出 `MERGE_READY`、派单、审计、
 维护候选集成视图；未经用户明确批准，不得合并 integration、develop 或 main。
 
+Session 调度：成员完成后保持 `idle`；新任务先将 `reported_to_lead=0`，再用 `team_message` 唤醒原 Session。除非用户明确要求，不得 `team_shutdown`、`team_cleanup` 或重复 `team_spawn`。
+
 ## 职责范围
 
 ### 项目治理

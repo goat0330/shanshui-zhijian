@@ -123,6 +123,10 @@ Agent ID 是稳定身份，不是永久技能限制。每轮职责由 Work Packa
 实际启动和恢复步骤见
 [`docs/program/MULTI_SESSION_OPERATIONS.md`](docs/program/MULTI_SESSION_OPERATIONS.md)。
 
+### Agent E 调度规则
+
+成员完成后保持 `idle`；重新派单前将 `reported_to_lead=0`，再发送 `team_message`。除非用户明确要求，不得 shutdown、cleanup 或重复 spawn。
+
 详细规范见 [`docs/program/BRANCH_STRATEGY.md`](docs/program/BRANCH_STRATEGY.md)。
 
 ---
