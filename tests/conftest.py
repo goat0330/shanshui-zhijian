@@ -5,6 +5,29 @@ import sys
 logger = logging.getLogger(__name__)
 
 
+def _find_valid_proj_lib():
+    """Find a PROJ database with layout version >= 5 (required by rasterio)."""
+    candidates = [
+        r"D:\py\Python3\Lib\site-packages\rasterio\proj_data",
+        r"D:\py\Python3\Lib\site-packages\pyproj\proj_dir\share\proj",
+    ]
+    for path in candidates:
+        db = os.path.join(path, "proj.db")
+        if os.path.exists(db):
+            try:
+                import sqlite3
+                c = sqlite3.connect(db)
+                minor = c.execute(
+                    "SELECT value FROM metadata WHERE key='DATABASE.LAYOUT.VERSION.MINOR'"
+                ).fetchone()
+                c.close()
+                if minor and int(minor[0]) >= 5:
+                    return path
+            except Exception:
+                continue
+    return None
+
+
 def pytest_sessionstart(session):
     """Isolate geospatial environment from PostgreSQL pollution at session start."""
     postgres_vars = []
@@ -23,6 +46,11 @@ def pytest_sessionstart(session):
             "PostgreSQL-polluted environment variables removed:\n  %s",
             "\n  ".join(postgres_vars),
         )
+
+    valid_proj = _find_valid_proj_lib()
+    if valid_proj:
+        os.environ["PROJ_LIB"] = valid_proj
+        logger.info("Using PROJ_LIB=%s", valid_proj)
 
     # Verify pyproj works after isolation
     try:
