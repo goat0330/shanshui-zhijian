@@ -13,7 +13,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -24,6 +24,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.models import Base, AlertRecord, EventRecord, WorkOrderRecord
+from core.event_governance.bridge import PerceptionToAlertBridge
+from core.event_governance.pipeline import EventGovernancePipeline
+from core.event_governance.persistence import create_session as create_gov_session
+from core.schemas.contracts.perception import PerceptionResult
 
 # ── 路径 ──────────────────────────────────────────────────────────
 ROOT = Path(__file__).resolve().parent.parent
@@ -224,6 +228,62 @@ async def update_work_order(order_id: str, status: str = Query(...),
     db.commit()
     db.close()
     return {"order_id": wo.order_id, "status": wo.status, "feedback": wo.feedback}
+
+
+# ==================================================================
+#   事件治理 v2 API (Perception Ingest + Pipeline)
+# ==================================================================
+
+_gov_session = None
+
+
+def _get_gov_session():
+    global _gov_session
+    if _gov_session is None:
+        _gov_session = create_gov_session()
+    return _gov_session
+
+
+@app.post("/api/v2/ingest/perception")
+async def ingest_perception(payload: dict = Body(...)):
+    session = _get_gov_session()
+    try:
+        pr = PerceptionResult(**payload)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Invalid PerceptionResult: {e}")
+
+    pipeline = EventGovernancePipeline(session)
+    result = pipeline.process(pr)
+    session.commit()
+
+    return {
+        "status": "ingested",
+        "event_id": result.event.event_id,
+        "candidate_id": result.candidate_id,
+        "bundle_id": result.bundle_id,
+        "n_observations": result.n_observations,
+        "event_version": result.event.version,
+        "is_idempotent": result.is_idempotent,
+    }
+
+
+@app.get("/api/v2/governance/stats")
+async def governance_stats():
+    session = _get_gov_session()
+    pipeline = EventGovernancePipeline(session)
+    return pipeline.get_stats()
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request):
+    session = _get_gov_session()
+    pipeline = EventGovernancePipeline(session)
+    stats = pipeline.get_stats()
+    return HTMLResponse(
+        jinja_env.get_template("dashboard.html").render(
+            {"request": request, "stats": stats}
+        )
+    )
 
 
 @app.get("/api/v1/replay")
