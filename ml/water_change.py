@@ -4,7 +4,7 @@ Pipeline:
   S2 T1 GeoTIFF + S2 T2 GeoTIFF
     → Water probability rasters (T1, T2)
     → Binary water masks (T1, T2)
-    → Change map (gain/loss/persistent)
+    → Change map (increase/decrease/persistent)
     → Polygons (GeoJSON)
     → DetectionCandidate (contract)
     → Observations with real pixel coordinates
@@ -23,18 +23,46 @@ import numpy as np
 from ml.data_adapter import REAL_FEATURE_COLS
 from ml.model import BaselineModel
 from ml.infer_dense import infer_dense
-from ml.change_map import compute_change_map, polygonize_change_mask, change_map_to_geotiff
+from ml.change_map import (
+    compute_change_map,
+    polygonize_change_mask,
+    combine_polygons_to_multipolygon,
+    change_map_to_geotiff,
+)
 from core.schemas.contracts import ExecutionStatus, TaskType, ObservationType, ScoreType
 from core.schemas.contracts.perception import Observation, PerceptionResult, QualityReport
-from core.schemas.contracts.candidate import DetectionCandidate
+from core.schemas.contracts.candidate import DetectionCandidate, CandidateQualitySummary
 
 
 CHECKPOINT_PATH = Path(__file__).parent / "data" / "checkpoint.joblib"
 OUTPUT_DIR_DEFAULT = Path(__file__).parent / "output"
 
 
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+def _extract_acquisition_dates(raster_path: Path) -> tuple[str, str] | None:
+    """Extract acquisition start/end dates from GeoTIFF metadata.
+
+    Falls back to None if no temporal metadata is found.
+    """
+    try:
+        import rasterio
+        with rasterio.open(raster_path) as src:
+            tags = src.tags()
+            acq_date = tags.get("ACQUISITION_DATE") or tags.get("acquisition_date") or tags.get("IMAGERY_DATE")
+            if acq_date:
+                return (acq_date, acq_date)
+            start = tags.get("TIEMPO_INICIAL") or tags.get("start_datetime")
+            end = tags.get("TIEMPO_FINAL") or tags.get("end_datetime")
+            if start and end:
+                return (start, end)
+    except Exception:
+        pass
+    return None
+
+
+def _format_timestamp(dt: datetime | None = None) -> str:
+    if dt is None:
+        dt = datetime.now(timezone.utc)
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _extract_observations(
@@ -44,6 +72,8 @@ def _extract_observations(
     crs_name: str,
     run_id: str,
     time_label: str,
+    acquisition_start: str | None = None,
+    acquisition_end: str | None = None,
     max_obs: int = 500,
 ) -> list[Observation]:
     """Create Observations from probability map with real pixel coordinates.
@@ -55,11 +85,15 @@ def _extract_observations(
         crs_name: CRS string like "EPSG:4326".
         run_id: Run identifier.
         time_label: "T1" or "T2".
+        acquisition_start: Real acquisition start date (ISO).
+        acquisition_end: Real acquisition end date (ISO).
         max_obs: Maximum number of observations to create.
 
     Returns:
         List of Observation instances.
     """
+    temporal = {"start": acquisition_start or _format_timestamp(), "end": acquisition_end or _format_timestamp()}
+
     observations = []
     height, width = prob_map.shape
     rng = np.random.RandomState(42)
@@ -92,11 +126,11 @@ def _extract_observations(
                 "coordinates": [x, y],
             },
             geometry_crs=crs_name,
-            temporal={"start": _now_iso(), "end": _now_iso()},
+            temporal=temporal,
             quality=None,
             model_run_ref=run_id,
             coordinate_space="geographic",
-            created_at=_now_iso(),
+            created_at=_format_timestamp(),
         ))
 
     return observations
@@ -111,13 +145,27 @@ def run_water_change(
     block_size: int = 512,
     min_area_m2: float = 500.0,
     max_observations: int = 500,
+    t1_acquisition: str | None = None,
+    t2_acquisition: str | None = None,
+    output_crs: str = "EPSG:4545",
 ) -> dict:
     """Run the full water change detection pipeline.
 
+    Args:
+        t1_path: Path to S2 T1 GeoTIFF.
+        t2_path: Path to S2 T2 GeoTIFF.
+        checkpoint_path: Path to model checkpoint.
+        output_dir: Output directory.
+        prob_threshold: Probability threshold for water mask.
+        block_size: Block size for dense inference.
+        min_area_m2: Minimum polygon area in m2.
+        max_observations: Maximum Observations to create.
+        t1_acquisition: T1 acquisition date (ISO). Auto-detected if None.
+        t2_acquisition: T2 acquisition date (ISO). Auto-detected if None.
+        output_crs: CRS for area computation.
+
     Returns:
-        dict with keys: perception_result, detection_candidate,
-                        t1_prob_path, t2_prob_path, change_geotiff_path,
-                        polygons, stats
+        dict with keys: perception_result, detection_candidate, ...
     """
     cp = checkpoint_path or CHECKPOINT_PATH
     if not cp.exists():
@@ -136,6 +184,16 @@ def run_water_change(
     model = BaselineModel.load(cp)
     print(f"  Model: RandomForest ({model.n_estimators} trees, depth={model.max_depth})")
     print(f"  Features: {model.feature_names or REAL_FEATURE_COLS}")
+
+    # Auto-detect acquisition dates
+    t1_dates = _extract_acquisition_dates(t1_path)
+    t2_dates = _extract_acquisition_dates(t2_path)
+    t1_acq_start = t1_acquisition or (t1_dates[0] if t1_dates else _format_timestamp())
+    t1_acq_end = t1_acquisition or (t1_dates[1] if t1_dates else _format_timestamp())
+    t2_acq_start = t2_acquisition or (t2_dates[0] if t2_dates else _format_timestamp())
+    t2_acq_end = t2_acquisition or (t2_dates[1] if t2_dates else _format_timestamp())
+    print(f"  T1 acquisition: {t1_acq_start} / {t1_acq_end}")
+    print(f"  T2 acquisition: {t2_acq_start} / {t2_acq_end}")
 
     # 2. Full-image inference on T1
     print(f"\n[2/5] Dense inference on T1: {t1_path}")
@@ -161,11 +219,10 @@ def run_water_change(
     print(f"\n[4/5] Change detection")
     change = compute_change_map(t1_result["mask"], t2_result["mask"])
     stats = change["stats"]
-    print(f"  Gain:       {stats['gain_pixels']} px")
-    print(f"  Loss:       {stats['loss_pixels']} px")
+    print(f"  Increase:   {stats['increase_pixels']} px")
+    print(f"  Decrease:   {stats['decrease_pixels']} px")
     print(f"  Persistent: {stats['persistent_pixels']} px")
 
-    # Write change GeoTIFF
     change_geotiff = change_map_to_geotiff(
         change, out / "change_mask.tif",
         transform=t1_result["transform"], crs=t1_result["crs"],
@@ -182,18 +239,26 @@ def run_water_change(
     )
     print(f"  Polygons: {len(polygons)}")
 
-    # Write GeoJSON
     geojson = {"type": "FeatureCollection", "features": polygons}
     geojson_path = out / "change_polygons.geojson"
     geojson_path.write_text(json.dumps(geojson, indent=2, ensure_ascii=False))
     print(f"  GeoJSON: {geojson_path}")
 
-    # 6. Build Observations from T1 water pixels
+    # 6. Build Observations with real timestamps
     crs_name = str(t1_result["crs"]) if t1_result["crs"] else "EPSG:4326"
-    observations = _extract_observations(
+    observations_t1 = _extract_observations(
         t1_result["prob_map"], t1_result["mask"],
-        t1_result["transform"], crs_name, run_id, "T1", max_obs=max_observations,
+        t1_result["transform"], crs_name, run_id, "T1",
+        acquisition_start=t1_acq_start, acquisition_end=t1_acq_end,
+        max_obs=max_observations,
     )
+    observations_t2 = _extract_observations(
+        t2_result["prob_map"], t2_result["mask"],
+        t2_result["transform"], crs_name, run_id, "T2",
+        acquisition_start=t2_acq_start, acquisition_end=t2_acq_end,
+        max_obs=max_observations,
+    )
+    all_observations = observations_t1 + observations_t2
 
     # 7. Build PerceptionResult
     quality = QualityReport(
@@ -210,7 +275,7 @@ def run_water_change(
 
     status = (
         ExecutionStatus.SUCCEEDED_WITH_OBSERVATIONS
-        if observations else ExecutionStatus.SUCCEEDED_EMPTY
+        if all_observations else ExecutionStatus.SUCCEEDED_EMPTY
     )
 
     perception_result = PerceptionResult(
@@ -219,7 +284,7 @@ def run_water_change(
         task_spec_ref="ml-water-change-v1@0.1.0",
         run_id=run_id,
         status=status,
-        observations=observations,
+        observations=all_observations,
         artifact_refs=[
             str(change_geotiff),
             str(geojson_path),
@@ -234,39 +299,52 @@ def run_water_change(
             "prob_threshold": prob_threshold,
             "change_stats": stats,
             "n_polygons": len(polygons),
-            "n_observations": len(observations),
+            "n_observations": len(all_observations),
         },
-        started_at=_now_iso(),
-        finished_at=_now_iso(),
+        started_at=_format_timestamp(),
+        finished_at=_format_timestamp(),
     )
 
-    # 8. Build DetectionCandidate if changes detected
+    # 8. Build DetectionCandidate with proper semantic labels and multi-polygon
     detection_candidate = None
     if stats["total_changed"] > 0 and polygons:
-        polygon_geoms = [f["geometry"] for f in polygons if f.get("geometry")]
+        combined_geom = combine_polygons_to_multipolygon(polygons)
 
-        temporal_extent = {
-            "start": _now_iso(),
-            "end": _now_iso(),
-        }
+        obs_refs = [o.observation_id for o in observations_t1[:100]]
 
-        from core.schemas.contracts.candidate import CandidateQualitySummary
+        has_increase = any(f["properties"].get("change_type") == "water_increase" for f in polygons)
+        has_decrease = any(f["properties"].get("change_type") == "water_decrease" for f in polygons)
+        if has_increase and has_decrease:
+            semantic_label = "both"
+        elif has_increase:
+            semantic_label = "water_increase"
+        elif has_decrease:
+            semantic_label = "water_decrease"
+        else:
+            semantic_label = "other"
+
+        total_area = sum(f["properties"].get("area_m2", 0) for f in polygons)
 
         detection_candidate = DetectionCandidate(
             candidate_id=f"cand-{run_id}",
-            observation_refs=[o.observation_id for o in observations[:100]],
-            temporal_extent=temporal_extent,
+            observation_refs=obs_refs,
+            temporal_extent={"start": t1_acq_start, "end": t2_acq_end},
             candidate_type="water_extent_change",
-            geometry=polygon_geoms[0] if polygon_geoms else None,
+            semantic_label=semantic_label,
+            area_m2=round(total_area, 1),
+            geometry=combined_geom,
             score=min(1.0, stats["total_changed"] / max(stats["total_pixels"], 1)),
-                quality_summary=CandidateQualitySummary(
-                    mean_score=min(1.0, float(np.mean([f["properties"].get("area_m2", 0) for f in polygons])) / 1e6) if polygons else 0.0,
-                n_observations=len(observations),
+            quality_summary=CandidateQualitySummary(
+                mean_score=min(1.0, float(np.mean([f["properties"].get("area_m2", 0) for f in polygons])) / 1e6) if polygons else 0.0,
+                n_observations=len(all_observations),
                 area_consistency=None,
                 score_std=None,
             ),
             coordinate_space="geographic",
-            evidence_refs=[],
+            evidence_refs=[
+                str(change_geotiff),
+                str(geojson_path),
+            ],
             rule_version="ml-b2-v1",
         )
 
@@ -276,9 +354,12 @@ def run_water_change(
         "run_id": run_id,
         "perception_result_id": perception_result.perception_result_id,
         "status": perception_result.status.value,
-        "n_observations": len(observations),
+        "n_observations": len(all_observations),
         "change_stats": stats,
         "n_polygons": len(polygons),
+        "acquisition_t1": t1_acq_start,
+        "acquisition_t2": t2_acq_end,
+        "output_crs": output_crs,
         "outputs": {
             "t1_prob": str(t1_result.get("output_path", "")),
             "t2_prob": str(t2_result.get("output_path", "")),
@@ -291,9 +372,13 @@ def run_water_change(
     print(f"\n{'=' * 60}")
     print(f"Pipeline complete.")
     print(f"  Run ID:       {run_id}")
-    print(f"  Observations: {len(observations)}")
+    print(f"  Observations: {len(all_observations)} (T1: {len(observations_t1)}, T2: {len(observations_t2)})")
     print(f"  Polygons:     {len(polygons)}")
     print(f"  Change:       {stats['total_changed']} pixels")
+    print(f"  Semantic:     {semantic_label if detection_candidate else 'N/A'}")
+    print(f"  Total area:   {total_area:.0f} m2")
+    print(f"  T1 acq:       {t1_acq_start}")
+    print(f"  T2 acq:       {t2_acq_end}")
     print(f"  Output:       {out}")
     print(f"{'=' * 60}")
 
@@ -318,6 +403,9 @@ def main():
     parser.add_argument("--output-dir", default=None, help="Output directory")
     parser.add_argument("--threshold", type=float, default=0.5, help="Probability threshold")
     parser.add_argument("--min-area", type=float, default=500.0, help="Min polygon area (m2)")
+    parser.add_argument("--t1-date", default=None, help="T1 acquisition date (ISO)")
+    parser.add_argument("--t2-date", default=None, help="T2 acquisition date (ISO)")
+    parser.add_argument("--crs", default="EPSG:4545", help="Output CRS for area computation")
     args = parser.parse_args()
 
     result = run_water_change(
@@ -327,12 +415,20 @@ def main():
         output_dir=Path(args.output_dir) if args.output_dir else None,
         prob_threshold=args.threshold,
         min_area_m2=args.min_area,
+        t1_acquisition=args.t1_date,
+        t2_acquisition=args.t2_date,
+        output_crs=args.crs,
     )
 
     pr = result["perception_result"]
     dc = result["detection_candidate"]
     print(f"\nPerceptionResult:  {pr.perception_result_id} ({pr.status.value})")
     print(f"DetectionCandidate: {dc.candidate_id if dc else 'None'}")
+    if dc:
+        print(f"  semantic_label:  {dc.semantic_label}")
+        print(f"  area_m2:         {dc.area_m2}")
+        print(f"  temporal_extent: {dc.temporal_extent}")
+        print(f"  evidence_refs:   {len(dc.evidence_refs)}")
 
 
 if __name__ == "__main__":

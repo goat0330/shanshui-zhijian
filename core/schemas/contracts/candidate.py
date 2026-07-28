@@ -35,6 +35,8 @@ class DetectionCandidate(BaseModel):
     observation_refs: list[str] = Field(..., min_length=1)
     temporal_extent: dict = Field(..., description='{"start":..., "end":...}')
     candidate_type: str = Field(..., description="water_extent_change / suspected_floating / unknown")
+    semantic_label: str | None = Field(None, description="water_increase / water_decrease / other")
+    area_m2: float | None = Field(None, ge=0.0, description="总变化面积（平方米，投影坐标系计算）")
     geometry: dict | None = None
     score: float = Field(..., ge=0.0, le=1.0)
     quality_summary: CandidateQualitySummary | None = None
