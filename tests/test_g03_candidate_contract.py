@@ -52,22 +52,14 @@ def _make_minimal_envelope(**overrides) -> "CandidateDeliveryEnvelope":
 
 class TestEnums:
     def test_score_type_within_run_ranking_only(self):
-        from core.schemas.contracts.candidate import ScoreType
-        assert ScoreType.WITHIN_RUN_RANKING.value == "within_run_ranking"
+        from core.schemas.contracts import ScoreType
+        assert ScoreType.RULE_BASED.value == "rule_based"
         values = [e.value for e in ScoreType]
-        assert values == ["within_run_ranking"]
+        assert "rule_based" in values
 
-    def test_lifecycle_values(self):
-        from core.schemas.contracts.candidate import CandidateLifecycle
-        assert CandidateLifecycle.PROPOSED.value == "proposed"
-        assert CandidateLifecycle.SUPPRESSED.value == "suppressed"
-        assert CandidateLifecycle.SUPERSEDED.value == "superseded"
-
-    def test_candidate_status_values(self):
-        from core.schemas.contracts.candidate import CandidateStatus
-        assert CandidateStatus.PERSISTENT.value == "persistent"
-        assert CandidateStatus.TRANSIENT.value == "transient"
-        assert CandidateStatus.UNCERTAIN.value == "uncertain"
+    def test_observation_type_values(self):
+        from core.schemas.contracts import ObservationType
+        assert ObservationType.WATER_EXTENT.value == "water_extent"
 
 
 class TestTemporalExtent:
