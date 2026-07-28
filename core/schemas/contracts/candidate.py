@@ -4,6 +4,8 @@ RS-00 — DetectionCandidate + EvidenceRef + CandidateQualitySummary
 
 from pydantic import BaseModel, Field
 
+CANDIDATE_V0_3 = "candidate.v0.3"
+
 
 class CandidateQualitySummary(BaseModel):
     """标准化质量摘要，替代自由 dict。"""
