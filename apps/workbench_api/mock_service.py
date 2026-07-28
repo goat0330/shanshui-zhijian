@@ -20,9 +20,15 @@ from .main import (
 #  Mock Data
 # ══════════════════════════════════════════════════════════
 
+_CHANGE_TYPES = [
+    "water_extent_increase", "water_extent_decrease", "turbidity_anomaly", "algae_bloom",
+    "bank_collapse", "suspected_discharge", "sediment_anomaly", "vegetation_change",
+]
+
 _candidates = [
     CandidateListItem(
-        candidate_id=f"CAND-{str(i+1).zfill(4)}", change_type="water_extent_increase",
+        candidate_id=f"CAND-{str(i+1).zfill(4)}",
+        change_type=_CHANGE_TYPES[i % len(_CHANGE_TYPES)],
         persistence_status="persistent" if i < 8 else ("uncertain" if i < 12 else "transient"),
         occurrence_count=3 + (i % 6), persistence_ratio=0.5 + (i % 5) * 0.1,
         within_run_ranking=i + 1, batch_rank=i + 1,
@@ -85,6 +91,18 @@ _events = [
                 status="under_review", title="B 河流域浑浊度异常",
                 created_at="2026-06-10T09:00:00Z", updated_at="2026-06-10T09:00:00Z",
                 versions=[EventVersion(version=1, status="under_review", changed_by="system", changed_at="2026-06-10T09:00:00Z", summary="Candidate 创建")]),
+    EventDetail(event_id="EVT-2026-003", candidate_id="CAND-0005", event_type="algae_bloom",
+                status="needs_more_evidence", title="C 水库疑似藻类爆发",
+                created_at="2026-06-15T08:00:00Z", updated_at="2026-06-15T08:00:00Z",
+                versions=[EventVersion(version=1, status="needs_more_evidence", changed_by="system", changed_at="2026-06-15T08:00:00Z", summary="Candidate 创建")]),
+    EventDetail(event_id="EVT-2026-004", candidate_id="CAND-0007", event_type="suspected_discharge",
+                status="under_review", title="E 断面疑似夜间排污",
+                created_at="2026-06-08T06:00:00Z", updated_at="2026-06-08T06:00:00Z",
+                versions=[EventVersion(version=1, status="under_review", changed_by="system", changed_at="2026-06-08T06:00:00Z", summary="Candidate 创建")]),
+    EventDetail(event_id="EVT-2026-005", candidate_id="CAND-0010", event_type="bank_collapse",
+                status="under_review", title="F 河岸局部坍塌",
+                created_at="2026-06-12T10:00:00Z", updated_at="2026-06-12T10:00:00Z",
+                versions=[EventVersion(version=1, status="under_review", changed_by="system", changed_at="2026-06-12T10:00:00Z", summary="Candidate 创建")]),
 ]
 
 _runs = [
@@ -126,10 +144,15 @@ _summary = {
     "persistent_count": 12,
     "uncertain_count": 4,
     "transient_count": 20,
-    "events_under_review": 1,
+    "events_under_review": 3,
     "events_confirmed": 1,
-    "total_runs": 1,
-    "last_run_at": "2026-05-30T10:30:00Z",
+    "events_rejected": 0,
+    "events_needs_evidence": 1,
+    "total_runs": 2,
+    "runs_completed": 2,
+    "runs_failed": 0,
+    "last_run_at": "2026-06-15T08:00:00Z",
+    "monitoring_area_km2": 156.42,
 }
 
 
