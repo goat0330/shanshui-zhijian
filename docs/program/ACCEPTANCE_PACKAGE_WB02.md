@@ -65,15 +65,27 @@ DashboardPage  →  B2 三栏无滚动布局 (1920×1080)
 
 ## 5. 数据来源
 
-| 组件 | 数据 | 后端端点 | Mock 模式 |
-|------|------|---------|-----------|
-| SituationCards | DashboardSummary | dashboard/snapshot → .summary | MSW 拦截 |
-| TrendChart | MonthlyTrend[] | dashboard/snapshot → .trend | MSW 拦截 |
-| ReviewFunnel | FunnelStage[] | dashboard/snapshot → .funnel | MSW 拦截 |
-| SpatialDistribution | ChangeTypeDTO[] | dashboard/snapshot → .change_types | MSW 拦截 |
-| TypicalCases | TypicalCaseDTO[] | dashboard/snapshot → .typical_cases | MSW 拦截 |
-| GovernanceMap | Candidate/Event GeoJSON | /map/candidates.geojson, /map/events.geojson | MSW 拦截 |
-| DataSourceBadge | apiMode config | 读取 import.meta.env.VITE_API_MODE | MOCK / FIXTURE / REAL |
+| 组件 | 数据 | 后端端点 | Mock 模式 (MSW) | Real 模式 (后端) |
+|------|------|---------|----------------|-----------------|
+| SituationCards | DashboardSummary | dashboard/snapshot → .summary | MSW 拦截返回 mock 数据 | 后端 real_service (event_governance pipeline) |
+| TrendChart | MonthlyTrend[] | dashboard/snapshot → .trend | 同上 | 后端聚合 |
+| ReviewFunnel | FunnelStage[] | dashboard/snapshot → .funnel | 同上 | 后端 pipeline.get_snapshot().funnel |
+| SpatialDistribution | ChangeTypeDTO[] | dashboard/snapshot → .change_types | 同上 | 后端 mock 回退 |
+| TypicalCases | TypicalCaseDTO[] | dashboard/snapshot → .typical_cases | 同上 | 后端 mock 回退 |
+| GovernanceMap | Candidate/Event GeoJSON | /map/candidates.geojson | MSW 拦截 | 后端回退 mock_service |
+| Workbench | Candidate 列表 | /candidates | MSW 拦截 | candidate_store (SQLite) |
+| Workbench | Candidate 详情 | /candidates/{id} | MSW 拦截 | 后端回退 mock |
+| Events | Event 列表 | /events | MSW 拦截 | event_governance (SQLite) |
+| DataSourceBadge | apiMode config | 读取 VITE_API_MODE | 显示 MOCK | 显示 REAL |
+
+### Real 模式已知 Mock 回退
+
+| 端点 | 原因 | 依赖 |
+|------|------|------|
+| /dashboard/snapshot change_types | event_governance 无 change type 聚合 | Agent C pipeline 升级 |
+| /map/candidates.geojson | candidate_store 无 GeoJSON | Agent A 存储接入 |
+| /candidates/{id}/evidence | event_governance 未接入证据 | Agent C |
+| /artifacts, /runs | Agent B RunManifest 未接入 | Agent B |
 
 ---
 
@@ -83,9 +95,16 @@ DashboardPage  →  B2 三栏无滚动布局 (1920×1080)
 npx tsc --noEmit  →  0 errors
 ```
 
-## 7. 后端 API
+## 7. Vitest
+
+```
+Test Files  6 passed (6)
+     Tests  43 passed (43)
+```
+
+## 8. 后端 API
 
 ```
 python -c "from apps.workbench_api.mock_service import get_dashboard_snapshot; ..."
-→  36 candidates, 8 change types, 4 months, 4 funnel stages, 2 typical cases
+→  36 candidates, 8 change types, 4 months, 4 funnel stages, 5 typical cases
 ```

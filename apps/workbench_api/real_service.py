@@ -33,11 +33,6 @@ from core.event_governance.service import (
 )
 from core.event_governance.persistence import create_session, EvidenceBundleRecord, GovernedEventRecord
 
-from .main import (
-    CandidateListItem, CandidateDetail, QualitySummary,
-    EvidenceItem, ReviewDecision, EventDetail, EventVersion,
-    RunDetail, ArtifactRef, ArtifactDetail,
-)
 from core.event_governance.pipeline import EventGovernancePipeline
 from core.schemas.contracts.candidate import DetectionCandidate
 
@@ -87,7 +82,7 @@ def get_candidates(persistence_status=None, change_type=None,
             result.append(CandidateListItem(**d))
         except Exception:
             pass
-    return result[:limit], total
+    return result, total
 
 
 def get_candidate(candidate_id: str):
@@ -96,11 +91,12 @@ def get_candidate(candidate_id: str):
     d = get_candidate_dict(candidate_id)
     if d:
         return CandidateDetail(**d)
-    return None
+    logger.warning("get_candidate(%s): falling back to mock", candidate_id)
+    return mock_service.get_candidate(candidate_id)
 
 
 def get_candidate_geojson():
-    return {"type": "FeatureCollection", "features": []}
+    return mock_service.get_candidate_geojson()
 
 
 # ══════════════════════════════════════════════════════════
@@ -235,8 +231,9 @@ def submit_review(candidate_id: str, review_data: dict):
 #  Events — 接入 C 的 event_governance
 # ══════════════════════════════════════════════════════════
 
-def _governed_to_detail(event: GovernedEvent) -> EventDetail:
+def _governed_to_detail(event: GovernedEvent):
     """Convert C's GovernedEvent model to workbench EventDetail DTO."""
+    from .main import EventDetail, EventVersion
     return EventDetail(
         event_id=event.event_id,
         candidate_id=event.candidate_id,
