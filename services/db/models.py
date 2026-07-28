@@ -4,9 +4,9 @@ SQLite 数据库模型 — 产品链持久化
 
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Text, DateTime, create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import sessionmaker
 
-Base = declarative_base()
+from core.event_governance.persistence import Base
 
 
 class AlertRecord(Base):
