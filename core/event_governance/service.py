@@ -149,8 +149,8 @@ def review_bundle(session: Session, decision: ReviewDecision) -> ReviewDecision:
 def _auto_create_event_version(
     session: Session, decision: ReviewDecision, target_status: str
 ) -> GovernedEventRecord:
-    """Auto-create a new event version after a review decision."""
-    # Find the candidate_id from decision or from evidence bundle
+    """Auto-create event version after review decision.
+    Creates event v1 if none exists for candidate, otherwise increments version."""
     candidate_id = decision.candidate_id
     if not candidate_id:
         bundle = session.query(EvidenceBundleRecord).filter_by(bundle_id=decision.bundle_id).first()
@@ -160,25 +160,35 @@ def _auto_create_event_version(
     if not candidate_id:
         raise EventGovernanceError("Cannot determine candidate_id for auto-creating event version")
 
-    # Find the latest GovernedEventRecord by candidate_id
     latest = (
         session.query(GovernedEventRecord)
         .filter_by(candidate_id=candidate_id)
         .order_by(GovernedEventRecord.version.desc())
         .first()
     )
-    if not latest:
-        raise EventGovernanceError(
-            f"No existing GovernedEventRecord found for candidate {candidate_id}. "
-            f"Create one via record_event first."
-        )
 
-    # Determine new event_type
+    now = datetime.now().isoformat()
+    event_type = decision.category if (decision.decision == "reclassify" and decision.category) else "under_review"
+
+    if not latest:
+        event_id = f"evt_{candidate_id}"
+        new_record = GovernedEventRecord(
+            event_id=event_id,
+            version=1,
+            candidate_id=candidate_id,
+            event_type=event_type,
+            payload=json.dumps({"candidate_id": candidate_id, "bundle_id": decision.bundle_id}),
+            status=target_status,
+            created_at=now,
+            updated_at=now,
+        )
+        session.add(new_record)
+        return new_record
+
     new_event_type = latest.event_type
     if decision.decision == "reclassify" and decision.category:
         new_event_type = decision.category
 
-    now = datetime.now().isoformat()
     new_record = GovernedEventRecord(
         event_id=latest.event_id,
         version=latest.version + 1,
@@ -206,13 +216,29 @@ def _next_sequence_number(session: Session, event_id: str) -> int:
     return max_seq[0] + 1
 
 
+def _resolve_event_id(session: Session, decision: ReviewDecision) -> str:
+    """Resolve the actual event_id from a review decision."""
+    candidate_id = decision.candidate_id
+    if not candidate_id:
+        bundle = session.query(EvidenceBundleRecord).filter_by(bundle_id=decision.bundle_id).first()
+        if bundle:
+            candidate_id = bundle.candidate_id
+    if candidate_id:
+        evt = (session.query(GovernedEventRecord).filter_by(candidate_id=candidate_id)
+               .order_by(GovernedEventRecord.version.desc()).first())
+        if evt:
+            return evt.event_id
+    return decision.bundle_id
+
+
 def _append_replay_timeline(
     session: Session, decision: ReviewDecision, target_status: str
 ) -> ReplayRecordDB:
     """Write a replay timeline entry for a review decision."""
-    seq = _next_sequence_number(session, decision.bundle_id)
+    event_id = _resolve_event_id(session, decision)
+    seq = _next_sequence_number(session, event_id)
     now = datetime.now().isoformat()
-    replay_id = f"replay-{decision.bundle_id}-{seq}-{now}"
+    replay_id = f"replay-{event_id}-{seq}-{now}"
 
     details = f"decision={decision.decision}"
     if decision.comment:
@@ -221,14 +247,14 @@ def _append_replay_timeline(
         details += f", new_category={decision.category}"
 
     record = ReplayRecordDB(
-        event_id=decision.bundle_id,
+        event_id=event_id,
         replay_id=replay_id,
         sequence_number=seq,
         actor_type="human",
         actor_ref=decision.reviewer,
         action=f"review_{decision.decision}",
         object_type="event",
-        object_ref=decision.bundle_id,
+        object_ref=event_id,
         details=details,
         replayed_at=now,
     )

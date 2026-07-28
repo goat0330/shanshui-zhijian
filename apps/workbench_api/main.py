@@ -304,6 +304,37 @@ async def summary():
 
 # ── Candidates ──
 
+class CandidateIntakeRequest(BaseModel):
+    candidate_id: str
+    observation_refs: list[str]
+    temporal_extent: dict
+    candidate_type: str
+    score: float
+    geometry: dict | None = None
+    evidence_refs: list[str] = []
+    rule_version: str = "1.0.0"
+
+
+@app.post("/api/v2/candidates/intake")
+async def intake_candidate(req: CandidateIntakeRequest):
+    from core.schemas.contracts.candidate import DetectionCandidate, CandidateQualitySummary
+    candidate = DetectionCandidate(
+        candidate_id=req.candidate_id,
+        observation_refs=req.observation_refs,
+        temporal_extent=req.temporal_extent,
+        candidate_type=req.candidate_type,
+        score=req.score,
+        geometry=req.geometry,
+        evidence_refs=req.evidence_refs,
+        rule_version=req.rule_version,
+    )
+    from .real_service import ensure_db, do_intake
+    session = ensure_db()
+    result = do_intake(session, candidate)
+    session.commit()
+    return result
+
+
 @app.get("/api/v2/candidates")
 async def list_candidates(
     limit: int = Query(20, ge=1, le=100),
