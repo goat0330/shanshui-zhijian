@@ -2,7 +2,7 @@
   "base_branch": "integration/g0-g1-contract-freeze",
   "routes": [
     {
-      "pattern": "core/schemas/contracts/candidate.py|core/schemas/contracts/perception.py|tools/|tests/test_ml_b2*",
+      "pattern": "core/schemas/contracts/candidate.py|core/schemas/contracts/perception.py|ml/|tools/|tests/test_ml_b2*|tests/test_candidate*",
       "owner": "perception-agent-a",
       "checks": ["python", "pytest"],
       "fallback": "tests/"
