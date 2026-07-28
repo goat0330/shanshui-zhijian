@@ -64,3 +64,9 @@ Thumbs.db
 _backup_before_docs_update/
 _update_pkg/
 更新说明_*.md
+
+# Redundant directories
+/8.1开始_山水智鉴比赛/
+/shanshui-zhijian/
+/山水智鉴_Git工作区/
+
