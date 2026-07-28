@@ -91,12 +91,13 @@ def get_candidate(candidate_id: str):
     d = get_candidate_dict(candidate_id)
     if d:
         return CandidateDetail(**d)
-    logger.warning("get_candidate(%s): falling back to mock", candidate_id)
-    return mock_service.get_candidate(candidate_id)
+    logger.warning("get_candidate(%s): not found", candidate_id)
+    return None
 
 
 def get_candidate_geojson():
-    return mock_service.get_candidate_geojson()
+    logger.warning("get_candidate_geojson: real data not available")
+    return {"type": "FeatureCollection", "features": []}
 
 
 # ══════════════════════════════════════════════════════════
@@ -213,18 +214,7 @@ def submit_review(candidate_id: str, review_data: dict):
         )
         raise
 
-    # Map C's ReviewDecision back to workbench ReviewDecision DTO
-    return ReviewDecision(
-        review_id=result.review_id,
-        candidate_id=candidate_id,
-        action=result.decision,
-        category=result.category,
-        comment=result.comment or result.reason,
-        evidence_refs=[],
-        actor_ref=result.reviewer,
-        base_version=result.expected_version,
-        reviewed_at=result.reviewed_at,
-    )
+    return result
 
 
 # ══════════════════════════════════════════════════════════
@@ -257,6 +247,7 @@ def _governed_to_detail(event: GovernedEvent):
 def get_events(status=None):
     session = ensure_db()
     try:
+        from .main import EventDetail, EventVersion
         query = session.query(GovernedEventRecord).order_by(
             GovernedEventRecord.event_id, GovernedEventRecord.version.desc()
         )
@@ -310,9 +301,9 @@ def get_events(status=None):
         return list(event_map.values())
 
     except Exception:
-        logger.warning("get_events: real query failed, falling back to mock", exc_info=True)
+        logger.warning("get_events: real query failed", exc_info=True)
 
-    return mock_service.get_events(status=status)
+    return []
 
 
 def get_event(event_id: str):
@@ -322,8 +313,8 @@ def get_event(event_id: str):
         if event:
             return _governed_to_detail(event)
     except Exception:
-        logger.warning("get_event(%s): real query failed, falling back to mock", event_id, exc_info=True)
-    return mock_service.get_event(event_id)
+        logger.warning("get_event(%s): real query failed", event_id, exc_info=True)
+    return None
 
 
 def get_event_geojson():

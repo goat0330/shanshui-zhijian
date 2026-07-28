@@ -407,8 +407,18 @@ async def create_review(candidate_id: str, review: ReviewRequest):
             ).model_dump(),
         )
 
-    result = _rs.submit_review(candidate_id, review.model_dump())
-    return result.model_dump()
+    gov_result = _rs.submit_review(candidate_id, review.model_dump())
+    return ReviewDecision(
+        review_id=gov_result.review_id,
+        candidate_id=candidate_id,
+        action=gov_result.decision,
+        category=gov_result.category,
+        comment=gov_result.comment or gov_result.reason,
+        evidence_refs=[],
+        actor_ref=gov_result.reviewer,
+        base_version=gov_result.expected_version,
+        reviewed_at=gov_result.reviewed_at,
+    ).model_dump()
 
 
 # ── Events ──

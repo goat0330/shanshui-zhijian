@@ -59,7 +59,7 @@ class TestInferDense:
     def test_full_image_shape(self, real_trained_model):
         model, _ = real_trained_model
         result = infer_dense(model, DATA_DIR / "test_s2_t1.tif", block_size=64)
-        assert result["prob_map"].shape == (64, 64)
+        assert result["prob_map"].shape == (100, 100)
         assert result["valid_count"] > 0
 
     def test_probability_range(self, real_trained_model):
