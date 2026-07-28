@@ -127,9 +127,7 @@ def infer_on_geotiff(
         height, width = src.height, src.width
         transform = src.transform
         crs = src.crs
-
-    band_map = {}
-    band_names = getattr(src, "descriptions", None) or [f"b{i+1}" for i in range(array.shape[0])]
+        band_names = list(src.descriptions) if src.descriptions and any(src.descriptions) else [f"b{i+1}" for i in range(array.shape[0])]
 
     has_nir = any("nir" in b.lower() or "b8" in b.lower() or b == "nir" for b in band_names)
     has_green = any("green" in b.lower() or "b3" in b.lower() or b == "green" for b in band_names)

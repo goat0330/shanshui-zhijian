@@ -1,7 +1,7 @@
 """ML-B1 — Evaluation script.
 
 Usage:
-    python -m ml.evaluate                          # synthetic data (smoke)
+    python -m ml.evaluate                          # synthetic data
     python -m ml.evaluate --real                   # real data
 """
 
@@ -51,6 +51,7 @@ def main():
             print(f"    {k}: {v:.4f}" if isinstance(v, float) else f"    {k}: {v}")
 
     test_metrics = model.evaluate(test_X, test_y)
+    METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
     METRICS_PATH.write_text(json.dumps(test_metrics, indent=2))
     print(f"\nTest metrics saved: {METRICS_PATH}")
     print("Evaluation complete.")

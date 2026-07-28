@@ -178,11 +178,17 @@ class TestMLB1Inference:
         dc2 = DetectionCandidate.model_validate(data)
         assert dc2.candidate_id == dc.candidate_id
 
-    def test_geotiff_inference(self, trained_checkpoint):
+    def test_geotiff_inference(self, tmp_path):
         s2 = DATA_DIR / "test_s2_t1.tif"
-        if not s2.exists():
+        jrc = DATA_DIR / "test_jrc_occurrence.tif"
+        if not s2.exists() or not jrc.exists():
             pytest.skip("Test rasters not found")
-        pr, dc = run_inference(geotiff_path=str(s2), checkpoint_path=trained_checkpoint)
+        (train_X, train_y), _, _ = load_real_data(s2, jrc, max_samples=500)
+        model = BaselineModel(n_estimators=20, max_depth=5, random_state=42)
+        model.train(train_X, train_y)
+        cp = tmp_path / "checkpoint_real.joblib"
+        model.save(cp)
+        pr, dc = run_inference(geotiff_path=str(s2), checkpoint_path=cp)
         assert isinstance(pr, PerceptionResult)
         assert len(pr.observations) > 0
 
