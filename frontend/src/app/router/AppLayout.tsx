@@ -40,7 +40,7 @@ export default function AppLayout() {
             ))}
           </nav>
           <div className="app-header-right">
-            <DataSourceBadge mode="MOCK" />
+            <DataSourceBadge />
           </div>
         </header>
         <main className="app-main">

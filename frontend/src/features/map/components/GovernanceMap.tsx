@@ -1,7 +1,3 @@
-/* ============================================================
-   山水智鉴 V0 — 地图核心组件
-   ============================================================ */
-
 import { useEffect, useRef } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -13,13 +9,16 @@ import MapStatusBar from './MapStatusBar';
 import FeaturePopup from './FeaturePopup';
 import './GovernanceMap.css';
 
-export default function GovernanceMap() {
+interface Props {
+  readonly?: boolean;
+}
+
+export default function GovernanceMap({ readonly }: Props) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const { compareMode, viewport, setViewport } = useWorkbenchStore();
 
-  // Initialize map once
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
 
@@ -32,7 +31,9 @@ export default function GovernanceMap() {
     });
 
     map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
-    map.addControl(new maplibregl.ScaleControl(), 'bottom-left');
+    if (!readonly) {
+      map.addControl(new maplibregl.ScaleControl(), 'bottom-left');
+    }
 
     map.on('moveend', () => {
       const center = map.getCenter();
@@ -48,18 +49,14 @@ export default function GovernanceMap() {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync layers
   useMapLayerSync(mapRef);
 
-  // Handle compare mode
   useEffect(() => {
-    // Compare mode changes handled via CSS class
     if (mapContainer.current) {
       mapContainer.current.classList.toggle('split-mode', compareMode === 'split');
     }
   }, [compareMode]);
 
-  // Clear popup on candidate change
   useEffect(() => {
     if (popupRef.current) {
       popupRef.current.remove();
@@ -70,9 +67,9 @@ export default function GovernanceMap() {
   return (
     <div className="map-wrapper">
       <div ref={mapContainer} className={`map-container ${compareMode === 'split' ? 'map-split' : ''}`} />
-      <MapToolbar />
-      <MapStatusBar />
-      <FeaturePopup />
+      {!readonly && <MapToolbar />}
+      {!readonly && <MapStatusBar />}
+      {!readonly && <FeaturePopup />}
     </div>
   );
 }

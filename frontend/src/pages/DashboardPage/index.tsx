@@ -10,20 +10,16 @@ import './index.css';
 export default function DashboardPage() {
   return (
     <div className="d-b2">
-      {/* Top header */}
       <div className="d-b2-header">
         <h2 className="d-b2-title">研判驾驶舱</h2>
-        <DataSourceBadge mode="MOCK" />
+        <DataSourceBadge />
       </div>
 
-      {/* KPI row */}
       <div className="d-b2-kpi">
         <SituationCards />
       </div>
 
-      {/* Three-column B2 layout */}
       <div className="d-b2-body">
-        {/* Left: trend + funnel */}
         <aside className="d-b2-left">
           <section className="d-b2-section">
             <h4 className="d-b2-section-title">月度趋势</h4>
@@ -35,12 +31,10 @@ export default function DashboardPage() {
           </section>
         </aside>
 
-        {/* Center: map */}
         <main className="d-b2-center">
-          <GovernanceMap />
+          <GovernanceMap readonly />
         </main>
 
-        {/* Right: distribution + cases */}
         <aside className="d-b2-right">
           <section className="d-b2-section">
             <h4 className="d-b2-section-title">类型分布</h4>

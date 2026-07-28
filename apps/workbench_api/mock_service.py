@@ -284,6 +284,7 @@ def get_dashboard_snapshot():
             area_m2=12000.0,
             detected_at=e.created_at[:10],
             summary=f"{e.event_type} 类型异常，当前状态: {e.status}",
+            candidate_id=e.candidate_id,
         )
         for e in _events
     ]

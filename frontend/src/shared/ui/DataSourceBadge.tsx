@@ -8,7 +8,7 @@ const modeColors: Record<DataSourceMode, string> = {
   REAL: 'var(--color-event-confirmed)',
 };
 
-export function DataSourceBadge({ mode }: { mode?: DataSourceMode }) {
+function DataSourceBadge({ mode }: { mode?: DataSourceMode }) {
   const current = mode ?? (config.apiMode === 'real' ? 'REAL' : 'MOCK');
   return (
     <span
@@ -20,3 +20,6 @@ export function DataSourceBadge({ mode }: { mode?: DataSourceMode }) {
     </span>
   );
 }
+
+export { DataSourceBadge };
+export default DataSourceBadge;

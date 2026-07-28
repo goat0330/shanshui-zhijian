@@ -196,6 +196,7 @@ export interface TypicalCase {
   area_m2: number;
   detected_at: string;
   summary: string;
+  candidate_id?: string;
 }
 
 export function fetchDashboardSnapshot(): Promise<DashboardSnapshot> {

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { fetchDashboardSnapshot } from '@/shared/api/client';
 import { Loading, ErrorState, EmptyState } from '@/shared/ui';
 
@@ -17,6 +18,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function TypicalCases() {
+  const navigate = useNavigate();
   const { data, isLoading, error } = useQuery({
     queryKey: ['dashboard-snapshot'],
     queryFn: fetchDashboardSnapshot,
@@ -32,10 +34,16 @@ export default function TypicalCases() {
     return `${m2.toLocaleString()} m²`;
   };
 
+  const handleClick = (candidateId?: string) => {
+    if (candidateId) {
+      navigate(`/workbench?candidate_id=${candidateId}`);
+    }
+  };
+
   return (
     <div className="typical-cases-list">
       {data.map((c) => (
-        <div key={c.id} className="typical-case-card">
+        <div key={c.id} className="typical-case-card" onClick={() => handleClick(c.candidate_id)}>
           <div className="typical-case-header">
             <span className="typical-case-title">{c.title}</span>
             <span className="typical-case-badge" style={{ backgroundColor: statusColors[c.status] || 'var(--color-text-muted)' }}>
