@@ -13,7 +13,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -25,16 +24,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from db.models import Base, AlertRecord, EventRecord, WorkOrderRecord
-from core.event_governance.bridge import (
-    PerceptionToAlertBridge,
-    EvidenceBridge,
-    ReviewBridge,
-    EventBridge,
-    ReplayBridge,
-)
+from core.event_governance.bridge import PerceptionToAlertBridge
 from core.event_governance.pipeline import EventGovernancePipeline
 from core.event_governance.persistence import create_session as create_gov_session
-from core.event_governance.models import EventGovernanceError, OptimisticLockError
 from core.schemas.contracts.perception import PerceptionResult
 
 # ── 路径 ──────────────────────────────────────────────────────────
@@ -292,108 +284,6 @@ async def dashboard_page(request: Request):
             {"request": request, "stats": stats}
         )
     )
-
-
-
-
-@app.get("/api/v2/dashboard/snapshot")
-async def dashboard_snapshot():
-    session = _get_gov_session()
-    pipeline = EventGovernancePipeline(session)
-    return pipeline.get_snapshot()
-
-
-@app.get("/api/v2/evidence/bundles")
-async def list_bundles(candidate_id: Optional[str] = Query(None), limit: int = Query(20, ge=1, le=100)):
-    session = _get_gov_session()
-    bridge = EvidenceBridge(session)
-    return bridge.list_bundles(candidate_id=candidate_id, limit=limit)
-
-
-@app.get("/api/v2/evidence/bundles/{bundle_id}")
-async def get_bundle(bundle_id: str):
-    session = _get_gov_session()
-    bridge = EvidenceBridge(session)
-    result = bridge.get_bundle(bundle_id)
-    if not result:
-        raise HTTPException(404, f"EvidenceBundle {bundle_id} not found")
-    return result
-
-
-@app.get("/api/v2/reviews")
-async def list_reviews(bundle_id: Optional[str] = Query(None), limit: int = Query(20, ge=1, le=100)):
-    session = _get_gov_session()
-    bridge = ReviewBridge(session)
-    return bridge.list_reviews(bundle_id=bundle_id, limit=limit)
-
-
-class ReviewSubmitRequest(BaseModel):
-    bundle_id: str
-    reviewer: str
-    decision: str
-    reason: str = ""
-    expected_version: int = 1
-    category: Optional[str] = None
-    comment: str = ""
-    candidate_id: Optional[str] = None
-
-
-@app.post("/api/v2/reviews")
-async def submit_review(req: ReviewSubmitRequest):
-    session = _get_gov_session()
-    bridge = ReviewBridge(session)
-    try:
-        result = bridge.submit(
-            bundle_id=req.bundle_id, reviewer=req.reviewer,
-            decision=req.decision, reason=req.reason,
-            expected_version=req.expected_version,
-            category=req.category, comment=req.comment,
-            candidate_id=req.candidate_id,
-        )
-        session.commit()
-        return {"review_id": result.review_id, "decision": result.decision, "status": "submitted"}
-    except OptimisticLockError as e:
-        raise HTTPException(409, str(e))
-    except EventGovernanceError as e:
-        raise HTTPException(422, str(e))
-
-
-@app.get("/api/v2/governance/events")
-async def list_governance_events(status: Optional[str] = Query(None), limit: int = Query(20, ge=1, le=100)):
-    session = _get_gov_session()
-    bridge = EventBridge(session)
-    return bridge.list_events(status=status, limit=limit)
-
-
-@app.get("/api/v2/governance/events/{event_id}")
-async def get_governance_event(event_id: str):
-    session = _get_gov_session()
-    bridge = EventBridge(session)
-    result = bridge.get_event(event_id)
-    if not result:
-        raise HTTPException(404, f"Event {event_id} not found")
-    return result
-
-
-@app.get("/api/v2/governance/events/{event_id}/versions")
-async def get_event_versions(event_id: str):
-    session = _get_gov_session()
-    bridge = EventBridge(session)
-    return bridge.get_event_versions(event_id)
-
-
-@app.get("/api/v2/governance/replay/recent")
-async def get_recent_replay(limit: int = Query(20, ge=1, le=100)):
-    session = _get_gov_session()
-    bridge = ReplayBridge(session)
-    return bridge.get_recent_entries(limit=limit)
-
-
-@app.get("/api/v2/governance/replay/{event_id}")
-async def get_event_replay(event_id: str, limit: int = Query(50, ge=1, le=200)):
-    session = _get_gov_session()
-    bridge = ReplayBridge(session)
-    return bridge.get_timeline(event_id=event_id, limit=limit)
 
 
 @app.get("/api/v1/replay")
