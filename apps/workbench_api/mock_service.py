@@ -12,6 +12,8 @@ from .main import (
     CandidateListItem, CandidateDetail, QualitySummary,
     EvidenceItem, ReviewDecision, EventDetail, EventVersion,
     RunDetail, ArtifactRef, ArtifactDetail,
+    DashboardSummaryDTO, ChangeTypeDTO, MonthlyTrendDTO,
+    FunnelStageDTO, TypicalCaseDTO, DashboardSnapshotResponse,
 )
 
 # ══════════════════════════════════════════════════════════
@@ -213,3 +215,97 @@ def get_event_geojson():
 
 def get_summary():
     return _summary
+
+
+# ══════════════════════════════════════════════════════════
+#  Dashboard Snapshot
+# ══════════════════════════════════════════════════════════
+
+_CHANGE_TYPE_META = {
+    "water_extent_increase": ("水面扩展", "#1565c0"),
+    "water_extent_decrease": ("水面缩减", "#e53935"),
+    "turbidity_anomaly": ("浑浊度异常", "#f57c00"),
+    "algae_bloom": ("藻类爆发", "#2e7d32"),
+    "bank_collapse": ("岸线变化", "#6a1b9a"),
+    "suspected_discharge": ("疑似排污", "#d32f2f"),
+    "sediment_anomaly": ("泥沙异常", "#795548"),
+    "vegetation_change": ("植被变化", "#388e3c"),
+}
+
+_MONTHLY_LABELS = {
+    "2026-03": "3月",
+    "2026-04": "4月",
+    "2026-05": "5月",
+    "2026-06": "6月",
+}
+
+
+def get_dashboard_snapshot():
+    s = _summary
+    # Change types: group candidates
+    ct_map: dict[str, int] = {}
+    for c in _candidates:
+        ct = c.change_type
+        ct_map[ct] = ct_map.get(ct, 0) + 1
+
+    change_types = [
+        ChangeTypeDTO(change_type=ct, label=_CHANGE_TYPE_META.get(ct, (ct, "#888"))[0],
+                      count=count, color=_CHANGE_TYPE_META.get(ct, ("", "#888"))[1])
+        for ct, count in sorted(ct_map.items(), key=lambda x: -x[1])
+    ]
+
+    trend = [
+        MonthlyTrendDTO(month=month, label=_MONTHLY_LABELS.get(month, month),
+                        candidates=cand, confirmed=conf)
+        for month, cand, conf in [
+            ("2026-03", 8, 0),
+            ("2026-04", 12, 0),
+            ("2026-05", 10, 1),
+            ("2026-06", 6, 0),
+        ]
+    ]
+
+    total = s.get("total_candidates", 0)
+    funnel = [
+        FunnelStageDTO(stage="candidates_created", count=total, description="候选产生"),
+        FunnelStageDTO(stage="evidence_ready", count=max(0, total - 8), description="证据就绪"),
+        FunnelStageDTO(stage="reviewed", count=s.get("events_under_review", 0) + s.get("events_confirmed", 0) + s.get("events_needs_evidence", 0), description="已完成研判"),
+        FunnelStageDTO(stage="event_versioned", count=s.get("events_confirmed", 0), description="已生成事件版本"),
+    ]
+
+    typical_cases = [
+        TypicalCaseDTO(
+            id=e.event_id,
+            title=e.title,
+            change_type=e.event_type,
+            change_type_label=_CHANGE_TYPE_META.get(e.event_type, (e.event_type, "#888"))[0],
+            status=e.status,
+            status_label={"confirmed": "已确认", "under_review": "研判中", "needs_more_evidence": "待补证", "rejected": "已驳回"}.get(e.status, e.status),
+            area_m2=12000.0,
+            detected_at=e.created_at[:10],
+            summary=f"{e.event_type} 类型异常，当前状态: {e.status}",
+        )
+        for e in _events
+    ]
+
+    return DashboardSnapshotResponse(
+        summary=DashboardSummaryDTO(
+            total_candidates=s.get("total_candidates", 0),
+            persistent_count=s.get("persistent_count", 0),
+            uncertain_count=s.get("uncertain_count", 0),
+            transient_count=s.get("transient_count", 0),
+            events_under_review=s.get("events_under_review", 0),
+            events_confirmed=s.get("events_confirmed", 0),
+            events_rejected=s.get("events_rejected", 0),
+            events_needs_evidence=s.get("events_needs_evidence", 0),
+            total_runs=s.get("total_runs", 0),
+            runs_completed=s.get("runs_completed", 0),
+            runs_failed=s.get("runs_failed", 0),
+            last_run_at=s.get("last_run_at", ""),
+            monitoring_area_km2=s.get("monitoring_area_km2", 156.42),
+        ),
+        change_types=change_types,
+        trend=trend,
+        funnel=funnel,
+        typical_cases=typical_cases,
+    )

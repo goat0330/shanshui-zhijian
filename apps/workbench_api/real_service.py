@@ -492,3 +492,11 @@ def get_summary():
     except Exception:
         logger.warning("get_summary: real query failed, falling back to mock", exc_info=True)
     return mock_service.get_summary()
+
+
+# ══════════════════════════════════════════════════════════
+#  Dashboard Snapshot — 真实聚合回退 mock
+# ══════════════════════════════════════════════════════════
+
+def get_dashboard_snapshot():
+    return mock_service.get_dashboard_snapshot()

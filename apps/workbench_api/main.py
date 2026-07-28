@@ -210,12 +210,70 @@ class ArtifactDetail(BaseModel):
     metadata: dict = {}
 
 
+# ── Dashboard DTO ──
+
+class DashboardSummaryDTO(BaseModel):
+    total_candidates: int = 0
+    persistent_count: int = 0
+    uncertain_count: int = 0
+    transient_count: int = 0
+    events_under_review: int = 0
+    events_confirmed: int = 0
+    events_rejected: int = 0
+    events_needs_evidence: int = 0
+    total_runs: int = 0
+    runs_completed: int = 0
+    runs_failed: int = 0
+    last_run_at: str = ""
+    monitoring_area_km2: float = 0.0
+
+
+class ChangeTypeDTO(BaseModel):
+    change_type: str
+    label: str
+    count: int
+    color: str
+
+
+class MonthlyTrendDTO(BaseModel):
+    month: str
+    label: str
+    candidates: int
+    confirmed: int
+
+
+class FunnelStageDTO(BaseModel):
+    stage: str
+    count: int
+    description: str
+
+
+class TypicalCaseDTO(BaseModel):
+    id: str
+    title: str
+    change_type: str
+    change_type_label: str
+    status: str
+    status_label: str
+    area_m2: float
+    detected_at: str
+    summary: str
+
+
+class DashboardSnapshotResponse(BaseModel):
+    summary: DashboardSummaryDTO
+    change_types: list[ChangeTypeDTO]
+    trend: list[MonthlyTrendDTO]
+    funnel: list[FunnelStageDTO]
+    typical_cases: list[TypicalCaseDTO]
+
+
 # ══════════════════════════════════════════════════════════
 #  In-Memory Store (V0 不连接数据库)
 # ══════════════════════════════════════════════════════════
 
 # Service layer — 使用 real_service (接入 C 的 event_governance)
-from .real_service import get_candidates, get_candidate, get_evidence, get_events, get_event, get_event_replay, get_runs, get_run, get_artifact, get_candidate_geojson, get_event_geojson, get_summary, submit_review
+from .real_service import get_candidates, get_candidate, get_evidence, get_events, get_event, get_event_replay, get_runs, get_run, get_artifact, get_candidate_geojson, get_event_geojson, get_summary, submit_review, get_dashboard_snapshot
 
 
 # ══════════════════════════════════════════════════════════
@@ -439,6 +497,13 @@ async def map_candidates_geojson():
 @app.get("/api/v2/map/events.geojson")
 async def map_events_geojson():
     return get_event_geojson()
+
+
+# ── Dashboard ──
+
+@app.get("/api/v2/dashboard/snapshot", response_model=DashboardSnapshotResponse)
+async def dashboard_snapshot():
+    return get_dashboard_snapshot()
 
 
 # ══════════════════════════════════════════════════════════
