@@ -14,7 +14,7 @@
       "fallback": "tests/"
     },
     {
-      "pattern": "core/schemas/contracts/event*|core/schemas/contracts/evidence*|core/schemas/contracts/review*|core/schemas/contracts/replay*|services/|tests/test_event*|tests/test_evidence*|tests/test_review*|tests/test_replay*",
+      "pattern": "core/schemas/contracts/event*|core/schemas/contracts/evidence*|core/schemas/contracts/review*|core/schemas/contracts/replay*|core/event_governance/|services/|tests/test_event*|tests/test_evidence*|tests/test_review*|tests/test_replay*",
       "owner": "event-agent-c",
       "checks": ["python", "pytest", "e2e"],
       "fallback": "tests/"
