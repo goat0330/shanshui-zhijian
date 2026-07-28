@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "state_dir": ".agent/context",
+  "reports_dir": ".agent/reports",
+  "artifacts_dir": ".agent/artifacts",
+  "stable_files": [
+    "AGENTS.md",
+    "agents/sessions.yml",
+    "docs/program/STATUS_BOARD.md",
+    "docs/program/DECISION_LOG.md",
+    ".opencode/ensemble-efficiency.json",
+    ".opencode/context-governor.json",
+    ".opencode/skills/agent-e-context-governor/SKILL.md"
+  ],
+  "limits": {
+    "soft_messages": 80,
+    "hard_messages": 120,
+    "soft_session_mb": 15,
+    "hard_session_mb": 25,
+    "soft_input_tokens": 2000000,
+    "hard_input_tokens": 3500000,
+    "max_full_file_bytes": 200000,
+    "max_excerpt_lines": 100,
+    "max_report_input_lines": 80,
+    "max_report_output_lines": 12,
+    "max_result_items": 5,
+    "max_blocker_items": 3,
+    "max_bootstrap_lines": 80
+  },
+  "domain_paths": {
+    "agent-a": ["ml/**", "core/schemas/contracts/candidate.py", "core/schemas/contracts/perception.py", "tools/"],
+    "agent-b": [".github/**", "core/schemas/contracts/run_manifest*", "core/schemas/contracts/sar_metadata*", "competition/", "apps/workbench_api/manifest_service.py"],
+    "agent-c": ["core/event_governance/**", "core/schemas/contracts/event*", "core/schemas/contracts/evidence*", "core/schemas/contracts/review*", "core/schemas/contracts/replay*", "services/"],
+    "agent-d": ["frontend/**", "apps/workbench_api/**", "docs/program/ACCEPTANCE_*"],
+    "agent-e": [".agent/**", ".opencode/**", "AGENTS.md", "docs/program/STATUS_BOARD.md", "agents/sessions.yml"]
+  },
+  "compaction": {
+    "enabled": false,
+    "command": []
+  }
+}

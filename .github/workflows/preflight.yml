@@ -25,7 +25,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyproj rasterio pytest pydantic
+          pip install -e ".[ml,dev]"
 
       - name: Verify pyproj CRS
         run: |

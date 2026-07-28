@@ -1,0 +1,26 @@
+{
+  "status": "DONE",
+  "branch": "cycle3.1/engineering-agent-b",
+  "head": "abc1234",
+  "pr": 35,
+  "files": [
+    ".github/workflows/ml-smoke.yml",
+    "apps/workbench_api/manifest_service.py"
+  ],
+  "tests": [
+    {
+      "name": "ML Smoke",
+      "status": "PASS",
+      "summary": "22 passed",
+      "log_path": ".agent/artifacts/cycle-3.1/b/ml-smoke.log"
+    }
+  ],
+  "result": [
+    "RunManifest is exposed through the Workbench API.",
+    "ML Smoke and reproducibility checks pass."
+  ],
+  "cross_domain": [],
+  "blockers": [],
+  "next": ["Merge B before A/C/D."],
+  "report_path": ".agent/reports/cycle-3.1/agent-b-full.md"
+}

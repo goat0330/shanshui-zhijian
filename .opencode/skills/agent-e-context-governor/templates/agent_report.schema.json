@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AgentCompactReport",
+  "type": "object",
+  "required": ["status", "branch", "head", "tests", "result", "blockers"],
+  "properties": {
+    "status": {"enum": ["DONE", "BLOCKED", "PARTIAL"]},
+    "branch": {"type": "string"},
+    "head": {"type": "string"},
+    "pr": {"type": ["string", "integer", "null"]},
+    "files": {"type": "array", "items": {"type": "string"}, "maxItems": 10},
+    "tests": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "properties": {
+          "name": {"type": "string"},
+          "status": {"enum": ["PASS", "FAIL", "SKIP"]},
+          "summary": {"type": "string"},
+          "log_path": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "result": {"type": "array", "items": {"type": "string"}, "maxItems": 5},
+    "cross_domain": {"type": "array", "items": {"type": "string"}, "maxItems": 5},
+    "blockers": {"type": "array", "items": {"type": "string"}, "maxItems": 3},
+    "next": {"type": "array", "items": {"type": "string"}, "maxItems": 3},
+    "report_path": {"type": ["string", "null"]}
+  }
+}
