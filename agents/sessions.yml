@@ -22,11 +22,12 @@ staffing:
   roles_assignable_per_work_package: true
 
 interaction:
-  human_may_chat_with_members: true
+  human_may_chat_with_members: false
   lead_controls_members: true
-  member_visibility: sidebar_after_team_activation
+  member_visibility: lead_only
   model: deepseek/deepseek-v4-flash
   spawn_requires_explicit_model: true
+  runtime_model: opencode-go/deepseek-v4-flash/max
   write_agent_key: build
   read_agent_keys: [plan, explore]
   forbidden_agent_aliases: [general, Sisyphus, ultraworker]
