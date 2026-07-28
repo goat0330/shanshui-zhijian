@@ -71,6 +71,6 @@ class ReplayRecordDB(Base):
 
 
 def create_session(db_path: str = ":memory:"):
-    engine = create_engine(f"sqlite:///{db_path}", echo=False)
+    engine = create_engine(f"sqlite:///{db_path}", echo=False, connect_args={"check_same_thread": False})
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine)()
