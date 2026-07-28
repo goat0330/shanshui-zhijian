@@ -1,6 +1,5 @@
-"""Baseline model — Random Forest classifier wrapper."""
-
 from pathlib import Path
+
 import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
@@ -47,22 +46,33 @@ class BaselineModel:
             "n_samples": len(y),
         }
 
-    def save(self, path: Path):
-        path.parent.mkdir(parents=True, exist_ok=True)
+    def save(self, path: str | Path):
+        p = Path(path)
+        p.parent.mkdir(parents=True, exist_ok=True)
         joblib.dump({
             "model": self.model,
             "feature_names": self.feature_names,
             "n_estimators": self.n_estimators,
             "max_depth": self.max_depth,
-        }, path)
+            "random_state": self.random_state,
+        }, p)
 
     @classmethod
-    def load(cls, path: Path):
-        data = joblib.load(path)
+    def load(cls, path: str | Path):
+        data = joblib.load(Path(path))
         instance = cls(
             n_estimators=data.get("n_estimators", 100),
             max_depth=data.get("max_depth", 10),
+            random_state=data.get("random_state", 42),
         )
         instance.model = data["model"]
         instance.feature_names = data.get("feature_names")
         return instance
+
+    def get_params(self) -> dict:
+        return {
+            "model_type": "RandomForest",
+            "n_estimators": self.n_estimators,
+            "max_depth": self.max_depth,
+            "random_state": self.random_state,
+        }

@@ -1,7 +1,12 @@
 """Tests for ML-B1 real data pipeline."""
 
 import json
+import sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import pytest
 import pandas as pd
@@ -14,9 +19,11 @@ from ml.data.dataset_registry import DatasetRegistry
 from core.schemas.contracts.perception import PerceptionResult
 from core.schemas.contracts.candidate import DetectionCandidate
 
-
 ML_DIR = Path(__file__).resolve().parent.parent / "ml"
 DATA_DIR = ML_DIR / "data"
+
+HAS_REAL_RASTERS = (DATA_DIR / "test_s2_t1.tif").exists() and (DATA_DIR / "test_jrc_occurrence.tif").exists()
+skip_no_rasters = pytest.mark.skipif(not HAS_REAL_RASTERS, reason="Real test rasters not available")
 
 
 class TestDatasetRegistry:
@@ -61,11 +68,10 @@ class TestDataAdapterReal:
         model.train(train_X, train_y)
         return model, train_X.columns.tolist()
 
+    @skip_no_rasters
     def test_real_data_loading(self):
         s2 = DATA_DIR / "test_s2_t1.tif"
         jrc = DATA_DIR / "test_jrc_occurrence.tif"
-        if not s2.exists():
-            pytest.skip("Test rasters not found")
         (train_X, train_y), (val_X, val_y), (test_X, test_y) = load_real_data(s2, jrc, max_samples=500)
         assert len(train_X) > 0
         assert len(val_X) > 0
@@ -74,20 +80,21 @@ class TestDataAdapterReal:
             assert col in train_X.columns
         assert set(train_y.unique()).issubset({0, 1})
 
+    @skip_no_rasters
     def test_real_data_feature_values(self):
         s2 = DATA_DIR / "test_s2_t1.tif"
         jrc = DATA_DIR / "test_jrc_occurrence.tif"
-        if not s2.exists():
-            pytest.skip("Test rasters not found")
         (train_X, train_y), _, _ = load_real_data(s2, jrc, max_samples=300)
         assert train_X["ndwi"].between(-1, 1).all()
         assert train_X["ndvi"].between(-1, 1).all()
 
+    @skip_no_rasters
     def test_real_data_training(self, real_trained_model):
         model, feat_names = real_trained_model
         assert model.model is not None
         assert model.feature_names == feat_names
 
+    @skip_no_rasters
     def test_real_data_prediction(self, real_trained_model):
         model, feat_names = real_trained_model
         s2 = DATA_DIR / "test_s2_t1.tif"
@@ -97,6 +104,7 @@ class TestDataAdapterReal:
         assert len(preds) == len(test_y)
         assert set(preds).issubset({0, 1})
 
+    @skip_no_rasters
     def test_real_data_evaluate(self, real_trained_model):
         model, _ = real_trained_model
         s2 = DATA_DIR / "test_s2_t1.tif"
@@ -122,6 +130,42 @@ class TestDataAdapterSynthetic:
     def test_auto_data_detection(self):
         (train_X, train_y), _, _ = load_data()
         assert len(train_X) == 2000
+
+
+class TestMLB1Model:
+    def test_model_train(self):
+        from ml.data_adapter import load_synthetic_data
+        (train_X, train_y), _, _ = load_synthetic_data()
+        model = BaselineModel(n_estimators=20, max_depth=5, random_state=42)
+        model.train(train_X, train_y)
+        assert model.model is not None
+
+    def test_model_predict(self):
+        from ml.data_adapter import load_synthetic_data
+        (train_X, train_y), _, _ = load_synthetic_data()
+        model = BaselineModel(n_estimators=20, max_depth=5, random_state=42)
+        model.train(train_X, train_y)
+        preds = model.predict(train_X.head(10))
+        assert len(preds) == 10
+
+    def test_model_save_load(self, tmp_path):
+        from ml.data_adapter import load_synthetic_data
+        (train_X, train_y), _, _ = load_synthetic_data()
+        model = BaselineModel(n_estimators=20, max_depth=5, random_state=42)
+        model.train(train_X, train_y)
+        cp = tmp_path / "model.joblib"
+        model.save(cp)
+        loaded = BaselineModel.load(cp)
+        assert loaded.model is not None
+        preds = loaded.predict(train_X.head(5))
+        assert len(preds) == 5
+
+    def test_model_get_params(self):
+        model = BaselineModel(n_estimators=50, max_depth=8, random_state=99)
+        params = model.get_params()
+        assert params["n_estimators"] == 50
+        assert params["max_depth"] == 8
+        assert params["random_state"] == 99
 
 
 class TestMLB1Inference:
@@ -178,11 +222,10 @@ class TestMLB1Inference:
         dc2 = DetectionCandidate.model_validate(data)
         assert dc2.candidate_id == dc.candidate_id
 
+    @skip_no_rasters
     def test_geotiff_inference(self, tmp_path):
         s2 = DATA_DIR / "test_s2_t1.tif"
         jrc = DATA_DIR / "test_jrc_occurrence.tif"
-        if not s2.exists() or not jrc.exists():
-            pytest.skip("Test rasters not found")
         (train_X, train_y), _, _ = load_real_data(s2, jrc, max_samples=500)
         model = BaselineModel(n_estimators=20, max_depth=5, random_state=42)
         model.train(train_X, train_y)
@@ -204,7 +247,8 @@ class TestMLB1Inference:
         metrics = model.evaluate(test_X, test_y)
         assert metrics["accuracy"] > 0.0
 
-        row = {c: 0.0 for c in ["ndwi", "mndwi", "turbidity_index", "chlorophyll_index", "ph", "temperature", "rainfall_7d", "upstream_landuse"]} | {"ndwi": -0.5}
+        from ml.data_adapter import SYNTH_FEATURE_COLS
+        row = {c: 0.0 for c in SYNTH_FEATURE_COLS} | {"ndwi": -0.5}
         csv_path = tmp_path / "sample.csv"
         pd.DataFrame([row]).to_csv(csv_path, index=False)
         pr, dc = run_inference(str(csv_path), checkpoint_path=trained_checkpoint)
