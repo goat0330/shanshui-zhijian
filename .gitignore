@@ -27,6 +27,7 @@ competition/spikes/chongqing_rs_demo/products/
 .idea/
 
 # ML artifacts
+ml/output/
 mlruns/
 *.pt
 *.pth
