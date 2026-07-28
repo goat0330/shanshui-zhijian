@@ -407,18 +407,33 @@ def get_event_replay(event_id: str):
 # ══════════════════════════════════════════════════════════
 
 def get_runs(execution_status=None):
-    logger.warning("get_runs: real data not available — Agent B RunManifest not yet wired")
-    return []
+    from .manifest_service import get_runs as _get_manifests
+    runs = _get_manifests(execution_status=execution_status)
+    if runs:
+        return runs
+    logger.warning("get_runs: no RunManifest files found, falling back to mock")
+    from . import mock_service
+    return mock_service.get_runs(execution_status=execution_status)
 
 
 def get_run(run_id: str):
-    logger.warning("get_run(%s): real data not available — Agent B RunManifest not yet wired", run_id)
-    return None
+    from .manifest_service import get_run as _get_manifest
+    run = _get_manifest(run_id)
+    if run:
+        return run
+    logger.warning("get_run(%s): not found in RunManifest, falling back to mock", run_id)
+    from . import mock_service
+    return mock_service.get_run(run_id)
 
 
 def get_artifact(artifact_id: str):
-    logger.warning("get_artifact(%s): real data not available — Agent B RunManifest not yet wired", artifact_id)
-    return None
+    from .manifest_service import get_artifact as _get_artifact
+    artifact = _get_artifact(artifact_id)
+    if artifact:
+        return artifact
+    logger.warning("get_artifact(%s): not found in RunManifest, falling back to mock", artifact_id)
+    from . import mock_service
+    return mock_service.get_artifact(artifact_id)
 
 
 # ══════════════════════════════════════════════════════════
