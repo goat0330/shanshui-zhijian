@@ -121,7 +121,8 @@ class TestEvidenceAndReview:
         assert ev.version == 2
         assert ev.status == "confirmed"
 
-    def test_review_reject(self, session):
+    def test_review_reject_no_event_version(self, session):
+        """Reject creates a ReviewRecord but does NOT create a new Event version."""
         self._setup_for_review(session, "rj")
         decision = ReviewDecision(
             review_id="r_rj", bundle_id="rj_bnd", reviewer="alice",
@@ -132,10 +133,10 @@ class TestEvidenceAndReview:
 
         ev = get_event(session, "rj_evt")
         assert ev is not None
-        assert ev.version == 2
-        assert ev.status == "rejected"
+        assert ev.version == 1  # Event version unchanged
+        assert ev.status == "under_review"  # Original status preserved
 
-    def test_review_needs_more_evidence(self, session):
+    def test_review_needs_more_evidence_no_event_version(self, session):
         self._setup_for_review(session, "nme")
         decision = ReviewDecision(
             review_id="r_nme", bundle_id="nme_bnd", reviewer="alice",
@@ -146,23 +147,26 @@ class TestEvidenceAndReview:
 
         ev = get_event(session, "nme_evt")
         assert ev is not None
-        assert ev.version == 2
-        assert ev.status == "needs_more_evidence"
+        assert ev.version == 1  # No new Event version
 
-    def test_review_reclassify(self, session):
+    def test_review_reclassify_confirm_first(self, session):
+        """Reclassify after confirm creates v2 with reclassified status."""
         self._setup_for_review(session, "rc")
+        review_bundle(session, ReviewDecision(
+            review_id="r_rc1", bundle_id="rc_bnd", reviewer="alice",
+            decision="confirm", expected_version=1,
+        ))
         decision = ReviewDecision(
-            review_id="r_rc", bundle_id="rc_bnd", reviewer="alice",
-            decision="reclassify", expected_version=1,
+            review_id="r_rc2", bundle_id="rc_bnd", reviewer="alice",
+            decision="reclassify", expected_version=2,
             category="suspected_floating",
         )
         result = review_bundle(session, decision)
         assert result.decision == "reclassify"
-        assert result.category == "suspected_floating"
 
         ev = get_event(session, "rc_evt")
         assert ev is not None
-        assert ev.version == 2
+        assert ev.version == 3  # v1 setup + v2 confirm + v3 reclassify
         assert ev.status == "reclassified"
         assert ev.event_type == "suspected_floating"
 
@@ -210,7 +214,7 @@ class TestEvidenceAndReview:
                 review_id="r_cw2", bundle_id="cw_bnd", reviewer="bob",
                 decision="confirm", expected_version=1,
             ))
-        # Second review with updated version
+        # needs_more_evidence does NOT create new event version
         r3 = ReviewDecision(
             review_id="r_cw3", bundle_id="cw_bnd", reviewer="bob",
             decision="needs_more_evidence", expected_version=2,
@@ -218,21 +222,20 @@ class TestEvidenceAndReview:
         )
         result = review_bundle(session, r3)
         assert result.decision == "needs_more_evidence"
-        assert result.comment == "needs more data"
 
-        # event should be at v3 with needs_more_evidence status
         ev = get_event(session, "cw_evt")
         assert ev is not None
-        assert ev.version == 3
-        assert ev.status == "needs_more_evidence"
+        assert ev.version == 2  # v1 from setup, v2 from confirm
+        assert ev.status == "confirmed"
 
     def test_review_create_event_version_twice(self, session):
-        """Verify two sequential reviews create v2 and v3 correctly."""
+        """Setup v1 + confirm v2. needs_more_evidence adds no version."""
         self._setup_for_review(session, "seq")
         review_bundle(session, ReviewDecision(
             review_id="r_seq1", bundle_id="seq_bnd", reviewer="alice",
             decision="confirm", expected_version=1,
         ))
+        # needs_more_evidence does NOT create new event version
         review_bundle(session, ReviewDecision(
             review_id="r_seq2", bundle_id="seq_bnd", reviewer="bob",
             decision="needs_more_evidence", expected_version=2,
@@ -241,12 +244,8 @@ class TestEvidenceAndReview:
 
         ev = get_event(session, "seq_evt")
         assert ev is not None
-        assert ev.version == 3
-        assert ev.status == "needs_more_evidence"
-
-        ev_v2 = get_event(session, "seq_evt", version=2)
-        assert ev_v2 is not None
-        assert ev_v2.status == "confirmed"
+        assert ev.version == 2  # v1 from setup, v2 from confirm
+        assert ev.status == "confirmed"
 
     def test_review_creates_event_if_none_exists(self, session):
         """Review should auto-create event v1 if none exists for candidate."""

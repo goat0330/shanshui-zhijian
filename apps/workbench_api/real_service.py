@@ -148,19 +148,18 @@ _ACTION_TO_DECISION = {
 }
 
 
-def _ensure_review_prerequisites(session: Session, candidate_id: str) -> tuple[str, str]:
+def _ensure_review_prerequisites(session: Session, candidate_id: str) -> str:
     """
-    Ensure candidate, evidence bundle, and event record exist before review.
+    Ensure candidate and evidence bundle exist before review.
+    Does NOT create Event — Event is created only after Review approval.
     
-    Returns (bundle_id, event_id).
+    Returns bundle_id.
     """
-    # 1. Intake candidate
     candidate = GovernanceCandidate(
         candidate_id=candidate_id, source="workbench", payload={},
     )
     intake_candidate(session, candidate)
 
-    # 2. Ensure evidence bundle exists
     bundle_id = f"BUNDLE-{candidate_id}"
     existing_bundle = session.query(EvidenceBundleRecord).filter_by(
         bundle_id=bundle_id
@@ -175,27 +174,7 @@ def _ensure_review_prerequisites(session: Session, candidate_id: str) -> tuple[s
         )
         attach_evidence(session, bundle)
 
-    # 3. Ensure event record exists (needed by _auto_create_event_version)
-    existing_event = (
-        session.query(GovernedEventRecord)
-        .filter_by(candidate_id=candidate_id)
-        .first()
-    )
-    if not existing_event:
-        event_id = f"EVT-{candidate_id}"
-        event = GovernedEvent(
-            event_id=event_id,
-            version=1,
-            candidate_id=candidate_id,
-            event_type="unknown",
-            payload={},
-            status="under_review",
-        )
-        record_event(session, event)
-    else:
-        event_id = existing_event.event_id
-
-    return bundle_id, event_id
+    return bundle_id
 
 
 def submit_review(candidate_id: str, review_data: dict):
@@ -206,7 +185,7 @@ def submit_review(candidate_id: str, review_data: dict):
         raise EventGovernanceError(f"Unknown review action: {decision_action}")
 
     # Create prerequisites so C's review_bundle has everything it needs
-    bundle_id, _ = _ensure_review_prerequisites(session, candidate_id)
+    bundle_id = _ensure_review_prerequisites(session, candidate_id)
 
     # Build C's ReviewDecision with correct field names
     decision = GovernanceReview(
@@ -379,12 +358,7 @@ def get_event_geojson():
 
 def get_event_replay(event_id: str):
     session = ensure_db()
-    event = get_governed_event(session, event_id)
-    if event:
-        bundle_id = f"BUNDLE-{event.candidate_id}"
-        timeline = get_timeline(session, bundle_id)
-    else:
-        timeline = get_timeline(session, event_id)
+    timeline = get_timeline(session, event_id)
     return [
         {
             "replay_id": t.replay_id,

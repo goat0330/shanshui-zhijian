@@ -131,32 +131,32 @@ class TestReviewBridge:
         e = session.query(GovernedEventRecord).first()
         assert e.event_id.startswith("evt_")
 
-    def test_review_reject_creates_event(self, rv_bridge, session):
+    def test_review_reject_does_not_create_event(self, rv_bridge, session):
         rv_bridge.submit(
             bundle_id="bundle_cand_test_001", reviewer="bob",
             decision="reject", expected_version=1,
         )
-        e = session.query(GovernedEventRecord).first()
-        assert e.status == "rejected"
+        events = session.query(GovernedEventRecord).count()
+        assert events == 0, "Reject must NOT create an Event"
 
-    def test_review_needs_more_evidence(self, rv_bridge, session):
+    def test_review_needs_more_evidence_no_event(self, rv_bridge, session):
         rv_bridge.submit(
             bundle_id="bundle_cand_test_001", reviewer="carol",
             decision="needs_more_evidence", expected_version=1,
         )
-        e = session.query(GovernedEventRecord).first()
-        assert e.status == "needs_more_evidence"
+        events = session.query(GovernedEventRecord).count()
+        assert events == 0, "needs_more_evidence must NOT create an Event"
 
-    def test_second_review_increments_version(self, rv_bridge, session):
+    def test_second_review_confirm_increments_version(self, rv_bridge, session):
         rv_bridge.submit(bundle_id="bundle_cand_test_001", reviewer="a",
                          decision="confirm", expected_version=1)
         rv_bridge.submit(bundle_id="bundle_cand_test_001", reviewer="b",
-                         decision="needs_more_evidence", expected_version=2,
-                         comment="need more data")
+                         decision="confirm", expected_version=2,
+                         comment="second opinion")
         events = session.query(GovernedEventRecord).order_by(GovernedEventRecord.version).all()
         assert len(events) == 2
         assert events[0].version == 1 and events[0].status == "confirmed"
-        assert events[1].version == 2 and events[1].status == "needs_more_evidence"
+        assert events[1].version == 2 and events[1].status == "confirmed"
 
     def test_review_version_conflict(self, rv_bridge, session):
         rv_bridge.submit(bundle_id="bundle_cand_test_001", reviewer="a",
@@ -183,22 +183,24 @@ class TestEventBridge:
         ci = CandidateIntakeBridge(session)
         ci.intake(_make_candidate("cand_ev_1"))
         ci.intake(_make_candidate("cand_ev_2"))
+        ci.intake(_make_candidate("cand_ev_3"))
         rb = ReviewBridge(session)
         rb.submit(bundle_id="bundle_cand_ev_1", reviewer="a",
                   decision="confirm", expected_version=1)
         rb.submit(bundle_id="bundle_cand_ev_2", reviewer="b",
+                  decision="confirm", expected_version=1)
+        # cand_ev_3 is rejected — no Event created
+        rb.submit(bundle_id="bundle_cand_ev_3", reviewer="c",
                   decision="reject", expected_version=1)
         return EventBridge(session)
 
     def test_list_events(self, evt_setup):
         events = evt_setup.list_events()
-        assert len(events) == 2
+        assert len(events) == 2  # only confirmed events
 
     def test_list_by_status(self, evt_setup):
         confirmed = evt_setup.list_events(status="confirmed")
-        rejected = evt_setup.list_events(status="rejected")
-        assert len(confirmed) == 1
-        assert len(rejected) == 1
+        assert len(confirmed) == 2
 
     def test_get_event(self, evt_setup):
         events = evt_setup.list_events()
@@ -210,8 +212,7 @@ class TestEventBridge:
 
     def test_events_by_status(self, evt_setup):
         counts = evt_setup.get_events_by_status()
-        assert counts.get("confirmed", 0) >= 1
-        assert counts.get("rejected", 0) >= 1
+        assert counts.get("confirmed", 0) >= 2
 
     def test_no_events_before_review(self, session):
         ci = CandidateIntakeBridge(session)

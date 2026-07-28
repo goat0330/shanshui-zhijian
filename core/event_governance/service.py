@@ -89,6 +89,16 @@ def _validate_status(status: str) -> None:
         )
 
 
+def _resolve_candidate_id(session: Session, decision: ReviewDecision) -> str | None:
+    """Resolve candidate_id from a review decision or its evidence bundle."""
+    if decision.candidate_id:
+        return decision.candidate_id
+    bundle = session.query(EvidenceBundleRecord).filter_by(bundle_id=decision.bundle_id).first()
+    if bundle:
+        return bundle.candidate_id
+    return None
+
+
 def review_bundle(session: Session, decision: ReviewDecision) -> ReviewDecision:
     # Validate decision action
     allowed_actions = {"confirm", "reject", "reclassify", "needs_more_evidence"}
@@ -136,8 +146,22 @@ def review_bundle(session: Session, decision: ReviewDecision) -> ReviewDecision:
     bundle.version += 1
     bundle.status = "reviewed"
 
-    # Auto-create new GovernedEventRecord version
-    _auto_create_event_version(session, decision, target_status)
+    # Auto-create Event:
+    # - "confirm" always creates/updates event
+    # - "reclassify" creates new version if event already exists
+    # - "reject", "needs_more_evidence" record reviews only, no event
+    _create_event = decision.decision == "confirm"
+    if decision.decision == "reclassify":
+        candidate_id = _resolve_candidate_id(session, decision)
+        if candidate_id:
+            _latest = (session.query(GovernedEventRecord)
+                       .filter_by(candidate_id=candidate_id)
+                       .order_by(GovernedEventRecord.version.desc())
+                       .first())
+            if _latest:
+                _create_event = True
+    if _create_event:
+        _auto_create_event_version(session, decision, target_status)
 
     # Write ReplayReplay timeline entry
     _append_replay_timeline(session, decision, target_status)
