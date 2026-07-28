@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "water-governance-agent"
 version = "0.1.0"
@@ -21,6 +25,9 @@ dependencies = [
     "SQLAlchemy>=2.0",
     "requests>=2.28",
 ]
+
+[tool.setuptools.packages.find]
+include = ["core*", "ml*", "apps*", "services*", "competition*", "tools*", "tests*"]
 
 [project.optional-dependencies]
 ml = [
