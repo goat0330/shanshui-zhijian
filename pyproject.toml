@@ -37,6 +37,7 @@ data = [
 test = [
     "pytest>=8",
     "pytest-rerunfailures>=14",
+    "httpx2>=2.0",
 ]
 dev = [
     "pytest>=8",
