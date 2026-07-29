@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shanshui-zhijian.local/schemas/project-profile.schema.json",
+  "title": "Agent Workflow Project Profile",
+  "type": "object",
+  "required": ["project_name", "base_branch", "owners", "paths", "stable_files", "checks"],
+  "properties": {
+    "project_name": {"type": "string", "minLength": 1},
+    "base_branch": {"type": "string", "minLength": 1},
+    "owners": {
+      "type": "object",
+      "required": ["perception", "engineering", "event_governance", "product", "control_plane"],
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {"type": "string", "minLength": 1}
+      }
+    },
+    "stable_files": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "command"],
+          "properties": {
+            "name": {"type": "string", "minLength": 1},
+            "command": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+            "timeout_sec": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "state_dir": {"type": "string"},
+    "reports_dir": {"type": "string"},
+    "artifacts_dir": {"type": "string"}
+  },
+  "additionalProperties": false
+}

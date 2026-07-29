@@ -1,0 +1,36 @@
+{
+  "project_name": "shanshui-zhijian",
+  "base_branch": "integration/g0-g1-contract-freeze",
+  "owners": {
+    "perception": "perception-agent-a",
+    "engineering": "engineering-agent-b",
+    "event_governance": "event-agent-c",
+    "product": "product-agent-d",
+    "control_plane": "project-manager-agent-e"
+  },
+  "paths": {
+    "perception": ["ml/**", "tools/**", "core/schemas/contracts/candidate.py", "core/schemas/contracts/perception.py", "tests/test_ml*.py", "tests/test_candidate*.py"],
+    "engineering": [".github/**", "competition/**", "core/schemas/contracts/run_manifest*", "core/schemas/contracts/sar_metadata*", "apps/workbench_api/manifest_service.py", "tests/test_run_manifest*.py", "tests/test_competition*.py"],
+    "event_governance": ["core/event_governance/**", "core/schemas/contracts/event*", "core/schemas/contracts/evidence*", "core/schemas/contracts/review*", "core/schemas/contracts/replay*", "services/**", "tests/test_event*.py", "tests/test_evidence*.py", "tests/test_review*.py", "tests/test_replay*.py"],
+    "product": ["frontend/**", "apps/workbench_api/**", "docs/program/ACCEPTANCE*"],
+    "control_plane": [".agent/**", ".opencode/**", "agent-control-plane/**", ".codegraph/**", "AGENTS.md", "README.md", "docs/program/STATUS_BOARD.md", "docs/program/DECISION_LOG.md", "docs/program/CONTRACT_GAP_REGISTER.md", ".gitignore", "scripts/**", "pyproject.toml"]
+  },
+  "stable_files": [
+    "AGENTS.md",
+    "README.md",
+    "agents/sessions.yml",
+    "docs/program/STATUS_BOARD.md",
+    "docs/program/DECISION_LOG.md",
+    "docs/program/CONTRACT_GAP_REGISTER.md",
+    ".opencode/ensemble-efficiency.json",
+    ".opencode/context-governor.json",
+    ".opencode/skills/agent-e-context-governor/SKILL.md"
+  ],
+  "checks": {
+    "perception": [],
+    "engineering": [],
+    "event_governance": [],
+    "product": [],
+    "control_plane": []
+  }
+}
