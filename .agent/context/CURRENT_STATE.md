@@ -18,13 +18,15 @@ updated_at: 2026-07-29
 ## Gate results
 - Targeted ML/regression suite: 101 pass, 3 warnings (controlled PROJ/GDAL env)
 - Full collection: 587 tests collected
-- Full pytest: not complete; persistence suite exceeded local timeout and needs profiling
+- RS-01B-3 isolated: 21 passed + 4 XPASS in 253.69s; slow but not deadlocked
+- Full pytest: not complete; run the persistence suite as a dedicated timed gate
 - GitHub 5-workflow status: must be rerun after this commit
 
 ## Current blockers
 - Cycle 3.1.1 remote CI is not yet revalidated after the overlay
-- Full suite has a long-running persistence path; do not call it green without profiling
-- Frontend dependencies/artifacts were cleaned; run npm ci before real Playwright
+- Full suite has a long-running persistence path; keep it as a dedicated timed gate
+- Real Playwright: 24 passed locally after npm ci; non-blocking Vite warnings remain
+- Frontend dependencies/artifacts were cleaned after the run
 - Real Sentinel data training has not started
 
 ## User decisions pending

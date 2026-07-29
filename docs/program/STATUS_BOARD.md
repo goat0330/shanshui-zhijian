@@ -8,7 +8,7 @@
 | 项目 | 当前事实 |
 |---|---|
 | 正式 integration | `origin/integration/g0-g1-contract-freeze @ 2a5689d` |
-| 当前检出分支 | `cycle3.1.1/ci-fix @ d593609`，已应用 Cycle 3.1.1 overlay，尚未提交 |
+| 当前检出分支 | `cycle3.1.1/ci-fix @ daff3b4`，Cycle 3.1.1 overlay 与控制面修复已提交 |
 | 当前分支远程 | `origin/cycle3.1.1/ci-fix @ 0e08379`，本地包含未提交 overlay |
 | develop | `origin/develop @ f950850` |
 | main | `origin/main @ d00a94b` |
@@ -27,6 +27,8 @@ Cycle 3.1 的 A/B/C/D 模块已进入 integration；当前分支只处理 CI、�
 | Workbench / Dashboard | Real-mode 骨架完成；用户产品验收待完成 |
 | Python 测试收集 | 587 tests collected |
 | Cycle 3.1.1 ML 回归 | 101 passed，3 warnings；需 Rasterio PROJ 环境变量 |
+| RS-01B-3 持久化测试 | 21 passed + 4 XPASS，253.69s；主要耗时来自重复 GeoTIFF/全链路重跑，不是死锁 |
+| Real Playwright | 24 passed，约 1.1 min；发现 MapLibre worker 与 CSS 非阻断 warning |
 | 全量 Python Gate | 未完成：`pytest -q` 超过 5 分钟，需按测试域拆分定位 |
 | Cycle 3.1.1 overlay | 已覆盖并保留仓库外备份；远端 CI 尚未重跑 |
 | OpenChamber | 已停机，正在进行单运行时与 Actor/Session Epoch 迁移 |
