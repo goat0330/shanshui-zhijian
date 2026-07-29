@@ -1,23 +1,32 @@
-"""ML-B2: Dense (full-image) water probability inference.
+"""Vectorised, block-wise dense water inference for aligned Sentinel-2 rasters."""
 
-Predicts water probability for every pixel in a GeoTIFF using block
-processing to avoid memory limits. Outputs a probability GeoTIFF aligned
-to the input raster.
-"""
+from __future__ import annotations
 
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from ml.data_adapter import _compute_indices, REAL_FEATURE_COLS
+from ml.data_adapter import REAL_FEATURE_COLS, RealDataError, _compute_indices, _resolve_band_map
 from ml.model import BaselineModel
 
 
 def _pixel_to_geo(row, col, transform):
-    """Convert pixel coordinates to geographic coordinates."""
     x, y = transform * (col, row)
     return float(x), float(y)
+
+
+def _feature_frame(block: np.ndarray, valid: np.ndarray, band_map: dict[str, int]) -> pd.DataFrame:
+    indices = _compute_indices(block, band_map)
+    flat_valid = valid.ravel()
+    data: dict[str, np.ndarray] = {
+        "ndwi": indices["ndwi"].ravel()[flat_valid],
+        "mndwi": indices["mndwi"].ravel()[flat_valid],
+        "ndvi": indices["ndvi"].ravel()[flat_valid],
+    }
+    for band_name, band_index in band_map.items():
+        data[band_name] = block[band_index].ravel()[flat_valid]
+    return pd.DataFrame(data)
 
 
 def infer_dense(
@@ -29,140 +38,100 @@ def infer_dense(
     prob_band_name: str = "water_prob",
     mask_band_name: str = "water_mask",
 ) -> dict:
-    """Full-image water probability and binary mask prediction.
-
-    Args:
-        model: Trained BaselineModel (RandomForest).
-        raster_path: Path to 6-band S2 GeoTIFF.
-        output_path: Optional path for output GeoTIFF (2 bands: prob, mask).
-        block_size: Block dimension for tiled processing.
-        threshold: Probability threshold for binary mask.
-
-    Returns:
-        dict with keys: prob_map (np.ndarray), mask (np.ndarray),
-                        crs, transform, bounds, metadata
-    """
+    """Predict every valid pixel while retaining exact raster georeferencing."""
     import rasterio
+    from rasterio.windows import Window
 
-    model_name = model.feature_names or REAL_FEATURE_COLS
+    raster_path = Path(raster_path)
+    if not raster_path.is_file():
+        raise FileNotFoundError(raster_path)
+    if model.model is None:
+        raise RuntimeError("Model not trained")
+    if block_size <= 0:
+        raise ValueError("block_size must be positive")
+    if not 0 <= threshold <= 1:
+        raise ValueError("threshold must be in [0, 1]")
+
+    model_features = list(model.feature_names or REAL_FEATURE_COLS)
+    missing_model_features = set(REAL_FEATURE_COLS) - set(model_features)
+    if missing_model_features:
+        raise RealDataError(
+            "Dense S2 inference requires a real-water model with features "
+            f"{REAL_FEATURE_COLS}; missing={sorted(missing_model_features)}"
+        )
 
     with rasterio.open(raster_path) as src:
+        if src.crs is None:
+            raise RealDataError(f"Raster has no CRS: {raster_path}")
         crs = src.crs
         transform = src.transform
         height, width = src.height, src.width
         bounds = src.bounds
-        descriptions = list(src.descriptions) if src.descriptions else []
-        band_count = src.count
-        profile = src.profile
+        profile = src.profile.copy()
+        band_map = _resolve_band_map(src.descriptions, src.count)
+        prob_map = np.full((height, width), np.nan, dtype=np.float32)
+        valid_map = np.zeros((height, width), dtype=bool)
 
-    # Determine band mapping
-    has_nir = any("nir" in b.lower() for b in descriptions) or band_count >= 4
-    has_green = any("green" in b.lower() for b in descriptions) or band_count >= 2
-    has_red = any("red" in b.lower() for b in descriptions) or band_count >= 3
-    uses_indices = has_nir and has_green and has_red
+        for row_start in range(0, height, block_size):
+            block_height = min(block_size, height - row_start)
+            for col_start in range(0, width, block_size):
+                block_width = min(block_size, width - col_start)
+                window = Window(col_start, row_start, block_width, block_height)
+                masked = src.read(window=window, masked=True).astype(np.float32)
+                block = np.asarray(masked.filled(np.nan), dtype=np.float32)
+                dataset_valid = src.dataset_mask(window=window) > 0
+                valid = dataset_valid & np.isfinite(block).all(axis=0)
+                if not valid.any():
+                    continue
 
-    prob_map = np.zeros((height, width), dtype=np.float32)
-    valid_map = np.zeros((height, width), dtype=bool)
+                frame = _feature_frame(block, valid, band_map)
+                missing = set(model_features) - set(frame.columns)
+                if missing:
+                    raise RealDataError(f"Raster cannot provide model features: {sorted(missing)}")
+                probabilities = model.predict_proba(frame[model_features])[:, 1].astype(np.float32)
 
-    for row_start in range(0, height, block_size):
-        row_end = min(row_start + block_size, height)
-        for col_start in range(0, width, block_size):
-            col_end = min(col_start + block_size, width)
+                local_prob = np.full(valid.shape, np.nan, dtype=np.float32)
+                local_prob.ravel()[valid.ravel()] = probabilities
+                row_end = row_start + block_height
+                col_end = col_start + block_width
+                prob_map[row_start:row_end, col_start:col_end] = local_prob
+                valid_map[row_start:row_end, col_start:col_end] = valid
 
-            with rasterio.open(raster_path) as src:
-                block = src.read(
-                    window=(
-                        (row_start, row_end),
-                        (col_start, col_end),
-                    )
-                ).astype(np.float32)
-
-            bh, bw = block.shape[1], block.shape[2]
-
-            if uses_indices:
-                bmap = {}
-                for i, desc in enumerate(descriptions):
-                    dl = desc.lower()
-                    if "blue" in dl:
-                        bmap["blue"] = i
-                    elif "green" in dl:
-                        bmap["green"] = i
-                    elif "red" in dl:
-                        bmap["red"] = i
-                    elif "nir" in dl:
-                        bmap["nir"] = i
-                    elif "swir1" in dl:
-                        bmap["swir1"] = i
-                    elif "swir2" in dl:
-                        bmap["swir2"] = i
-                if not bmap:
-                    bmap = {"blue": 0, "green": 1, "red": 2, "nir": 3, "swir1": 4, "swir2": 5}
-
-                indices = _compute_indices(block, bmap)
-
-                rows_list = []
-                for y in range(bh):
-                    for x in range(bw):
-                        pix = block[:, y, x]
-                        if not np.isfinite(pix).all():
-                            continue
-                        row = {
-                            "ndwi": indices["ndwi"][y, x],
-                            "mndwi": indices["mndwi"][y, x],
-                            "ndvi": indices["ndvi"][y, x],
-                        }
-                        for bname, bidx in bmap.items():
-                            row[bname] = float(block[bidx, y, x])
-                        rows_list.append(row)
-
-                if rows_list:
-                    feat_df = pd.DataFrame(rows_list)
-                    feat_cols = [c for c in model_name if c in feat_df.columns]
-                    if feat_cols:
-                        probs = model.predict_proba(feat_df[feat_cols])[:, 1]
-                        idx = 0
-                        for y in range(bh):
-                            for x in range(bw):
-                                if np.isfinite(block[:, y, x]).all():
-                                    prob_map[row_start + y, col_start + x] = probs[idx]
-                                    valid_map[row_start + y, col_start + x] = True
-                                    idx += 1
-            else:
-                for y in range(bh):
-                    for x in range(bw):
-                        pix = block[:, y, x]
-                        if not np.isfinite(pix).all():
-                            continue
-                        row = {f"band_{i}": float(pix[i]) for i in range(band_count)}
-                        feat_df = pd.DataFrame([row])
-                        prob = model.predict_proba(feat_df)[0, 1]
-                        prob_map[row_start + y, col_start + x] = prob
-                        valid_map[row_start + y, col_start + x] = True
-
-    mask = (prob_map >= threshold).astype(np.uint8)
-    mask[~valid_map] = 255  # nodata for uint8
-
+    mask = np.full((height, width), 255, dtype=np.uint8)
+    mask[valid_map] = (prob_map[valid_map] >= threshold).astype(np.uint8)
     result = {
         "prob_map": prob_map,
         "mask": mask,
+        "valid_map": valid_map,
         "crs": crs,
         "transform": transform,
         "bounds": bounds,
         "height": height,
         "width": width,
         "valid_count": int(valid_map.sum()),
+        "nodata_count": int((~valid_map).sum()),
     }
 
-    if output_path:
+    if output_path is not None:
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         out_profile = profile.copy()
-        out_profile.update(count=2, dtype=np.float32, compress="lzw", bigtiff="IF_SAFER")
+        out_profile.update(
+            driver="GTiff",
+            count=2,
+            dtype="float32",
+            nodata=-9999.0,
+            compress="lzw",
+            bigtiff="IF_SAFER",
+        )
         with rasterio.open(output_path, "w", **out_profile) as dst:
-            dst.write(prob_map, 1)
+            dst.write(np.where(valid_map, prob_map, -9999.0).astype(np.float32), 1)
             dst.set_band_description(1, prob_band_name)
-            dst.write(mask.astype(np.float32), 2)
+            dst.write(np.where(valid_map, mask, -9999.0).astype(np.float32), 2)
             dst.set_band_description(2, mask_band_name)
+            dst.update_tags(
+                inference_threshold=str(threshold),
+                valid_pixels=str(result["valid_count"]),
+            )
         result["output_path"] = str(output_path)
-
     return result

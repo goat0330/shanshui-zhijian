@@ -123,9 +123,13 @@ class TestDataAdapterSynthetic:
         assert len(val_X) == 500
         assert len(test_X) == 500
 
-    def test_synthetic_with_use_real_flag(self):
-        (train_X, train_y), _, _ = load_data(use_real=True)
-        assert len(train_X) == 2000
+    def test_real_mode_is_fail_closed(self, tmp_path):
+        with pytest.raises(FileNotFoundError):
+            load_data(
+                use_real=True,
+                s2_path=tmp_path / "missing-s2.tif",
+                jrc_path=tmp_path / "missing-jrc.tif",
+            )
 
     def test_auto_data_detection(self):
         (train_X, train_y), _, _ = load_data()

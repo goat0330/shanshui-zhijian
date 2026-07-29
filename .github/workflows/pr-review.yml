@@ -5,14 +5,22 @@ on:
     branches:
       - 'integration/**'
       - develop
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
 
 env:
   PYTHON_VERSION: "3.11"
+  PYTHONUNBUFFERED: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
 
 jobs:
   ensemble-efficiency:
     runs-on: ubuntu-22.04
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,78 +30,68 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-ml.txt
 
       - name: Identify owner from changed paths
         id: owner
         shell: bash
         run: |
           CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD 2>/dev/null || git diff --name-only HEAD~1...HEAD)
-          echo "Changed files:"
           echo "$CHANGED"
-          if echo "$CHANGED" | grep -q "^ml/"; then
-            echo "owner=perception-agent-a" >> $GITHUB_OUTPUT
-            echo "fallback=engineering-agent-b" >> $GITHUB_OUTPUT
-            echo "checks=ml-tests" >> $GITHUB_OUTPUT
-          elif echo "$CHANGED" | grep -q "^.github/workflows/\|^scripts/\|requirements-ml.txt"; then
-            echo "owner=engineering-agent-b" >> $GITHUB_OUTPUT
-            echo "fallback=project-manager-agent-e" >> $GITHUB_OUTPUT
-            echo "checks=ci-yaml" >> $GITHUB_OUTPUT
-          elif echo "$CHANGED" | grep -q "^tests/"; then
-            echo "owner=project-manager-agent-e" >> $GITHUB_OUTPUT
-            echo "checks=pytest" >> $GITHUB_OUTPUT
+          if echo "$CHANGED" | grep -qE '^(ml/|tests/test_ml_|tests/test_cycle311_regressions.py)'; then
+            echo "owner=perception-agent-a" >> "$GITHUB_OUTPUT"
+            echo "fallback=engineering-agent-b" >> "$GITHUB_OUTPUT"
+            echo "checks=ml-tests" >> "$GITHUB_OUTPUT"
+          elif echo "$CHANGED" | grep -qE '^(\.github/workflows/|scripts/|requirements-ml.txt|pyproject.toml)'; then
+            echo "owner=engineering-agent-b" >> "$GITHUB_OUTPUT"
+            echo "fallback=project-manager-agent-e" >> "$GITHUB_OUTPUT"
+            echo "checks=ci-tests" >> "$GITHUB_OUTPUT"
           else
-            echo "owner=project-manager-agent-e" >> $GITHUB_OUTPUT
-            echo "checks=pytest" >> $GITHUB_OUTPUT
+            echo "owner=project-manager-agent-e" >> "$GITHUB_OUTPUT"
+            echo "fallback=engineering-agent-b" >> "$GITHUB_OUTPUT"
+            echo "checks=pytest" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run ensemble-efficiency gate
-        working-directory: ${{ github.workspace }}
-        shell: bash
-        run: |
-          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD 2>/dev/null || git diff --name-only HEAD~1...HEAD)
-          TOTAL=$(echo "$CHANGED" | wc -l)
-          echo "Changed files: $TOTAL"
-          if [ -n "$CHANGED" ]; then
-            echo "Processing changed files..."
-            if echo "$CHANGED" | grep -q "^ml/train.py"; then
-              echo "EFFICIENCY_CHECK: ml/train.py changed — verify train entry"
-            fi
-            if echo "$CHANGED" | grep -q "^ml/adapter.py\|^ml/model.py"; then
-              echo "EFFICIENCY_CHECK: ModelAdapter changed — verify BaselineModel compatibility"
-            fi
-            if echo "$CHANGED" | grep -q "^.github/workflows/"; then
-              echo "EFFICIENCY_CHECK: Workflow changed — verify CI config"
-            fi
-          fi
-
-      - name: Install test deps
-        if: steps.owner.outputs.checks != 'ci-yaml'
+      - name: Install unified dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[ml,dev]"
+          python -m pip install -r requirements-ml.txt
+          python -m pip check
 
-      - name: Run pytest (all)
+      - name: Generate deterministic geospatial fixtures
+        if: steps.owner.outputs.checks == 'ml-tests' || steps.owner.outputs.checks == 'ci-tests'
+        run: python -m ml.data.generate_test_rasters
+
+      - name: Run ML tests
+        if: steps.owner.outputs.checks == 'ml-tests' || steps.owner.outputs.checks == 'ci-tests'
+        run: |
+          python -m pytest \
+            tests/test_ml_environment.py \
+            tests/test_ml_b1.py \
+            tests/test_ml_b2.py \
+            tests/test_cycle311_regressions.py \
+            -v --tb=short -x
+
+      - name: Run repository tests
         if: steps.owner.outputs.checks == 'pytest'
         run: python -m pytest tests/ -v --tb=short -x --ignore=tests/test_pipeline.py
 
-      - name: Run ML tests
-        if: steps.owner.outputs.checks == 'ml-tests'
-        run: |
-          python -m pip install -e ".[ml,dev]"
-          python -m pytest tests/test_ml_environment.py -v --tb=short -x
-          python -m pytest tests/test_ml_b1.py -v --tb=short -x -k "not rasters and not geotiff"
-          python -m pytest tests/test_ml_b2.py -v --tb=short -x -k "ChangeMap or change_map or polygonize"
-
       - name: Comment PR summary
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
+        env:
+          OWNER: ${{ steps.owner.outputs.owner }}
+          CHECKS: ${{ steps.owner.outputs.checks }}
+          JOB_STATUS: ${{ job.status }}
         with:
           script: |
-            const {owner, checks} = ${{ toJSON(steps.owner.outputs) }};
-            const summary = `## PR Review — Ensemble Efficiency\n\n**Owner**: ${owner}\n**Checks**: ${checks}\n\nSee workflow logs for detailed efficiency gate results.`;
-            github.rest.issues.createComment({
+            const summary = `## PR Review — Ensemble Efficiency\n\n**Owner**: ${process.env.OWNER}\n**Checks**: ${process.env.CHECKS}\n**Job**: ${process.env.JOB_STATUS}`;
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: summary
+              body: summary,
             });

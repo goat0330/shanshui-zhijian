@@ -1,37 +1,63 @@
-# 山水智鉴 — Agent 状态面板
+# 山水智鉴 — 当前状态面板
 
-> 更新：2026-07-28
->
-> 正式 integration：`integration/g0-g1-contract-freeze` @ `2841bd0`（含 3c55d5f + 607fa5d + CANDIDATE_V0_3）
->
-> OpenChamber Ensemble 团队：`shanshui-zhijian-openchamber`（持久化 `persistent=true`）
-> 模型统一：`opencode-go/deepseek-v4-flash/max`
-> 用户无法直接与子 Agent 对话，由 E 中转。
+> 核验日期：2026-07-29
+> 事实优先级：运行时审计 → Git/CI → 本文件 → 历史报告
 
-## 当前 Cycle PR
+## Git 基线
 
-| PR | Agent | 工作包 | Branch | 状态 |
-|:--:|:-----:|--------|--------|:----:|
-| #22 | A | ML-SMOKE-00 训练冒烟管线（需改名+修复） | `pr/agent-a-ml-baseline` | CHANGES_REQUIRED — 保留现存实现，A 继续 |
-| #24 | B | ML 环境 + RunManifest + Smoke CI | `pr/agent-b-ml-environment` | ✅ 等待 A/D/Gate 后合入 |
-| #25 | C | RC-03 桥接 + ingest API + dashboard | `pr/agent-c-event-governance` | ✅ 等待 A/D/Gate 后合入 |
-| #23 | D | Dashboard 产品方案（B2 布局，需修正+实现骨架） | `pr/agent-d-product-plan` | 产品方向通过 — D 按 B2 继续 |
+| 项目 | 当前事实 |
+|---|---|
+| 正式 integration | `origin/integration/g0-g1-contract-freeze @ 2a5689d` |
+| 当前检出分支 | `cycle3.1.1/ci-fix @ d593609`，已应用 Cycle 3.1.1 overlay，尚未提交 |
+| 当前分支远程 | `origin/cycle3.1.1/ci-fix @ 0e08379`，本地包含未提交 overlay |
+| develop | `origin/develop @ f950850` |
+| main | `origin/main @ d00a94b` |
 
-## 各 Agent 当前工作
+Cycle 3.1 的 A/B/C/D 模块已进入 integration；当前分支只处理 CI、可编辑
+安装和仓库清理。它尚未自动成为新的正式 integration。
 
-| Agent | 工作包 | 当前任务 | 状态 |
-|:-----:|--------|---------|:----:|
-| A | ML-SMOKE-00 | 修复 PR #22：改名、删除 CSV、修复 data_adapter、标记 synthetic | working |
-| B | ML 环境 | 补充可选依赖 + ML Smoke CI + RunManifest + branch 检查脚本 | working |
-| C | RC-03 | Evidence/Review/Event/Replay 桥接 + DashboardSnapshot 聚合 | working |
-| D | Dashboard B2 | 修正文档 + 实现 React 骨架 + 单端点 snapshot | working |
-| E | 控制面 | Git 门禁 + 合同冲突处理 + 最终集成 | working |
+## 产品与工程状态
 
-## 合入顺序
+| 能力 | 状态 |
+|---|---|
+| RS-00 契约与比赛链 | 已集成 |
+| ML-B1 Water Mask | 工程基线完成 |
+| ML-B2 T1/T2 Water Change | 原型完成；真实数据可信评估待完成 |
+| Candidate → Evidence → Review → Event → Replay | 已集成 |
+| Workbench / Dashboard | Real-mode 骨架完成；用户产品验收待完成 |
+| Python 测试收集 | 587 tests collected |
+| Cycle 3.1.1 ML 回归 | 101 passed，3 warnings；需 Rasterio PROJ 环境变量 |
+| 全量 Python Gate | 未完成：`pytest -q` 超过 5 分钟，需按测试域拆分定位 |
+| Cycle 3.1.1 overlay | 已覆盖并保留仓库外备份；远端 CI 尚未重跑 |
+| OpenChamber | 已停机，正在进行单运行时与 Actor/Session Epoch 迁移 |
 
-B → A → C → D（A/D 就绪后快速 Gate 检查，四个全部合入后再跑完整测试+E2E）
+## 当前 P0
 
-## 不再作为当前状态源的旧分支
+1. 先清理并拆分全量测试超时，再验证并合回 `cycle3.1.1/ci-fix`。
+2. 清理重复生成脚本、缓存和失效文档链接。
+3. 用真实重庆 T1/T2 数据完成 ML-B2 指标。
+4. 完成 Workbench / Dashboard 用户验收。
+5. OpenChamber 只保留一套活动数据源和插件运行时。
 
-旧 `agent-a-*`、`agent-b-*`、`agent-c-*` 混合分支、`feature/agent-d-workbench-v0` 已删除。
-`integration-base` 作为纯净基线分支远程保留。
+## 本机验证前置条件
+
+PostgreSQL/PostGIS 注入的 `PROJ_LIB` 和 `GDAL_DATA` 会覆盖 Rasterio
+自带 PROJ 数据库，导致 EPSG 创建失败。运行栅格测试前使用当前 Python
+环境对应的 Rasterio 数据目录，或在 CI 中保持干净的 GIS 环境：
+
+```powershell
+$env:PROJ_LIB = "D:\py\Python3\Lib\site-packages\rasterio\proj_data"
+$env:GDAL_DATA = "D:\py\Python3\Lib\site-packages\rasterio\gdal_data"
+```
+
+这只是本机环境修正，不代表生产代码需要硬编码路径。
+
+## 控制面规则
+
+- Agent A/B/C/D/E 是稳定 Actor，Session 是可轮换 Epoch。
+- 禁止直接编辑 `ensemble.db` 的 `lead_session_id` 或
+  `reported_to_lead`。
+- Cycle 开始前必须先提交并冻结完整的
+  `.opencode/ensemble-efficiency.json`。
+- Agent 工作完成后立即运行增量 Gate，不事后集中补跑。
+- 运行时状态与本文件冲突时，以 `agent-control-plane` 审计为准并修订本文件。

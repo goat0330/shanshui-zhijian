@@ -27,7 +27,7 @@ competition/spikes/chongqing_rs_demo/products/
 .idea/
 
 # ML artifacts
-ml/output/
+ml/output*/
 mlruns/
 *.pt
 *.pth
@@ -41,6 +41,15 @@ ml/data/train_metrics.json
 ml/data/eval_metrics.json
 ml/data/inference_result.json
 ml/data/detection_result.json
+
+# Workbench / browser runtime
+.runtime/
+frontend/playwright-report/
+frontend/test-results/
+
+# Cycle 3.1.1 local safety backup
+.cycle311-backup/
+.cycle311-last-backup
 
 # GeoAgent project memory (internal notes, not for public)
 geocode_memory.md
@@ -69,4 +78,3 @@ _update_pkg/
 /8.1开始_山水智鉴比赛/
 /shanshui-zhijian/
 /山水智鉴_Git工作区/
-

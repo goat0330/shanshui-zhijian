@@ -5,9 +5,11 @@
   "artifacts_dir": ".agent/artifacts",
   "stable_files": [
     "AGENTS.md",
+    "README.md",
     "agents/sessions.yml",
     "docs/program/STATUS_BOARD.md",
     "docs/program/DECISION_LOG.md",
+    "docs/program/CONTRACT_GAP_REGISTER.md",
     ".opencode/ensemble-efficiency.json",
     ".opencode/context-governor.json",
     ".opencode/skills/agent-e-context-governor/SKILL.md"

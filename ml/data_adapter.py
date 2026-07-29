@@ -1,146 +1,302 @@
-"""
-Data Adapter — loads training data from real GeoTIFF rasters (ML-B1).
+"""Training-data adapter for the Cycle 3.1.1 water baseline.
 
-Supports two modes:
-- REAL: reads Sentinel-2 GeoTIFFs, computes indices, samples pixels
-- SYNTHETIC (fallback): reads CSV splits for smoke testing
+Two modes are intentionally separate:
 
-Feature columns from real data: ndwi, mndwi, ndvi, blue, green, red, nir, swir1, swir2
-Target column: water_flag (1=water, 0=land, from JRC occurrence > 50)
+* ``use_real=False`` loads deterministic synthetic CSVs for smoke tests.
+* ``use_real=True`` is fail-closed. Missing, invalid or unusable GeoTIFFs raise
+  an explicit exception and never silently become a synthetic experiment.
+
+Real Sentinel-2 features are sampled after the label raster is reprojected onto
+exactly the same CRS, transform, width and height. Train/validation/test splits
+are made by spatial blocks instead of randomly splitting neighbouring pixels.
 """
+
+from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Iterable
 
 import numpy as np
 import pandas as pd
 
 DATA_DIR = Path(__file__).parent / "data"
 
-# REAL data features (computed from Sentinel-2 bands)
 REAL_FEATURE_COLS = [
-    "ndwi", "mndwi", "ndvi",
-    "blue", "green", "red", "nir", "swir1", "swir2",
+    "ndwi",
+    "mndwi",
+    "ndvi",
+    "blue",
+    "green",
+    "red",
+    "nir",
+    "swir1",
+    "swir2",
 ]
 REAL_TARGET_COL = "water_flag"
 
-# Synthetic data features (backward compat)
 SYNTH_FEATURE_COLS = [
-    "ndwi", "mndwi", "turbidity_index", "chlorophyll_index",
-    "ph", "temperature", "rainfall_7d", "upstream_landuse",
+    "ndwi",
+    "mndwi",
+    "turbidity_index",
+    "chlorophyll_index",
+    "ph",
+    "temperature",
+    "rainfall_7d",
+    "upstream_landuse",
 ]
 SYNTH_TARGET_COL = "anomaly_flag"
 
 logger = logging.getLogger(__name__)
 
 
-def _ensure_synthetic_csvs(data_dir: Path):
-    """Generate synthetic CSVs if missing (smoke test fallback)."""
+class RealDataError(ValueError):
+    """Raised when a requested real-data experiment is not trustworthy."""
+
+
+def _ensure_synthetic_csvs(data_dir: Path) -> None:
     if not (data_dir / "train.csv").exists():
-        from ml.data.generate_synthetic_data import main as gen
-        gen()
+        from ml.data.generate_synthetic_data import main as generate
+
+        generate()
+
+
+def _safe_ratio(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    denominator = a + b
+    denominator = np.where(np.abs(denominator) < 1e-10, 1e-10, denominator)
+    return (a - b) / denominator
 
 
 def _compute_indices(array: np.ndarray, band_map: dict[str, int]) -> dict[str, np.ndarray]:
+    missing = {"green", "red", "nir", "swir1"} - set(band_map)
+    if missing:
+        raise RealDataError(f"Required Sentinel-2 bands missing: {sorted(missing)}")
     green = array[band_map["green"]]
-    nir = array[band_map["nir"]]
     red = array[band_map["red"]]
+    nir = array[band_map["nir"]]
     swir1 = array[band_map["swir1"]]
-
-    def safe_ratio(a, b):
-        denom = a + b
-        denom = np.where(np.abs(denom) < 1e-10, 1e-10, denom)
-        return (a - b) / denom
-
     return {
-        "ndwi": safe_ratio(green, nir),
-        "mndwi": safe_ratio(green, swir1),
-        "ndvi": safe_ratio(nir, red),
+        "ndwi": _safe_ratio(green, nir),
+        "mndwi": _safe_ratio(green, swir1),
+        "ndvi": _safe_ratio(nir, red),
     }
+
+
+def _normalise_description(value: str | None) -> str:
+    return (value or "").strip().lower().replace("-", "").replace("_", "")
+
+
+def _resolve_band_map(descriptions: Iterable[str | None], band_count: int) -> dict[str, int]:
+    aliases = {
+        "blue": {"blue", "b2", "band2"},
+        "green": {"green", "b3", "band3"},
+        "red": {"red", "b4", "band4"},
+        "nir": {"nir", "b8", "band8", "b8a", "band8a"},
+        "swir1": {"swir1", "b11", "band11"},
+        "swir2": {"swir2", "b12", "band12"},
+    }
+    resolved: dict[str, int] = {}
+    for index, raw in enumerate(descriptions):
+        name = _normalise_description(raw)
+        for canonical, names in aliases.items():
+            if name in names:
+                resolved[canonical] = index
+
+    # The project contract for unlabelled six-band rasters is B2/B3/B4/B8/B11/B12.
+    if not resolved and band_count == 6:
+        return {"blue": 0, "green": 1, "red": 2, "nir": 3, "swir1": 4, "swir2": 5}
+
+    missing = set(REAL_FEATURE_COLS[3:]) - set(resolved)
+    if missing:
+        raise RealDataError(
+            "Cannot resolve six required S2 bands from descriptions; "
+            f"missing={sorted(missing)}, descriptions={list(descriptions)}"
+        )
+    return resolved
+
+
+def _reproject_label_to_reference(jrc_path: Path, reference) -> np.ndarray:
+    """Nearest-neighbour reproject of labels to the exact reference grid."""
+    import rasterio
+    from rasterio.warp import Resampling, reproject
+
+    if reference.crs is None:
+        raise RealDataError("Sentinel-2 raster has no CRS")
+
+    destination = np.full((reference.height, reference.width), np.nan, dtype=np.float32)
+    with rasterio.open(jrc_path) as label_src:
+        if label_src.crs is None:
+            raise RealDataError("JRC label raster has no CRS")
+        source = label_src.read(1).astype(np.float32)
+        source_nodata = label_src.nodata
+        reproject(
+            source=source,
+            destination=destination,
+            src_transform=label_src.transform,
+            src_crs=label_src.crs,
+            src_nodata=source_nodata,
+            dst_transform=reference.transform,
+            dst_crs=reference.crs,
+            dst_nodata=np.nan,
+            resampling=Resampling.nearest,
+        )
+    return destination
+
+
+def _assign_spatial_splits(
+    frame: pd.DataFrame,
+    val_ratio: float,
+    test_ratio: float,
+    random_state: int,
+) -> pd.Series:
+    """Assign whole spatial blocks while retaining both classes per split.
+
+    The retry loop changes only block allocation, never pixel membership. It
+    prevents a small water body from accidentally leaving validation or test
+    with land-only labels while still guaranteeing zero spatial-group overlap.
+    """
+    if not 0 < val_ratio < 1 or not 0 < test_ratio < 1 or val_ratio + test_ratio >= 1:
+        raise ValueError("val_ratio and test_ratio must be positive and sum to less than 1")
+
+    groups = frame["_spatial_group"].drop_duplicates().to_numpy()
+    if len(groups) < 3:
+        raise RealDataError(f"At least three spatial groups are required, got {len(groups)}")
+    n_groups = len(groups)
+    n_test = max(1, int(round(n_groups * test_ratio)))
+    n_val = max(1, int(round(n_groups * val_ratio)))
+    if n_test + n_val >= n_groups:
+        n_test = 1
+        n_val = 1
+
+    def make_assignment(order: np.ndarray) -> pd.Series:
+        test_groups = set(order[:n_test].tolist())
+        val_groups = set(order[n_test : n_test + n_val].tolist())
+        return frame["_spatial_group"].map(
+            lambda group: "test" if group in test_groups else "val" if group in val_groups else "train"
+        )
+
+    # Deterministic retries find a valid group allocation without leaking pixels.
+    for attempt in range(512):
+        rng = np.random.RandomState(random_state + attempt)
+        order = groups.copy()
+        rng.shuffle(order)
+        assignment = make_assignment(order)
+        valid = True
+        for split_name in ("train", "val", "test"):
+            labels = frame.loc[assignment == split_name, REAL_TARGET_COL]
+            if labels.empty or labels.nunique() < 2:
+                valid = False
+                break
+        if valid:
+            return assignment
+
+    raise RealDataError(
+        "Could not allocate spatial groups with both classes in train/val/test. "
+        "Use more scenes/AOIs or reduce spatial_block_size."
+    )
 
 
 def load_real_data(
     s2_t1_path: Path,
     jrc_path: Path,
-    max_samples: int = 50000,
+    max_samples: int = 50_000,
     val_ratio: float = 0.15,
     test_ratio: float = 0.15,
     random_state: int = 42,
+    spatial_block_size: int = 16,
+    minimum_samples: int = 30,
 ) -> tuple[tuple[pd.DataFrame, pd.Series], ...]:
-    """Load training data from real Sentinel-2 GeoTIFF and JRC labels.
+    """Load one real S2 scene and a weak JRC stable-water label.
 
-    Returns:
-        ((train_X, train_y), (val_X, val_y), (test_X, test_y))
+    JRC occurrence is a weak, historical stable-water target and must not be
+    interpreted as date-specific change ground truth.
     """
     import rasterio
 
-    logger.info(f"Loading real data: S2={s2_t1_path}, JRC={jrc_path}")
+    s2_t1_path = Path(s2_t1_path)
+    jrc_path = Path(jrc_path)
+    missing = [str(path) for path in (s2_t1_path, jrc_path) if not path.is_file()]
+    if missing:
+        raise FileNotFoundError(f"Real mode requires existing GeoTIFFs; missing: {missing}")
+    if max_samples < minimum_samples:
+        raise ValueError(f"max_samples must be >= {minimum_samples}")
+    if spatial_block_size <= 0:
+        raise ValueError("spatial_block_size must be positive")
 
-    with rasterio.open(s2_t1_path) as src:
-        s2_array = src.read().astype(np.float32)
-        height, width = src.height, src.width
+    logger.info("Loading real data: S2=%s, JRC=%s", s2_t1_path, jrc_path)
+    with rasterio.open(s2_t1_path) as s2_src:
+        if s2_src.crs is None:
+            raise RealDataError("Sentinel-2 raster has no CRS")
+        s2_array = s2_src.read(masked=True).astype(np.float32)
+        band_map = _resolve_band_map(s2_src.descriptions, s2_src.count)
+        labels = _reproject_label_to_reference(jrc_path, s2_src)
+        dataset_valid = s2_src.dataset_mask() > 0
+        height, width = s2_src.height, s2_src.width
 
-    with rasterio.open(jrc_path) as src_jrc:
-        jrc_array = src_jrc.read(1).astype(np.float32)
-        if jrc_array.shape != (height, width):
-            from scipy.ndimage import zoom
-            scale_y = height / jrc_array.shape[0]
-            scale_x = width / jrc_array.shape[1]
-            jrc_array = zoom(jrc_array, (scale_y, scale_x), order=0)
+    raw = np.asarray(s2_array.filled(np.nan), dtype=np.float32)
+    indices = _compute_indices(raw, band_map)
+    valid = dataset_valid & np.isfinite(raw).all(axis=0) & np.isfinite(labels) & (labels >= 0)
+    coordinates = np.argwhere(valid)
+    if len(coordinates) < minimum_samples:
+        raise RealDataError(
+            f"Too few valid co-registered samples: {len(coordinates)} < {minimum_samples}"
+        )
 
-    band_map = {"green": 1, "red": 2, "nir": 3, "swir1": 4, "swir2": 5}
-    if s2_array.shape[0] == 6:
-        band_map = {"blue": 0, "green": 1, "red": 2, "nir": 3, "swir1": 4, "swir2": 5}
-
-    indices = _compute_indices(s2_array, band_map)
-
-    valid = (
-        np.isfinite(s2_array).all(axis=0)
-        & np.isfinite(jrc_array)
-        & (jrc_array >= 0)
-    )
-
-    rows = []
     rng = np.random.RandomState(random_state)
-    sample_coords = np.argwhere(valid)
-    if len(sample_coords) > max_samples:
-        idx = rng.choice(len(sample_coords), max_samples, replace=False)
-        sample_coords = sample_coords[idx]
+    if len(coordinates) > max_samples:
+        coordinates = coordinates[rng.choice(len(coordinates), max_samples, replace=False)]
 
-    for y, x in sample_coords:
-        row = {
-            "ndwi": indices["ndwi"][y, x],
-            "mndwi": indices["mndwi"][y, x],
-            "ndvi": indices["ndvi"][y, x],
+    rows: list[dict] = []
+    for row_index, col_index in coordinates:
+        feature = {
+            "ndwi": float(indices["ndwi"][row_index, col_index]),
+            "mndwi": float(indices["mndwi"][row_index, col_index]),
+            "ndvi": float(indices["ndvi"][row_index, col_index]),
         }
-        for band_name, band_idx in band_map.items():
-            row[band_name] = float(s2_array[band_idx, y, x])
-        row["water_flag"] = int(jrc_array[y, x] > 50)
-        rows.append(row)
+        for band_name, band_index in band_map.items():
+            feature[band_name] = float(raw[band_index, row_index, col_index])
+        feature[REAL_TARGET_COL] = int(labels[row_index, col_index] > 50)
+        feature["_row"] = int(row_index)
+        feature["_col"] = int(col_index)
+        feature["_spatial_group"] = f"{row_index // spatial_block_size}:{col_index // spatial_block_size}"
+        rows.append(feature)
 
-    df = pd.DataFrame(rows)
+    frame = pd.DataFrame(rows)
+    if len(frame) < minimum_samples:
+        raise RealDataError(f"Too few usable real samples after feature extraction: {len(frame)}")
+    if frame[REAL_TARGET_COL].nunique() < 2:
+        raise RealDataError("Real labels contain only one class; metrics/training would be invalid")
 
-    if len(df) < 10:
-        logger.warning(f"Too few valid samples ({len(df)}), using synthetic fallback")
-        return load_synthetic_data()
+    frame["_split"] = _assign_spatial_splits(frame, val_ratio, test_ratio, random_state)
+    split_outputs: list[tuple[pd.DataFrame, pd.Series]] = []
+    split_groups: dict[str, set[str]] = {}
+    for split_name in ("train", "val", "test"):
+        subset = frame.loc[frame["_split"] == split_name].copy()
+        if subset.empty:
+            raise RealDataError(f"Spatial split '{split_name}' is empty")
+        if subset[REAL_TARGET_COL].nunique() < 2:
+            raise RealDataError(
+                f"Spatial split '{split_name}' contains one class only; use more scenes/AOIs or smaller blocks"
+            )
+        split_groups[split_name] = set(subset["_spatial_group"])
+        split_outputs.append((subset[REAL_FEATURE_COLS], subset[REAL_TARGET_COL]))
 
-    from sklearn.model_selection import train_test_split
-    X = df[REAL_FEATURE_COLS]
-    y = df[REAL_TARGET_COL]
-
-    X_temp, test_X, y_temp, test_y = train_test_split(
-        X, y, test_size=test_ratio, random_state=random_state, stratify=y,
-    )
-    val_adj = val_ratio / (1 - test_ratio)
-    train_X, val_X, train_y, val_y = train_test_split(
-        X_temp, y_temp, test_size=val_adj, random_state=random_state, stratify=y_temp,
-    )
+    if split_groups["train"] & split_groups["val"] or split_groups["train"] & split_groups["test"] or split_groups["val"] & split_groups["test"]:
+        raise AssertionError("Spatial group leakage detected")
 
     logger.info(
-        f"Real data loaded: train={len(train_X)}, val={len(val_X)}, test={len(test_X)}, "
-        f"water_ratio={y.mean():.2%}"
+        "Real data loaded on %sx%s grid: train=%s val=%s test=%s water_ratio=%.2f%% groups=%s/%s/%s",
+        height,
+        width,
+        len(split_outputs[0][0]),
+        len(split_outputs[1][0]),
+        len(split_outputs[2][0]),
+        frame[REAL_TARGET_COL].mean() * 100,
+        len(split_groups["train"]),
+        len(split_groups["val"]),
+        len(split_groups["test"]),
     )
-    return (train_X, train_y), (val_X, val_y), (test_X, test_y)
+    return tuple(split_outputs)  # type: ignore[return-value]
 
 
 def load_synthetic_data(
@@ -149,17 +305,20 @@ def load_synthetic_data(
     test_size: float = 0.15,
     random_state: int = 42,
 ) -> tuple[tuple[pd.DataFrame, pd.Series], ...]:
-    """Load synthetic CSV splits (fallback for smoke tests)."""
+    del val_size, test_size, random_state  # CSVs are already deterministic splits.
+    data_dir = Path(data_dir)
     _ensure_synthetic_csvs(data_dir)
-
-    train_X = pd.read_csv(data_dir / "train.csv")
-    train_y = train_X.pop("anomaly_flag")
-    val_X = pd.read_csv(data_dir / "val.csv")
-    val_y = val_X.pop("anomaly_flag")
-    test_X = pd.read_csv(data_dir / "test.csv")
-    test_y = test_X.pop("anomaly_flag")
-
-    return (train_X, train_y), (val_X, val_y), (test_X, test_y)
+    outputs = []
+    for split_name in ("train", "val", "test"):
+        path = data_dir / f"{split_name}.csv"
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        frame = pd.read_csv(path)
+        if SYNTH_TARGET_COL not in frame:
+            raise RealDataError(f"{path} is missing target column {SYNTH_TARGET_COL}")
+        target = frame.pop(SYNTH_TARGET_COL)
+        outputs.append((frame, target))
+    return tuple(outputs)  # type: ignore[return-value]
 
 
 def load_data(
@@ -167,14 +326,23 @@ def load_data(
     use_real: bool = False,
     s2_path: Path | None = None,
     jrc_path: Path | None = None,
-    max_samples: int = 50000,
+    max_samples: int = 50_000,
+    **real_options,
 ) -> tuple[tuple[pd.DataFrame, pd.Series], ...]:
-    """Auto-detect and load data. Prefers real data if use_real=True and paths exist."""
-    if use_real:
-        s2 = s2_path or Path("data/chongqing_demo/raw/s2_t1.tif")
-        jrc = jrc_path or Path("data/chongqing_demo/raw/jrc_water_occurrence.tif")
-        if s2.exists() and jrc.exists():
-            return load_real_data(s2, jrc, max_samples=max_samples)
-        logger.warning("Real data paths not found, falling back to synthetic")
+    """Load explicitly selected data mode; real mode never falls back."""
+    if not use_real:
+        return load_synthetic_data(data_dir=Path(data_dir))
 
-    return load_synthetic_data(data_dir=data_dir)
+    resolved_s2 = Path(s2_path) if s2_path else Path("data/chongqing_demo/raw/s2_t1.tif")
+    resolved_jrc = Path(jrc_path) if jrc_path else Path("data/chongqing_demo/raw/jrc_water_occurrence.tif")
+    missing = [str(path) for path in (resolved_s2, resolved_jrc) if not path.is_file()]
+    if missing:
+        raise FileNotFoundError(
+            "--real was requested, but required files are missing: " + ", ".join(missing)
+        )
+    return load_real_data(
+        resolved_s2,
+        resolved_jrc,
+        max_samples=max_samples,
+        **real_options,
+    )

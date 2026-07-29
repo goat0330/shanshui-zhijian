@@ -1,9 +1,9 @@
 # Agent E Brief
 
 ## Git
-- branch: integration/g0-g1-contract-freeze
-- head: b0433dea4bae
-- last: b0433de Cycle 3 D: React dashboard real-mode acceptance
+- branch: cycle3.1.1/ci-fix
+- head: d593609c2536
+- last: d593609 fix: add __init__.py + setuptools find config for editable install
 - dirty: yes
 
 ## Current state
@@ -40,33 +40,22 @@ updated_at: 2026-07-28
 ## Current cycle
 # Current Cycle
 
-cycle_id: 3.1
-goal: 集成收口与全绿 CI
-gate: DONE — 273+ tests pass, CI pushed
+cycle_id: 3.1.1
+goal: CI Truth Closure & ML Readiness
+gate: 5/5 Workflow green, Real Playwright E2E pass
 
-## A — ML-B2 semantic fix
-- semantic_label, area_m2 added to DetectionCandidate
-- Real timestamps, MultiPolygon, EPSG:4545 area
-- Tests: 65 passed
+## Workflow Status (2026-07-28)
 
-## B — CI/RunManifest/Playwright
-- All 5 workflows green
-- RunManifest API wired to real_service
-- Playwright import fixed
-- Tests: 266 passed
+| Workflow | Status | Root Cause | Owner |
+|----------|:------:|------------|:-----:|
+| CI (G0.3-B) | ✅ success | — | — |
+| CI Workbench | ❌ failure | ECONNREFUSED — backend not running for PW | D |
+| ML Smoke | ❌ failure | ModuleNotFoundError: fastapi | B |
+| Geospatial Preflight | ❌ failure | ModuleNotFoundError: skimage | B |
+| PR Review | ❌ failure | ModuleNotFoundError: fastapi | B |
 
-## C — Event chain refactor
-- SQLite unified, pre-Review Event removed
-- Real-mode mock fallback removed
-- Real HTTP E2E (6 tests)
-- Tests: 90 passed
+## All fix branches from `2a5689d`
 
-## D — Real-mode acceptance
-- Vitest 43/43, TS 0 errors
-- ACCEPTANCE_PACKAGE_WB02.md updated
-- Merge conflict with C resolved
-
-... truncated 2 lines
 
 ## Durable decisions
 # Durable Decisions

@@ -36,19 +36,20 @@ CompetitionInput
 
 ## 2. 当前状态
 
-稳定 `develop` 已形成重庆两江遥感 V0；当前 clean feature branches 又完成了
-Candidate v0.3、可靠性/比赛链、事件完整性和 React 工作台，但尚未正式合入
-integration/develop：
+`origin/integration/g0-g1-contract-freeze` 已完成 Cycle 3.1 的模块集成；
+当前检出分支 `cycle3.1.1/ci-fix` 已应用 Cycle 3.1.1 CI/ML readiness
+overlay（本地尚未提交），仍未合入 `develop`：
 
 ```text
 GEE 数据
 → Sentinel-1 双时相 SAR 水体变化检测
 → 变化候选图斑
-→ DetectionResult 兼容输出
-→ 人工确认/驳回
-→ 事件与演示工单
+→ Observation / DetectionCandidate
+→ Evidence / 人工 Review
+→ Event Version
 → Replay
 → SQLite 持久化
+→ React Workbench / Dashboard
 ```
 
 当前已经验证的是“数据能够进入系统并形成可核验候选”，尚未验证的是正式赛题精度、高点视频闭环和生产级可靠性。
@@ -61,25 +62,26 @@ GEE 数据
 | FastAPI + SQLite + 演示页面 | 已完成 V0 |
 | 人工验证集与量化精度 | 待完成 |
 | 真实 COG → TiTiler → MapLibre | 待修复 |
-| Competition Adapter / SubmissionBundle | clean branch 已完成，待正式集成 |
-| Observation → Candidate → Event 正式领域链 | clean branch 已完成，待正式集成 |
-| React + MapLibre 研判工作台 | Mock E2E 24/24，待正式集成 |
-| 五 Session 独立 worktree | 已完成 |
+| Competition Adapter / SubmissionBundle | 已进入 integration |
+| Observation → Candidate → Review → Event | 已进入 integration |
+| React + MapLibre 研判工作台 | Real-mode 骨架已进入 integration，待用户产品验收 |
+| ML-B2 T1/T2 水体变化原型 | 已进入 integration，真实数据可信评估待完成 |
+| Cycle 3.1.1 ML 回归 | 101 passed；全量 587 tests 尚需按域拆分验证 |
+| OpenChamber 多 Agent 控制面 | 正在迁移为 Actor / Session Epoch；禁止手改数据库 |
 | 高点视频最小纵切 | 待实现 |
 | PostgreSQL/PostGIS、权限、Outbox | 产品化阶段 |
 
 当前实测状态见 [`docs/program/STATUS_BOARD.md`](docs/program/STATUS_BOARD.md)，
-多 Session 启动方式见
-[`docs/program/MULTI_SESSION_OPERATIONS.md`](docs/program/MULTI_SESSION_OPERATIONS.md)。
+OpenChamber 迁移边界见
+[`docs/program/GEOCODE_TO_OPENCHAMBER_MIGRATION_SOP.md`](docs/program/GEOCODE_TO_OPENCHAMBER_MIGRATION_SOP.md)。
 
 ## 3. 当前唯一 P0
 
-1. 建立 20—50 个样区的人工验证集，并形成可复现指标；
-2. 修复真实 COG、TiTiler TileJSON 与 MapLibre 图层链；
-3. 冻结 `Asset / Observation / DetectionCandidate / PredictionRecord / Evidence` 最小契约；
-4. 完成 Mock Competition Adapter、PredictionRecord 和 SubmissionBundle；
-5. 将公开 `main` 与实际 `develop` 状态同步；
-6. 保留现有工单页作为演示资产，不继续扩展完整工单中心。
+1. 拆分并定位全量测试超时，再将 `cycle3.1.1/ci-fix` 验证并合回 integration；
+2. 用真实重庆 T1/T2 数据完成 ML-B2 可复现指标；
+3. 完成 Workbench / Dashboard 用户产品验收；
+4. 将 OpenChamber 收敛到单一运行时并启用 Actor / Session Epoch；
+5. 修复真实 COG、TiTiler TileJSON 与 MapLibre 图层链。
 
 ## 4. 仓库结构
 
@@ -89,7 +91,9 @@ shanshui-zhijian/
 │   └── spikes/chongqing_rs_demo/ # 重庆遥感 V0
 ├── core/
 │   └── schemas/                  # 当前 Schema 与后续领域契约
-├── services/                     # FastAPI、TiTiler、SQLite 与演示页面
+├── apps/workbench_api/           # 正式 React API 入口
+├── services/                     # Repository、TiTiler 与 Legacy/兼容服务
+├── ml/                           # 训练、评估、推理与水体变化
 ├── data/                         # 目录与样例说明；原始数据和数据库不提交
 ├── docs/
 │   ├── 00_项目总纲.md
@@ -174,14 +178,10 @@ shanshui-zhijian/
 |------|------|
 | [`AGENTS.md`](AGENTS.md) | 多 Agent 治理框架总纲 |
 | [`agents/`](agents/) | 五 Agent 角色定义 + 交接模板 |
-| [`docs/program/MASTER_ROADMAP.md`](docs/program/MASTER_ROADMAP.md) | 主路线图 |
-| [`docs/program/AGENT_RESPONSIBILITY_MATRIX.md`](docs/program/AGENT_RESPONSIBILITY_MATRIX.md) | 责任矩阵 |
 | [`docs/program/STATUS_BOARD.md`](docs/program/STATUS_BOARD.md) | Agent 状态面板 |
-| [`docs/program/INTEGRATION_PLAN.md`](docs/program/INTEGRATION_PLAN.md) | 集成计划 |
-| [`docs/program/RELEASE_GATE.md`](docs/program/RELEASE_GATE.md) | 发布门禁 |
 | [`docs/program/DECISION_LOG.md`](docs/program/DECISION_LOG.md) | 决策日志 |
-| [`docs/program/BRANCH_STRATEGY.md`](docs/program/BRANCH_STRATEGY.md) | 分支策略 |
 | [`docs/program/CONTRACT_GAP_REGISTER.md`](docs/program/CONTRACT_GAP_REGISTER.md) | 合同缺口登记 |
+| [`docs/07_实施管理/02_Git分支与交付规范.md`](docs/07_实施管理/02_Git分支与交付规范.md) | 分支与交付规范 |
 | [`.github/agent-owners.yml`](.github/agent-owners.yml) | 代码所有权映射 |
 | [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md) | PR 模板 |
 | [`.github/ISSUE_TEMPLATE/agent-task.yml`](.github/ISSUE_TEMPLATE/agent-task.yml) | Agent 任务 Issue 模板 |

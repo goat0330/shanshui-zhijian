@@ -6,52 +6,100 @@ on:
     paths:
       - 'frontend/**'
       - 'apps/workbench_api/**'
+      - 'core/event_governance/**'
+      - 'pyproject.toml'
       - '.github/workflows/frontend-ci.yml'
   pull_request:
     branches: [develop, main, 'integration/**']
     paths:
       - 'frontend/**'
       - 'apps/workbench_api/**'
+      - 'core/event_governance/**'
+      - 'pyproject.toml'
       - '.github/workflows/frontend-ci.yml'
+
+env:
+  PYTHON_VERSION: "3.11"
+  WORKBENCH_DB_PATH: ${{ github.workspace }}/.runtime/workbench-e2e.db
+  E2E_RESET_DB: "1"
+  PYTHONUNBUFFERED: "1"
 
 jobs:
   frontend:
-    name: Build, unit and browser tests
+    name: Build, unit and real-browser tests
     runs-on: ubuntu-22.04
-    defaults:
-      run:
-        working-directory: frontend
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Detect workbench source
-        id: workbench
-        shell: bash
-        working-directory: .
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install backend dependencies
         run: |
-          if [[ -f frontend/package-lock.json ]]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "Workbench source is not integrated yet; frontend gate is deferred."
-          fi
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+          python -m pip check
+
       - uses: actions/setup-node@v4
-        if: steps.workbench.outputs.present == 'true'
         with:
           node-version: '24'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
-        if: steps.workbench.outputs.present == 'true'
+
+      - name: Install frontend dependencies
+        working-directory: frontend
         run: npm ci
+
       - name: TypeScript production build
-        if: steps.workbench.outputs.present == 'true'
+        working-directory: frontend
         run: npm run build
+
       - name: Unit tests
-        if: steps.workbench.outputs.present == 'true'
+        working-directory: frontend
         run: npm test
+
+      - name: Seed isolated real database
+        run: python -m apps.workbench_api.e2e_seed
+
+      - name: Start and verify Workbench API
+        shell: bash
+        run: |
+          mkdir -p .runtime
+          nohup uvicorn apps.workbench_api.main:app --host 127.0.0.1 --port 8000 > .runtime/workbench-api.log 2>&1 &
+          echo $! > .runtime/workbench-api.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/api/v2/workbench/summary > /dev/null; then
+              echo "Workbench API ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat .runtime/workbench-api.log
+          exit 1
+
       - name: Install Playwright Chromium
-        if: steps.workbench.outputs.present == 'true'
+        working-directory: frontend
         run: npx playwright install --with-deps chromium
-      - name: Browser E2E
-        if: steps.workbench.outputs.present == 'true'
+
+      - name: Browser E2E against real API
+        working-directory: frontend
+        env:
+          VITE_API_MODE: real
+          VITE_API_BASE_URL: /api/v2
+          VITE_MAP_STYLE: /map-style.json
         run: npm run test:e2e
+
+      - name: Archive browser and API diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workbench-e2e-diagnostics
+          path: |
+            .runtime/workbench-api.log
+            frontend/playwright-report/
+            frontend/test-results/
+          if-no-files-found: warn

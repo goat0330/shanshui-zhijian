@@ -1,41 +1,124 @@
 {
+  "version": 1,
   "base_branch": "integration/g0-g1-contract-freeze",
   "routes": [
     {
-      "pattern": "core/schemas/contracts/candidate.py|core/schemas/contracts/perception.py|ml/|tools/|tests/test_ml_b2*|tests/test_candidate*",
+      "name": "perception",
       "owner": "perception-agent-a",
-      "checks": ["python", "pytest"],
-      "fallback": "tests/"
+      "paths": [
+        "ml/**",
+        "tools/**",
+        "core/schemas/contracts/candidate.py",
+        "core/schemas/contracts/perception.py",
+        "tests/test_ml_b2.py",
+        "tests/test_candidate*.py"
+      ],
+      "checks": []
     },
     {
-      "pattern": "core/schemas/contracts/run_manifest*|core/schemas/contracts/sar_metadata*|core/schemas/contracts/submission_envelope*|competition/|.github/workflows/|apps/workbench_api/manifest_service*|tests/test_run_manifest*|tests/test_competition*|tests/test_submission*|frontend/tests/e2e/*",
+      "name": "engineering",
       "owner": "engineering-agent-b",
-      "checks": ["ci", "python", "pytest"],
-      "fallback": "tests/"
+      "paths": [
+        ".github/**",
+        "competition/**",
+        "core/schemas/contracts/run_manifest*",
+        "core/schemas/contracts/sar_metadata*",
+        "apps/workbench_api/manifest_service.py",
+        "tests/test_run_manifest*.py",
+        "tests/test_competition*.py"
+      ],
+      "checks": []
     },
     {
-      "pattern": "core/schemas/contracts/event*|core/schemas/contracts/evidence*|core/schemas/contracts/review*|core/schemas/contracts/replay*|core/event_governance/|services/|tests/test_event*|tests/test_evidence*|tests/test_review*|tests/test_replay*",
+      "name": "event-governance",
       "owner": "event-agent-c",
-      "checks": ["python", "pytest", "e2e"],
-      "fallback": "tests/"
+      "paths": [
+        "core/event_governance/**",
+        "core/schemas/contracts/event*",
+        "core/schemas/contracts/evidence*",
+        "core/schemas/contracts/review*",
+        "core/schemas/contracts/replay*",
+        "services/**",
+        "tests/test_event*.py",
+        "tests/test_evidence*.py",
+        "tests/test_review*.py",
+        "tests/test_replay*.py"
+      ],
+      "checks": []
     },
     {
-      "pattern": "frontend/|apps/workbench_api/|docs/program/ACCEPTANCE*",
+      "name": "product",
       "owner": "product-agent-d",
-      "checks": ["typescript", "vitest", "playwright"],
-      "fallback": "tests/",
-      "escalate": ["theme_layout", "product_gate"]
+      "paths": [
+        "frontend/**",
+        "apps/workbench_api/**",
+        "docs/program/ACCEPTANCE*"
+      ],
+      "checks": []
+    },
+    {
+      "name": "control-plane",
+      "owner": "project-manager-agent-e",
+      "paths": [
+        ".opencode/**",
+        ".agent/**",
+        "agent-control-plane/**",
+        "agent-control-plane_LUBAN_AUDIT*.md",
+        ".codegraph/**",
+        "AGENTS.md",
+        "README.md",
+        "agents/**",
+        "docs/program/STATUS_BOARD.md",
+        "docs/program/DECISION_LOG.md",
+        "docs/program/CONTRACT_GAP_REGISTER.md",
+        ".gitignore",
+        "pyproject.toml",
+        "scripts/**",
+        "tests/**",
+        "apps/__init__.py",
+        "competition/__init__.py",
+        "services/__init__.py"
+      ],
+      "checks": []
+    },
+    {
+      "name": "default",
+      "owner": "project-manager-agent-e",
+      "paths": [
+        "**"
+      ],
+      "checks": []
     }
   ],
-  "minimum_checks": {
-    "perception-agent-a": ["pytest"],
-    "engineering-agent-b": ["ci", "pytest"],
-    "event-agent-c": ["pytest", "e2e"],
-    "product-agent-d": ["vitest", "playwright"]
-  },
-  "escalation": {
-    "size_limit_kb": 200,
-    "cross_domain_paths": ["core/schemas/contracts/"],
-    "product_gate_paths": ["frontend/src/app/", "docs/product/"]
+  "minimum_checks": {},
+  "escalate": [
+    {
+      "name": "agent-runtime",
+      "paths": [
+        ".opencode/**",
+        ".agent/**",
+        "**/opencode.json",
+        "**/opencode.jsonc",
+        "**/AGENTS.md"
+      ],
+      "reason": "Agent runtime, permissions, prompts, skills, or startup configuration changed"
+    },
+    {
+      "name": "public-contract",
+      "paths": [
+        "core/schemas/contracts/**",
+        "contracts/**",
+        "**/openapi.*"
+      ],
+      "reason": "Public contract or shared schema changed"
+    }
+  ],
+  "limits": {
+    "max_files_without_escalation": 25,
+    "max_changed_lines_without_escalation": 800,
+    "max_routes_without_escalation": 1,
+    "success_excerpt_lines": 5,
+    "failure_excerpt_lines": 36,
+    "command_timeout_sec": 300
   }
 }

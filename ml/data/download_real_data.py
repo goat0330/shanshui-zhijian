@@ -1,188 +1,283 @@
-"""
-Download real Sentinel-2 and ancillary data for ML-B1 training.
+"""Download auditable Sentinel-1/Sentinel-2 evidence and ancillary rasters.
 
-Downloads for the Chongqing demo AOI:
-- Sentinel-2 L2A (T1: 2026-05, T2: 2026-06)
-- JRC Global Surface Water occurrence
-- ESA WorldCover
-- Copernicus DEM
-
-Usage:
-    python -m ml.data.download_real_data
+No proxy, Earth Engine project or output CRS is hard-coded. Direct downloads
+must result in a local file; asynchronous Drive exports are reported as pending
+and are never falsely marked as downloaded.
 """
 
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(_ROOT))
-
-os.environ["HTTPS_PROXY"] = "http://127.0.0.1:7897"
-os.environ["https_proxy"] = "http://127.0.0.1:7897"
-
-import ee
-from ml.data.dataset_registry import DatasetRegistry
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 
-AOI_PATH = _ROOT / "data" / "chongqing_demo" / "aoi.geojson"
-OUTPUT_DIR = _ROOT / "data" / "chongqing_demo" / "raw"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-T1_RANGE = ("2026-05-01", "2026-05-31")
-T2_RANGE = ("2026-06-01", "2026-06-30")
-
-S2_BANDS = ["B2", "B3", "B4", "B8", "B11", "B12"]
-S2_ALIASES = ["blue", "green", "red", "nir", "swir1", "swir2"]
-SCALE = 10
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
-def init_gee():
+def _timestamp() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def initialise_ee(project: str | None):
+    import ee
+
     try:
-        ee.Initialize(project="ee-default")
-    except Exception:
-        ee.Authenticate()
-        ee.Initialize(project="ee-default")
+        if project:
+            ee.Initialize(project=project)
+        else:
+            ee.Initialize()
+    except Exception as exc:
+        raise RuntimeError(
+            "Earth Engine is not initialised. Run `earthengine authenticate` and "
+            "pass --project when your account requires a Cloud project."
+        ) from exc
+    return ee
 
 
-def load_aoi(path: Path):
-    import json
-    with open(path) as f:
-        fc = json.load(f)
-    coords = fc["features"][0]["geometry"]["coordinates"]
-    return ee.Geometry.Polygon(coords)
+def load_aoi(ee, path: Path):
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    geometry = payload["features"][0]["geometry"] if payload.get("type") == "FeatureCollection" else payload.get("geometry", payload)
+    return ee.Geometry(geometry)
 
 
-def mask_clouds(image):
-    cs = (
-        ee.ImageCollection("GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED")
-        .filterBounds(image.geometry())
-        .filterDate(image.date())
-        .first()
-    )
-    return image.updateMask(cs.select("cs").gte(0.60))
-
-
-def build_s2_composite(start_date, end_date, aoi, label):
-    print(f"  Building {label} composite ({start_date} ~ {end_date})")
-    collection = (
+def build_s2_composite(ee, start: str, end: str, aoi, cloud_threshold: float):
+    source = (
         ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
         .filterBounds(aoi)
-        .filterDate(start_date, end_date)
-        .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 60))
-        .map(mask_clouds)
+        .filterDate(start, end)
+        .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 80))
     )
-    composite = collection.median().select(S2_BANDS, S2_ALIASES).clip(aoi)
-    return composite
+    cloud_score = ee.ImageCollection("GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED")
+    linked = source.linkCollection(cloud_score, ["cs_cdf"])
+
+    def mask(image):
+        return image.updateMask(image.select("cs_cdf").gte(cloud_threshold))
+
+    bands = ["B2", "B3", "B4", "B8", "B11", "B12"]
+    aliases = ["blue", "green", "red", "nir", "swir1", "swir2"]
+    return linked.map(mask).median().select(bands, aliases).clip(aoi)
 
 
-def download_image(img, out_path, region, scale, crs="EPSG:4326"):
+def build_s1_composite(ee, start: str, end: str, aoi):
+    collection = (
+        ee.ImageCollection("COPERNICUS/S1_GRD")
+        .filterBounds(aoi)
+        .filterDate(start, end)
+        .filter(ee.Filter.eq("instrumentMode", "IW"))
+        .filter(ee.Filter.listContains("transmitterReceiverPolarisation", "VV"))
+        .filter(ee.Filter.listContains("transmitterReceiverPolarisation", "VH"))
+        .select(["VV", "VH"])
+    )
+    return collection.median().clip(aoi)
+
+
+def download_local(image, output_path: Path, region, scale: float, crs: str) -> dict:
+    import requests
+
+    params = {
+        "region": region,
+        "scale": scale,
+        "crs": crs,
+        "format": "GEO_TIFF",
+        "filePerBand": False,
+    }
+    url = image.getDownloadURL(params)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output_path.with_suffix(output_path.suffix + ".part")
+    response = requests.get(url, timeout=600, stream=True)
+    response.raise_for_status()
+    with temporary.open("wb") as handle:
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
+            if chunk:
+                handle.write(chunk)
+    if temporary.stat().st_size == 0:
+        temporary.unlink(missing_ok=True)
+        raise RuntimeError(f"Earth Engine returned an empty file for {output_path.name}")
+    temporary.replace(output_path)
+    return {
+        "path": str(output_path),
+        "size_bytes": output_path.stat().st_size,
+        "sha256": _sha256(output_path),
+        "status": "downloaded",
+    }
+
+
+def start_drive_export(ee, image, name: str, region, scale: float, crs: str, folder: str) -> dict:
     task = ee.batch.Export.image.toDrive(
-        image=img,
-        description=out_path.stem,
-        folder="geocode_ml_b1",
-        fileNamePrefix=out_path.stem,
+        image=image,
+        description=name,
+        folder=folder,
+        fileNamePrefix=name,
         scale=scale,
         crs=crs,
         region=region,
-        maxPixels=1e9,
+        maxPixels=1e10,
     )
     task.start()
-    print(f"  Export task started: {out_path.stem}")
-    import time
-    while task.active():
-        time.sleep(10)
-        print(f"    Status: {task.status()['state']}")
     status = task.status()
-    if status["state"] == "COMPLETED":
-        print(f"  Download complete: {out_path.stem}")
-    else:
-        print(f"  Export failed: {status}")
+    return {
+        "status": "drive_export_pending",
+        "task_id": status.get("id") or getattr(task, "id", None),
+        "state": status.get("state"),
+        "note": "The file is not local yet; download it from Drive before training.",
+    }
 
 
-def download_locally(img, out_path, region, scale, crs="EPSG:4326"):
-    """Download via getDownloadURL for small regions."""
-    url = img.getDownloadURL(
-        region=region,
-        scale=scale,
-        crs=crs,
-        format="GEO_TIFF",
-    )
-    import requests
-    resp = requests.get(url, timeout=300, stream=True)
-    resp.raise_for_status()
-    with open(out_path, "wb") as f:
-        for chunk in resp.iter_content(chunk_size=65536):
-            f.write(chunk)
-    print(f"  Downloaded: {out_path} ({out_path.stat().st_size / 1e6:.1f} MB)")
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Download Cycle 4 real water data")
+    parser.add_argument("--aoi", type=Path, default=ROOT / "data/chongqing_demo/aoi.geojson")
+    parser.add_argument("--output-dir", type=Path, default=ROOT / "data/chongqing_demo/raw")
+    parser.add_argument("--project", default=os.environ.get("EE_PROJECT"))
+    parser.add_argument("--proxy", default=None, help="Optional HTTPS proxy; never applied unless explicitly supplied")
+    parser.add_argument("--output-crs", default="EPSG:4545")
+    parser.add_argument("--t1-start", default="2026-05-01")
+    parser.add_argument("--t1-end", default="2026-06-01")
+    parser.add_argument("--t2-start", default="2026-06-01")
+    parser.add_argument("--t2-end", default="2026-07-01")
+    parser.add_argument("--cloud-threshold", type=float, default=0.60)
+    parser.add_argument("--include-s1", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--drive-export-on-large", action="store_true")
+    parser.add_argument("--drive-folder", default="shanshui_cycle4")
+    parser.add_argument("--force", action="store_true")
+    args = parser.parse_args()
 
+    if not args.aoi.is_file():
+        parser.error(f"AOI not found: {args.aoi}")
+    if not 0 <= args.cloud_threshold <= 1:
+        parser.error("--cloud-threshold must be in [0, 1]")
+    if args.proxy:
+        os.environ["HTTPS_PROXY"] = args.proxy
+        os.environ["https_proxy"] = args.proxy
 
-def main():
-    registry = DatasetRegistry()
-    print("=" * 50)
-    print("ML-B1: Download Real Data")
-    print("=" * 50)
+    ee = initialise_ee(args.project)
+    aoi = load_aoi(ee, args.aoi)
+    args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    print("\nVerifying dataset licenses:")
-    for ds in registry.list_available():
-        result = registry.verify_license(ds.dataset_id)
-        status = "OK" if result["ok"] else "NEEDS REVIEW"
-        print(f"  [{status}] {ds.dataset_id}: {ds.license}")
+    assets: list[tuple[str, object, int, str, dict]] = []
+    for label, start, end in (
+        ("t1", args.t1_start, args.t1_end),
+        ("t2", args.t2_start, args.t2_end),
+    ):
+        assets.append((
+            f"s2_{label}",
+            build_s2_composite(ee, start, end, aoi, args.cloud_threshold),
+            10,
+            "COPERNICUS/S2_SR_HARMONIZED",
+            {"start": start, "end_exclusive": end, "cloud_score_band": "cs_cdf"},
+        ))
+        if args.include_s1:
+            assets.append((
+                f"s1_{label}",
+                build_s1_composite(ee, start, end, aoi),
+                10,
+                "COPERNICUS/S1_GRD",
+                {"start": start, "end_exclusive": end, "bands": ["VV", "VH"]},
+            ))
 
-    print("\nInitializing GEE...")
-    init_gee()
-    aoi = load_aoi(AOI_PATH)
-    print(f"AOI loaded: {AOI_PATH}")
-
-    print("\n[1/3] Downloading Sentinel-2 composites...")
-    t1 = build_s2_composite(T1_RANGE[0], T1_RANGE[1], aoi, "s2_t1")
-    t2 = build_s2_composite(T2_RANGE[0], T2_RANGE[1], aoi, "s2_t2")
-
-    for label, img in [("s2_t1", t1), ("s2_t2", t2)]:
-        out = OUTPUT_DIR / f"{label}.tif"
-        if out.exists():
-            print(f"  Already exists: {out}, skipping")
-            continue
-        try:
-            download_locally(img, out, region=aoi, scale=SCALE, crs="EPSG:4326")
-        except Exception as e:
-            print(f"  Direct download failed ({e}), using async export")
-            download_image(img, out, region=aoi, scale=SCALE, crs="EPSG:4326")
-
-    print("\n[2/3] Downloading static ancillary data...")
     ancillary = [
-        ("jrc_water_occurrence", "JRC/GSW1_4/GlobalSurfaceWater", ["occurrence"], 30),
-        ("worldcover_2021", "ESA/WorldCover/v200", ["Map"], 10),
-        ("dem_glo30", "COPERNICUS/DEM/GLO30_2024_1", ["elevation"], 30),
+        (
+            "jrc_water_occurrence",
+            ee.Image("JRC/GSW1_4/GlobalSurfaceWater").select("occurrence").clip(aoi),
+            30,
+            "JRC/GSW1_4/GlobalSurfaceWater",
+            {"role": "stable-water prior / weak label, not date-specific truth"},
+        ),
+        (
+            "worldcover_2021",
+            ee.ImageCollection("ESA/WorldCover/v200").first().select("Map").clip(aoi),
+            10,
+            "ESA/WorldCover/v200",
+            {"role": "context prior"},
+        ),
+        (
+            "dem_glo30",
+            ee.ImageCollection("COPERNICUS/DEM/GLO30").mosaic().select("DEM").clip(aoi),
+            30,
+            "COPERNICUS/DEM/GLO30",
+            {"role": "terrain prior"},
+        ),
     ]
-    for name, gee_id, bands, scale_anc in ancillary:
-        out = OUTPUT_DIR / f"{name}.tif"
-        if out.exists():
-            print(f"  Already exists: {out}, skipping")
-            continue
-        print(f"  Downloading {name}...")
-        img = ee.Image(gee_id).select(bands).clip(aoi)
-        try:
-            download_locally(img, out, region=aoi, scale=scale_anc, crs="EPSG:4326")
-        except Exception as e:
-            print(f"  Direct download failed ({e}), using async export")
-            download_image(img, out, region=aoi, scale=scale_anc, crs="EPSG:4326")
+    assets.extend(ancillary)
 
-    print("\n[3/3] Verifying downloads...")
-    expected = [
-        "s2_t1.tif", "s2_t2.tif",
-        "jrc_water_occurrence.tif", "worldcover_2021.tif", "dem_glo30.tif",
-    ]
-    for name in expected:
-        path = OUTPUT_DIR / name
-        if path.exists() and path.stat().st_size > 0:
-            print(f"  OK: {name} ({path.stat().st_size / 1e6:.1f} MB)")
+    manifest = {
+        "schema_version": "dataset-manifest.v0.1",
+        "created_at": _timestamp(),
+        "aoi_path": str(args.aoi),
+        "earth_engine_project": args.project or "default-account-project",
+        "output_crs": args.output_crs,
+        "cloud_score_plus": {
+            "collection": "GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED",
+            "join_method": "ImageCollection.linkCollection(system:index)",
+            "band": "cs_cdf",
+            "threshold": args.cloud_threshold,
+        },
+        "assets": [],
+    }
+
+    for name, image, scale, source, provenance in assets:
+        output_path = args.output_dir / f"{name}.tif"
+        record = {
+            "asset_id": name,
+            "source_collection": source,
+            "scale_m": scale,
+            "crs": args.output_crs,
+            "provenance": provenance,
+        }
+        if output_path.exists() and not args.force:
+            record.update({
+                "path": str(output_path),
+                "size_bytes": output_path.stat().st_size,
+                "sha256": _sha256(output_path),
+                "status": "existing_verified",
+            })
         else:
-            print(f"  MISSING: {name}")
+            try:
+                record.update(download_local(image, output_path, aoi, scale, args.output_crs))
+            except Exception as exc:
+                if not args.drive_export_on_large:
+                    record.update({"status": "failed", "error": str(exc)})
+                    manifest["assets"].append(record)
+                    manifest_path = args.output_dir / "dataset_manifest.json"
+                    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+                    raise RuntimeError(
+                        f"Direct local download failed for {name}. No local file was claimed. "
+                        "Use --drive-export-on-large only when you will manually retrieve the Drive output."
+                    ) from exc
+                record.update(start_drive_export(
+                    ee,
+                    image,
+                    name,
+                    aoi,
+                    scale,
+                    args.output_crs,
+                    args.drive_folder,
+                ))
+        manifest["assets"].append(record)
+        print(f"{name}: {record['status']}")
 
-    registry_path = _ROOT / "ml" / "data" / "dataset_registry.json"
-    print(f"\nDataset Registry: {registry_path}")
-    print("ML-B1 data download complete.")
+    manifest_path = args.output_dir / "dataset_manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    local_failures = [item for item in manifest["assets"] if item["status"] not in {"downloaded", "existing_verified"}]
+    print(f"Dataset manifest: {manifest_path}")
+    if local_failures:
+        print("Some exports are not local and must not be used for training yet:")
+        for item in local_failures:
+            print(f"  - {item['asset_id']}: {item['status']}")
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":

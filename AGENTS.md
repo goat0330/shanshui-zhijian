@@ -1,9 +1,9 @@
 # 山水智鉴 — 多 Agent 治理框架
 
-> **版本**: v0.5 (V5-PRODUCT-STRATEGY)
-> **最新更新**: 2026-07-27
+> **版本**: v0.6 (ACTOR-SESSION-CONTROL)
+> **最新更新**: 2026-07-29
 > **基线分支**: `integration/g0-g1-contract-freeze`
-> **控制面**: GeoCode 顶层 Agent E + 持久化 Ensemble Subsessions A/B/C/D
+> **控制面**: 稳定 Agent Actor A/B/C/D/E + 可轮换 Session Epoch
 
 ---
 
@@ -58,11 +58,11 @@ CompetitionInput → InferenceTask → PerceptionResult
 
 | ID | 正式名称 | 英文代号 | Agent 类型 | 核心职责 |
 |----|----------|----------|-----------|----------|
-| A | 感知算法_AGENT_A | PERCEPTION_AGENT_A | 持久化 Ensemble child | SAR 遥感感知、Observation、DetectionCandidate、ModelArtifact 推理 |
-| B | 工程可靠性_AGENT_B | RELIABILITY_AGENT_B | 持久化 Ensemble child | 元数据、RunManifest、评测链适配、CI、环境可复现 |
-| C | 事件治理_AGENT_C | EVENT_AGENT_C | 持久化 Ensemble child | Evidence、Event、Review、Replay、事务与幂等 |
-| D | 产品工作台_AGENT_D | WORKBENCH_AGENT_D | 持久化 Ensemble child | React、MapLibre、Workbench API、OpenAPI Client、Dashboard |
-| E | 项目经理_AGENT_E | PROGRAM_AGENT_E | **顶层控制面 Session** | 项目路线、Agent 编排、Git 门禁、ML Readiness、产品调研与验收组织 |
+| A | 感知算法_AGENT_A | PERCEPTION_AGENT_A | Ensemble Actor | SAR 遥感感知、Observation、DetectionCandidate、ModelArtifact 推理 |
+| B | 工程可靠性_AGENT_B | RELIABILITY_AGENT_B | Ensemble Actor | 元数据、RunManifest、评测链适配、CI、环境可复现 |
+| C | 事件治理_AGENT_C | EVENT_AGENT_C | Ensemble Actor | Evidence、Event、Review、Replay、事务与幂等 |
+| D | 产品工作台_AGENT_D | WORKBENCH_AGENT_D | Ensemble Actor | React、MapLibre、Workbench API、OpenAPI Client、Dashboard |
+| E | 项目经理_AGENT_E | PROGRAM_AGENT_E | **控制面 Actor** | 项目路线、Agent 编排、Git 门禁、ML Readiness、产品调研与验收组织 |
 
 详细角色定义见 [`agents/`](agents/) 目录。
 
@@ -113,21 +113,22 @@ Agent ID 是稳定身份，不是永久技能限制。每轮职责由 Work Packa
 
 ### Session 隔离硬规则
 
-**PROGRAM_AGENT_E** 是唯一顶层控制面 Session。
-**A/B/C/D** 是持久化 Ensemble child Sessions，由 `team_spawn` 以
-`agent=build`、`worktree=true` 和显式模型创建。
+**PROGRAM_AGENT_E** 是唯一控制面 Actor。A/B/C/D/E 的角色、任务、Branch
+和 Worktree 是持久状态；聊天 Session 只是可替换的执行 Epoch。
 
 每个可写成员必须绑定唯一 worktree 与唯一分支。禁止两个可写 Session
 共用同一工作目录，也禁止成员运行期间切换分支。
 
-实际启动和恢复步骤见
-[`docs/program/MULTI_SESSION_OPERATIONS.md`](docs/program/MULTI_SESSION_OPERATIONS.md)。
+当前生产 Ensemble 尚未完成 Actor Schema 迁移时，不得手动修改
+`ensemble.db` 接管 Team；应先使用 `agent-control-plane` 审计并保持现有
+Lead Session。
 
 ### Agent E 调度规则
 
-成员完成后保持 `idle`；重新派单前将 `reported_to_lead=0`，再发送 `team_message`。除非用户明确要求，不得 shutdown、cleanup 或重复 spawn。
-
-详细规范见 [`docs/program/BRANCH_STRATEGY.md`](docs/program/BRANCH_STRATEGY.md)。
+成员完成后保持 `idle`。重新派单、上下文压缩和 Session 轮换必须通过
+运行时工具完成，不得直接更新 `reported_to_lead`、`lead_session_id`。
+分支规范见
+[`docs/07_实施管理/02_Git分支与交付规范.md`](docs/07_实施管理/02_Git分支与交付规范.md)。
 
 ---
 
@@ -149,8 +150,9 @@ E 并行工作流（贯穿 P1-P5，不得自动开始正式训练）：
 - PM-03｜采购需求对接
 - MLR-01｜ML Readiness（Dataset Registry、License Matrix、Split Policy）
 
-详细路线图见 [`docs/program/MASTER_ROADMAP.md`](docs/program/MASTER_ROADMAP.md)。
-详细门禁定义见 [`docs/program/RELEASE_GATE.md`](docs/program/RELEASE_GATE.md)。
+当前工作和阻塞以 [`docs/program/STATUS_BOARD.md`](docs/program/STATUS_BOARD.md)
+为准；合同缺口见
+[`docs/program/CONTRACT_GAP_REGISTER.md`](docs/program/CONTRACT_GAP_REGISTER.md)。
 
 ---
 
@@ -287,7 +289,8 @@ D2 特别注意：
 - 页面明确标注 **MOCK / DEMO**
 - 不得宣称为真实治理成效、真实准确率或真实业务统计
 
-详细条件见 [`docs/program/RELEASE_GATE.md`](docs/program/RELEASE_GATE.md)。
+详细验收材料见
+[`docs/program/ACCEPTANCE_PACKAGE_WB02.md`](docs/program/ACCEPTANCE_PACKAGE_WB02.md)。
 
 ---
 
@@ -348,8 +351,7 @@ D2 特别注意：
 - **Status Board**: [`docs/program/STATUS_BOARD.md`](docs/program/STATUS_BOARD.md)
 - **决策日志**: [`docs/program/DECISION_LOG.md`](docs/program/DECISION_LOG.md)
 - **合同缺口**: [`docs/program/CONTRACT_GAP_REGISTER.md`](docs/program/CONTRACT_GAP_REGISTER.md)
-- **路线图**: [`docs/program/MASTER_ROADMAP.md`](docs/program/MASTER_ROADMAP.md)
-- **门禁定义**: [`docs/program/RELEASE_GATE.md`](docs/program/RELEASE_GATE.md)
+- **交付规范**: [`docs/07_实施管理/02_Git分支与交付规范.md`](docs/07_实施管理/02_Git分支与交付规范.md)
 
 ---
 

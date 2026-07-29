@@ -1,98 +1,108 @@
-"""Generate dual-time Sentinel-2 test rasters with known water changes for ML-B2."""
+"""Generate deterministic, co-registered Sentinel-2/JRC test fixtures."""
 
-import os
-import numpy as np
+from __future__ import annotations
+
 from pathlib import Path
 
-_pyproj = Path(r"D:\py\Python3\Lib\site-packages\rasterio\proj_data")
-if _pyproj.exists():
-    os.environ.setdefault("PROJ_LIB", str(_pyproj))
+import numpy as np
 
 DATA_DIR = Path(__file__).parent
 
 
-def _water_disk(h, w, cy, cx, r):
-    """Return mask of a disk at (cx, cy) with radius r."""
-    yy, xx = np.ogrid[:h, :w]
-    return ((yy - cy) ** 2 + (xx - cx) ** 2) <= r ** 2
+def _water_disk(height: int, width: int, center_y: int, center_x: int, radius: int) -> np.ndarray:
+    yy, xx = np.ogrid[:height, :width]
+    return ((yy - center_y) ** 2 + (xx - center_x) ** 2) <= radius**2
 
 
-def main():
+def main() -> None:
     import rasterio
     from rasterio.transform import from_origin
 
-    height, width = 100, 100
-    # ~10m resolution, covers ~28.5°N, 106.5°E (Chongqing-like area)
+    height = width = 100
     transform = from_origin(106.55, 29.58, 0.0001, 0.0001)
     crs = "EPSG:4326"
     band_names = ["blue", "green", "red", "nir", "swir1", "swir2"]
     rng = np.random.RandomState(42)
 
-    # ---- JRC water occurrence (static label) ----
-    jrc = np.zeros((height, width), dtype=np.float32)
-    water_t1_mask = _water_disk(height, width, 40, 40, 15) | _water_disk(height, width, 65, 65, 10)
-    jrc[water_t1_mask] = rng.uniform(60, 100, size=water_t1_mask.sum()).astype(np.float32)
-    jrc[~water_t1_mask] = rng.uniform(0, 30, size=(~water_t1_mask).sum()).astype(np.float32)
+    water_t1 = _water_disk(height, width, 40, 40, 15) | _water_disk(height, width, 65, 65, 10)
+    water_t2 = _water_disk(height, width, 45, 35, 15) | _water_disk(height, width, 30, 70, 8)
 
+    jrc = np.zeros((height, width), dtype=np.float32)
+    jrc[water_t1] = rng.uniform(60, 100, size=water_t1.sum()).astype(np.float32)
+    jrc[~water_t1] = rng.uniform(0, 30, size=(~water_t1).sum()).astype(np.float32)
     jrc_path = DATA_DIR / "test_jrc_occurrence.tif"
-    with rasterio.open(jrc_path, "w", driver="GTiff", height=height, width=width,
-                       count=1, dtype=np.float32, crs=crs, transform=transform) as dst:
+    with rasterio.open(
+        jrc_path,
+        "w",
+        driver="GTiff",
+        height=height,
+        width=width,
+        count=1,
+        dtype="float32",
+        crs=crs,
+        transform=transform,
+        nodata=-9999.0,
+    ) as dst:
         dst.write(jrc, 1)
         dst.set_band_description(1, "occurrence")
-    print(f"JRC: {jrc_path}")
 
-    # ---- Water T2 mask: one disk shifts, one new disk appears ----
-    water_t2_mask = _water_disk(height, width, 45, 35, 15) | _water_disk(height, width, 30, 70, 8)
-    gain_mask = water_t2_mask & ~water_t1_mask
-    loss_mask = water_t1_mask & ~water_t2_mask
-    persistent_mask = water_t1_mask & water_t2_mask
-    print(f"Water T1: {water_t1_mask.sum()} px, T2: {water_t2_mask.sum()} px")
-    print(f"Gain: {gain_mask.sum()}, Loss: {loss_mask.sum()}, Persistent: {persistent_mask.sum()}")
-
-    def _make_s2_raster(water_mask):
-        """Generate 6-band Sentinel-2-like raster with water/non-water spectral contrast."""
+    def make_s2(water_mask: np.ndarray) -> np.ndarray:
         bands = []
-        water_factor_by_band = [0.6, 0.7, 0.3, 0.05, 0.05, 0.05]
-        for band_idx, (base_refl, wf) in enumerate(zip(
-            [800, 900, 600, 3000, 1500, 1000], water_factor_by_band
-        )):
-            band = rng.normal(base_refl, 200, (height, width)).astype(np.float32)
-            band = np.clip(band, 0, 10000)
-            band[water_mask] = (band[water_mask] * wf).clip(0, 10000)
+        water_factors = [0.6, 0.7, 0.3, 0.05, 0.05, 0.05]
+        for base, factor in zip([800, 900, 600, 3000, 1500, 1000], water_factors):
+            band = np.clip(rng.normal(base, 200, (height, width)), 0, 10000).astype(np.float32)
+            band[water_mask] = np.clip(band[water_mask] * factor, 0, 10000)
             bands.append(band)
-        return np.stack(bands, axis=0)
+        return np.stack(bands)
 
-    t1_array = _make_s2_raster(water_t1_mask)
-    t1_path = DATA_DIR / "test_s2_t1.tif"
-    with rasterio.open(t1_path, "w", driver="GTiff", height=height, width=width,
-                       count=6, dtype=np.float32, crs=crs, transform=transform) as dst:
-        for i, name in enumerate(band_names):
-            dst.write(t1_array[i], i + 1)
-            dst.set_band_description(i + 1, name)
-    print(f"S2 T1: {t1_path}")
+    for name, mask, acquisition_date in (
+        ("test_s2_t1.tif", water_t1, "2026-05-15T00:00:00Z"),
+        ("test_s2_t2.tif", water_t2, "2026-06-15T00:00:00Z"),
+    ):
+        array = make_s2(mask)
+        path = DATA_DIR / name
+        with rasterio.open(
+            path,
+            "w",
+            driver="GTiff",
+            height=height,
+            width=width,
+            count=6,
+            dtype="float32",
+            crs=crs,
+            transform=transform,
+            nodata=-9999.0,
+        ) as dst:
+            for index, band_name in enumerate(band_names, start=1):
+                dst.write(array[index - 1], index)
+                dst.set_band_description(index, band_name)
+            dst.update_tags(ACQUISITION_DATE=acquisition_date)
 
-    t2_array = _make_s2_raster(water_t2_mask)
-    t2_path = DATA_DIR / "test_s2_t2.tif"
-    with rasterio.open(t2_path, "w", driver="GTiff", height=height, width=width,
-                       count=6, dtype=np.float32, crs=crs, transform=transform) as dst:
-        for i, name in enumerate(band_names):
-            dst.write(t2_array[i], i + 1)
-            dst.set_band_description(i + 1, name)
-    print(f"S2 T2: {t2_path}")
-
-    # ---- Ground truth change mask for validation ----
-    gt_path = DATA_DIR / "test_change_gt.tif"
-    gt = np.zeros((height, width), dtype=np.uint8)
-    gt[gain_mask] = 1   # gain
-    gt[loss_mask] = 2   # loss
-    gt[persistent_mask] = 3  # persistent
-    with rasterio.open(gt_path, "w", driver="GTiff", height=height, width=width,
-                       count=1, dtype=np.uint8, crs=crs, transform=transform) as dst:
-        dst.write(gt, 1)
+    gain = water_t2 & ~water_t1
+    loss = water_t1 & ~water_t2
+    persistent = water_t1 & water_t2
+    ground_truth = np.zeros((height, width), dtype=np.uint8)
+    ground_truth[gain] = 1
+    ground_truth[loss] = 2
+    ground_truth[persistent] = 3
+    with rasterio.open(
+        DATA_DIR / "test_change_gt.tif",
+        "w",
+        driver="GTiff",
+        height=height,
+        width=width,
+        count=1,
+        dtype="uint8",
+        crs=crs,
+        transform=transform,
+        nodata=255,
+    ) as dst:
+        dst.write(ground_truth, 1)
         dst.set_band_description(1, "gt_change")
-    print(f"Change GT: {gt_path}")
 
-    print("Test rasters generated successfully.")
+    print(f"Generated fixtures in {DATA_DIR}")
+    print(f"T1 water={int(water_t1.sum())}; T2 water={int(water_t2.sum())}")
+    print(f"Gain={int(gain.sum())}; Loss={int(loss.sum())}; Persistent={int(persistent.sum())}")
 
 
 if __name__ == "__main__":

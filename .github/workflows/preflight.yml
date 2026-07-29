@@ -4,38 +4,54 @@ on:
   push:
     branches: ["**"]
   pull_request:
-    branches: ["main", "master", "develop"]
+    branches: ["main", "master", "develop", "integration/**"]
+
+env:
+  PYTHON_VERSION: "3.11"
+  PYTHONUNBUFFERED: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
 
 jobs:
   preflight:
     runs-on: ubuntu-22.04
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-ml.txt
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgdal-dev gdal-bin
-
-      - name: Install Python dependencies
+      - name: Install unified dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[ml,dev]"
+          python -m pip install -r requirements-ml.txt
+          python -m pip check
 
-      - name: Verify pyproj CRS
+      - name: Verify CRS stack
         run: |
-          python -c "
-          import pyproj; crs = pyproj.CRS.from_epsg(4545); print(f'pyproj OK: {crs.to_wkt()[:60]}...')"
+          python - <<'PY'
+          import pyproj
+          import rasterio
+          assert pyproj.CRS.from_epsg(4545).is_projected
+          assert rasterio.crs.CRS.from_epsg(4545).is_projected
+          print('EPSG:4545 CRS stack OK')
+          PY
 
-      - name: Verify rasterio CRS
+      - name: Verify imports without environment pollution
         run: |
-          python -c "
-          import rasterio; crs = rasterio.crs.CRS.from_epsg(4545); print(f'rasterio OK: {crs}')"
+          python - <<'PY'
+          import apps.workbench_api.manifest_service
+          import ml.data_adapter
+          import ml.change_map
+          import ml.water_change
+          print('Critical imports OK')
+          PY
 
-      - name: Verify no PROJ pollution — pytest collection
+      - name: Verify pytest collection
         run: python -m pytest --collect-only -q

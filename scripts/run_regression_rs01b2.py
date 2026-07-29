@@ -10,15 +10,11 @@ RS-01B-2 — 多时相回归验证脚本
 import json
 import tempfile
 import sys
-import json
-import tempfile
 from pathlib import Path
 from datetime import datetime
 
-# �̶� stdout ���뷽ʽ�����⹸��̨ emoji ���
+# 固定 stdout 编码，避免 Windows 控制台输出中文和符号时乱码。
 sys.stdout.reconfigure(encoding='utf-8') if hasattr(sys.stdout, 'reconfigure') else None
-from pathlib import Path
-from datetime import datetime
 
 ROOT = Path(__file__).resolve().parent.parent
 PIPELINE_DIR = ROOT / "competition" / "spikes" / "chongqing_rs_demo"
