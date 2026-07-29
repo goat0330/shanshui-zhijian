@@ -356,3 +356,26 @@ D2 特别注意：
 ---
 
 *本文档由项目经理_AGENT_E 维护。修改需经 Architecture Review。*
+
+## 16. Agent 控制面调用规则
+
+所有 Windows 路径相关的 Context Governor 调用必须显式指定仓库根目录，并使用 UTF-8 Python：
+
+```text
+python -X utf8 .opencode/skills/agent-e-context-governor/scripts/context_governor.py --repo <absolute-repo-root> guard-read <relative-path> --json
+```
+
+开始一个工作包前先运行：
+
+```text
+python -X utf8 .opencode/skills/agent-e-context-governor/scripts/context_governor.py --repo <absolute-repo-root> preflight --json
+```
+
+Ensemble Efficiency 不得自动猜测比较基线：
+
+- fixture / routing-only 测试必须显式传 `--base HEAD`；
+- 正式工作包必须显式传固定的 integration commit；
+- 禁止把大量 untracked 文件当作默认工作包 Diff；
+- config freeze 后不得在同一轮修改 `.opencode/ensemble-efficiency.json`。
+
+`preflight` 返回 `SOFT_LIMIT` 或 `HARD_LIMIT` 时会自动刷新 `SESSION_HANDOFF.md`；它只生成交接，不伪造或强制执行 OpenCode 原生 compact。达到 `HARD_LIMIT` 后禁止派发新工作包。

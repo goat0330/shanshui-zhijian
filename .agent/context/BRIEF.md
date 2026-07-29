@@ -2,8 +2,8 @@
 
 ## Git
 - branch: cycle3.1.1/ci-fix
-- head: 569af6b4f255
-- last: 569af6b fix: close cycle 3.1.1 CI and ML readiness gates
+- head: 1408be99b1db
+- last: 1408be9 chore: refresh cycle control-plane state
 - dirty: yes
 
 ## Current state

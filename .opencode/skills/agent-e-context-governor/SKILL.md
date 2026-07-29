@@ -47,6 +47,18 @@ python .opencode/skills/agent-e-context-governor/scripts/context_governor.py boo
 python .opencode/skills/agent-e-context-governor/scripts/context_governor.py budget
 ```
 
+Use the combined preflight command before dispatching a new work package. On
+Windows, pass the absolute repository root and force UTF-8 so CJK paths are
+not lost between the shell and Python:
+
+```bash
+python -X utf8 .opencode/skills/agent-e-context-governor/scripts/context_governor.py --repo <absolute-repo-root> preflight --messages <n> --session-mb <n> --input-tokens <n> --json
+```
+
+`SOFT_LIMIT` finishes only the current atomic step and writes a bounded
+handoff. `HARD_LIMIT` stops new work-package dispatch. This command generates
+the handoff but does not pretend to invoke OpenCode native compaction.
+
 Before reading a project file:
 
 ```bash

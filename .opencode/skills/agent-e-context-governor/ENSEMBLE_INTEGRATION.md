@@ -2,6 +2,16 @@
 
 Use both Skills in this order.
 
+At the start of every work package, run the combined context preflight with an
+explicit repository root. For routing-only fixtures use `--base HEAD`; for a
+real work package use the fixed integration commit. Never let the tool infer a
+base from a dirty workspace with untracked files.
+
+```text
+python -X utf8 .opencode/skills/agent-e-context-governor/scripts/context_governor.py --repo <absolute-repo-root> preflight --json
+python C:/Users/WangChi/.agents/skills/ensemble-efficiency/scripts/ensemble_efficiency.py --repo <absolute-repo-root> --base <fixed-base> --owner <owner> --task-id <id> --json
+```
+
 ## Before Agent E reads or reviews
 
 ```text

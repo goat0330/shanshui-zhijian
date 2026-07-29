@@ -358,6 +358,29 @@ def close_cycle(root: Path, cfg: dict[str, Any]) -> str:
     return handoff
 
 
+def preflight(root: Path, cfg: dict[str, Any], messages: int | None,
+              session_mb: float | None, input_tokens: int | None) -> dict[str, Any]:
+    """Bootstrap state, evaluate budget, and persist a handoff at a limit."""
+    bootstrap(root, cfg)
+    ps = pmap(root, cfg)
+    led = read_json(ps["ledger"], {})
+    if messages is not None:
+        led["messages"] = messages
+    if session_mb is not None:
+        led["session_mb"] = session_mb
+    if input_tokens is not None:
+        led["input_tokens"] = input_tokens
+    led.update({"last_action": "preflight", "updated_at": now()})
+    write_json(ps["ledger"], led)
+    result = budget(cfg, led)
+    if result["status"] in {"SOFT_LIMIT", "HARD_LIMIT"}:
+        close_cycle(root, cfg)
+        result["handoff_generated"] = True
+    else:
+        result["handoff_generated"] = False
+    return result
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Agent E context governor")
     ap.add_argument("--repo", default=".")
@@ -368,6 +391,7 @@ def main() -> int:
     e = sub.add_parser("excerpt"); e.add_argument("path"); e.add_argument("--query", required=True); e.add_argument("--context", type=int, default=3); e.add_argument("--max-lines", type=int)
     i = sub.add_parser("ingest-report"); i.add_argument("--file", required=True); i.add_argument("--agent", required=True); i.add_argument("--task-id", required=True); i.add_argument("--cycle")
     b = sub.add_parser("budget"); b.add_argument("--messages", type=int); b.add_argument("--session-mb", type=float); b.add_argument("--input-tokens", type=int); b.add_argument("--json", action="store_true")
+    f = sub.add_parser("preflight"); f.add_argument("--messages", type=int); f.add_argument("--session-mb", type=float); f.add_argument("--input-tokens", type=int); f.add_argument("--json", action="store_true")
     sub.add_parser("cycle-close")
     sub.add_parser("status")
     args = ap.parse_args()
@@ -405,6 +429,17 @@ def main() -> int:
                 print(f"ACTION: {result['action']}")
                 if result["reasons"]: print("REASONS: " + ", ".join(result["reasons"]))
                 print(f"LOCAL_USAGE: full_reads={led.get('full_reads',0)}, full_read_mb={round((led.get('full_read_bytes',0) or 0)/1048576,3)}, excerpt_reads={led.get('excerpt_reads',0)}, reports={led.get('reports_ingested',0)}")
+            return 2 if result["status"] == "HARD_LIMIT" else 1 if result["status"] == "SOFT_LIMIT" else 0
+        elif args.cmd == "preflight":
+            result = preflight(root, cfg, args.messages, args.session_mb, args.input_tokens)
+            if args.json:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            else:
+                print(f"CONTEXT: {result['status']}")
+                print(f"ACTION: {result['action']}")
+                print(f"HANDOFF_GENERATED: {'yes' if result['handoff_generated'] else 'no'}")
+                if result["reasons"]:
+                    print("REASONS: " + ", ".join(result["reasons"]))
             return 2 if result["status"] == "HARD_LIMIT" else 1 if result["status"] == "SOFT_LIMIT" else 0
         elif args.cmd == "cycle-close":
             print(close_cycle(root, cfg))
