@@ -1,5 +1,43 @@
 {
   "version": 1,
+  "context": {
+    "version": 1,
+    "state_dir": ".agent/context",
+    "reports_dir": ".agent/reports",
+    "artifacts_dir": ".agent/artifacts",
+    "stable_files": [
+      "AGENTS.md",
+      "agents/sessions.yml",
+      "STATUS_BOARD.md",
+      ".opencode/agent-control-plane.json"
+    ],
+    "limits": {
+      "soft_messages": 80,
+      "hard_messages": 120,
+      "soft_session_mb": 15,
+      "hard_session_mb": 25,
+      "soft_input_tokens": 2000000,
+      "hard_input_tokens": 3500000,
+      "max_full_file_bytes": 200000,
+      "max_excerpt_lines": 100,
+      "max_report_input_lines": 80,
+      "max_report_output_lines": 12,
+      "max_result_items": 5,
+      "max_blocker_items": 3,
+      "max_bootstrap_lines": 80
+    },
+    "domain_paths": {
+      "agent-a": ["ml/**", "core/schemas/contracts/**", "tests/test_ml_*.py"],
+      "agent-b": [".github/**", "requirements*.txt", "pyproject.toml", "apps/workbench_api/manifest_service.py"],
+      "agent-c": ["core/event_governance/**", "apps/workbench_api/real_service.py"],
+      "agent-d": ["frontend/**", "docs/program/ACCEPTANCE_*.md"],
+      "agent-e": [".agent/**", ".opencode/**", "AGENTS.md", "STATUS_BOARD.md", "agents/sessions.yml"]
+    },
+    "compaction": {
+      "enabled": false,
+      "command": []
+    }
+  },
   "routes": [
     {
       "name": "perception",
@@ -97,5 +135,14 @@
       ],
       "reason": "Public contract or shared schema changed"
     }
-  ]
+  ],
+  "limits": {
+    "max_files_without_escalation": 25,
+    "max_changed_lines_without_escalation": 800,
+    "max_routes_without_escalation": 1,
+    "success_excerpt_lines": 5,
+    "failure_excerpt_lines": 36,
+    "command_timeout_sec": 300
+  },
+  "minimum_checks": {}
 }
