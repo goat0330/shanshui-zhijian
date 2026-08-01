@@ -1,0 +1,147 @@
+{
+  "competition": "赛题3 水域综合异常识别",
+  "source_dir": "D:\\研究生作业\\人工智能实践比赛\\水域综合异常识别_训练集+验证集",
+  "labels": [
+    "乱采",
+    "乱建",
+    "乱堆",
+    "乱占",
+    "有漂浮物",
+    "正常"
+  ],
+  "label_counts": {
+    "有漂浮物": 1026,
+    "正常": 7,
+    "乱占": 60,
+    "乱采": 24,
+    "乱堆": 23,
+    "乱建": 4
+  },
+  "full_dataset": {
+    "train_images": 1144,
+    "prelim_test_images": 695,
+    "note": "完整图片数据（约 964MB）保留在本机，未上传 GitHub；本仓库仅含元数据与压缩样本。"
+  },
+  "samples": [
+    {
+      "label": "乱采",
+      "filename": "02052.jpg",
+      "original_size": "2560x1440",
+      "resized_size": "1024x576",
+      "bytes": 161731
+    },
+    {
+      "label": "乱采",
+      "filename": "02053.jpg",
+      "original_size": "2560x1440",
+      "resized_size": "1024x576",
+      "bytes": 138569
+    },
+    {
+      "label": "乱采",
+      "filename": "02055.jpg",
+      "original_size": "2560x1440",
+      "resized_size": "1024x576",
+      "bytes": 119743
+    },
+    {
+      "label": "乱建",
+      "filename": "02486.jpg",
+      "original_size": "1430x1000",
+      "resized_size": "1024x716",
+      "bytes": 208560
+    },
+    {
+      "label": "乱建",
+      "filename": "02489.jpg",
+      "original_size": "667x500",
+      "resized_size": "667x500",
+      "bytes": 81115
+    },
+    {
+      "label": "乱堆",
+      "filename": "02060.jpg",
+      "original_size": "1920x1080",
+      "resized_size": "1024x576",
+      "bytes": 160668
+    },
+    {
+      "label": "乱堆",
+      "filename": "02061.jpg",
+      "original_size": "1920x1080",
+      "resized_size": "1024x576",
+      "bytes": 132726
+    },
+    {
+      "label": "乱堆",
+      "filename": "02099.jpg",
+      "original_size": "3840x2160",
+      "resized_size": "1024x576",
+      "bytes": 148838
+    },
+    {
+      "label": "乱占",
+      "filename": "02044.jpg",
+      "original_size": "640x853",
+      "resized_size": "640x853",
+      "bytes": 103344
+    },
+    {
+      "label": "乱占",
+      "filename": "02045.jpg",
+      "original_size": "3840x2160",
+      "resized_size": "1024x576",
+      "bytes": 68821
+    },
+    {
+      "label": "乱占",
+      "filename": "02062.jpg",
+      "original_size": "667x500",
+      "resized_size": "667x500",
+      "bytes": 115807
+    },
+    {
+      "label": "有漂浮物",
+      "filename": "00000.jpg",
+      "original_size": "4080x3060",
+      "resized_size": "1024x768",
+      "bytes": 199955
+    },
+    {
+      "label": "有漂浮物",
+      "filename": "00002.jpg",
+      "original_size": "4080x3060",
+      "resized_size": "1024x768",
+      "bytes": 171694
+    },
+    {
+      "label": "有漂浮物",
+      "filename": "00003.jpg",
+      "original_size": "1706x1280",
+      "resized_size": "1023x768",
+      "bytes": 213853
+    },
+    {
+      "label": "正常",
+      "filename": "00064.jpg",
+      "original_size": "1706x1279",
+      "resized_size": "1023x767",
+      "bytes": 121561
+    },
+    {
+      "label": "正常",
+      "filename": "00100.jpg",
+      "original_size": "1706x1279",
+      "resized_size": "1023x767",
+      "bytes": 275972
+    },
+    {
+      "label": "正常",
+      "filename": "02111.jpg",
+      "original_size": "3840x2160",
+      "resized_size": "1024x576",
+      "bytes": 126732
+    }
+  ],
+  "package_note": "精简版仅用于线上审阅，训练代码请使用本机完整数据。"
+}

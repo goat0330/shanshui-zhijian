@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "name": "perception",
+      "owner": "perception-agent-a",
+      "paths": ["ml/**"],
+      "checks": [
+        {
+          "name": "perception-smoke",
+          "command": ["python", "-c", "print('perception-pass')"],
+          "timeout_sec": 30
+        }
+      ]
+    },
+    {
+      "name": "engineering",
+      "owner": "engineering-agent-b",
+      "paths": ["competition/**"],
+      "checks": [
+        {
+          "name": "engineering-smoke",
+          "command": ["python", "-c", "print('engineering-pass')"],
+          "timeout_sec": 30
+        }
+      ]
+    },
+    {
+      "name": "event-governance",
+      "owner": "event-agent-c",
+      "paths": ["core/event_governance/**"],
+      "checks": [
+        {
+          "name": "event-smoke",
+          "command": ["python", "-c", "print('event-pass')"],
+          "timeout_sec": 30
+        }
+      ]
+    },
+    {
+      "name": "product",
+      "owner": "product-agent-d",
+      "paths": ["frontend/**"],
+      "checks": [
+        {
+          "name": "product-smoke",
+          "command": ["python", "-c", "print('product-pass')"],
+          "timeout_sec": 30
+        }
+      ]
+    },
+    {
+      "name": "control-plane",
+      "owner": "project-manager-agent-e",
+      "paths": [
+        ".opencode/**",
+        ".agent/**",
+        ".codegraph/**",
+        "agent-control-plane/**",
+        "agent-control-plane_LUBAN_AUDIT*"
+      ],
+      "checks": [
+        {
+          "name": "control-plane-smoke",
+          "command": ["python", "-c", "print('control-plane-pass')"],
+          "timeout_sec": 30
+        }
+      ]
+    },
+    {
+      "name": "default",
+      "owner": "project-manager-agent-e",
+      "paths": ["**"],
+      "checks": []
+    }
+  ],
+  "escalate": [
+    {
+      "name": "agent-runtime",
+      "paths": [
+        ".opencode/**",
+        ".agent/**",
+        "**/opencode.json",
+        "**/opencode.jsonc",
+        "**/AGENTS.md"
+      ],
+      "reason": "Agent runtime, permissions, prompts, skills, or startup configuration changed"
+    },
+    {
+      "name": "public-contract",
+      "paths": [
+        "contracts/**",
+        "**/schema/**",
+        "**/schemas/**",
+        "**/openapi.*",
+        "**/api/**/types.*"
+      ],
+      "reason": "Public contract or shared schema changed"
+    }
+  ]
+}
