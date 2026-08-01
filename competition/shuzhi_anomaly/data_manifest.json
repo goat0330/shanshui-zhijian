@@ -19,7 +19,7 @@
   },
   "full_dataset": {
     "train_images": 1144,
-    "prelim_test_images": 691,
+    "prelim_test_images": 695,
     "note": "完整图片数据（约 964MB）保留在本机，未上传 GitHub；本仓库仅含元数据与压缩样本。"
   },
   "samples": [
