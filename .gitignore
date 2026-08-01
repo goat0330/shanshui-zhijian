@@ -13,6 +13,15 @@ data/external/
 data/chongqing_demo/raw/
 data/chongqing_demo/cog/
 data/chongqing_demo/labels/
+data/chongqing_demo/*.db
+
+# Local-only competition data and agent runtimes
+水域综合异常识别_训练集+验证集/
+山水智鉴_Git工作区/
+山水智鉴_OpenChamber/
+山水智鉴_OpenCode控制台/
+.agent/
+.opencode/
 
 # Pipeline outputs
 competition/spikes/chongqing_rs_demo/products/
