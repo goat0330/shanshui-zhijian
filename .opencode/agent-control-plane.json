@@ -46,7 +46,11 @@
       "checks": [
         {
           "name": "perception-smoke",
-          "command": ["python", "-c", "print('perception-pass')"],
+          "command": [
+            "python",
+            "-c",
+            "from pathlib import Path; import compileall; p=Path('ml'); assert p.is_dir(), 'ml directory is missing'; assert compileall.compile_dir(str(p), quiet=1), 'ml compilation failed'"
+          ],
           "timeout_sec": 30
         }
       ]
@@ -58,7 +62,7 @@
       "checks": [
         {
           "name": "engineering-smoke",
-          "command": ["python", "-c", "print('engineering-pass')"],
+          "command": ["python", "-m", "compileall", "-q", "competition"],
           "timeout_sec": 30
         }
       ]
@@ -70,7 +74,7 @@
       "checks": [
         {
           "name": "event-smoke",
-          "command": ["python", "-c", "print('event-pass')"],
+          "command": ["python", "-m", "compileall", "-q", "core/event_governance"],
           "timeout_sec": 30
         }
       ]
@@ -82,7 +86,11 @@
       "checks": [
         {
           "name": "product-smoke",
-          "command": ["python", "-c", "print('product-pass')"],
+          "command": [
+            "python",
+            "-c",
+            "from pathlib import Path; p=Path('frontend'); assert p.is_dir(), 'frontend directory is missing'"
+          ],
           "timeout_sec": 30
         }
       ]
@@ -100,7 +108,10 @@
       "checks": [
         {
           "name": "control-plane-smoke",
-          "command": ["python", "-c", "print('control-plane-pass')"],
+          "command": [
+            "python",
+            "C:/Users/WangChi/.agents/skills/agent-control-plane/scripts/test_acp.py"
+          ],
           "timeout_sec": 30
         }
       ]
@@ -144,5 +155,11 @@
     "failure_excerpt_lines": 36,
     "command_timeout_sec": 300
   },
-  "minimum_checks": {}
+  "minimum_checks": {
+    "perception": ["perception-smoke"],
+    "engineering": ["engineering-smoke"],
+    "event-governance": ["event-smoke"],
+    "product": ["product-smoke"],
+    "control-plane": ["control-plane-smoke"]
+  }
 }
