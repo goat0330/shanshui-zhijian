@@ -13,9 +13,9 @@
 ## 数据事实
 
 - 本机完整数据：`D:\研究生作业\人工智能实践比赛\水域综合异常识别_训练集+验证集\`。
-- 训练集 1144 张，全部可解码；测试集 695 张，全部可解码。
+- 训练集 1144 张，全部可解码；最近一次对当前数据根目录的扫描显示无标签 JPG 691 张，全部可解码；历史清理记录曾报 695 张，训练前必须重新生成统一清单。
 - 训练标签来自 `train.json`；测试集无标签。
-- 训练集存在 5 组、10 张完全重复文件。
+- 最近一次扫描发现训练/测试全量 9 组、18 张精确重复文件；旧记录存在不同统计，不能混用。
 - `train.json` 与实际图片解码尺寸有 4 条不一致：`02486–02489.jpg`。训练读取实际解码尺寸，官方元数据不自行改写。
 
 | 类别 | 数量 | 占比 |
@@ -29,19 +29,31 @@
 
 文件编号、排序位置、类别目录名和原始目录顺序禁止作为模型输入特征。
 
+## 前期处理入口
+
+前期工作不占用 GPU，入口和产物见 [PREPROCESS_TODO.md](PREPROCESS_TODO.md)：
+
+```powershell
+python prepare_data_manifest.py
+```
+
+该脚本只做 CPU 数据清单、图片解码/尺寸检查、SHA-256、dHash 近重复候选、非破坏性训练索引、少数类复核队列、冻结测试清单和临时 `sequence_id`。临时 `sequence_id` 仅由文件名连续性推断，必须在取得真实视频来源或人工确认后才能用于最终 Group Fold。
+
+当前工作区尚未发现带标签的独立 `val` 记录；无标签测试集不能用于验证 mIoU。先运行 `build_internal_cv.py` 从 1144 张有标签图片中生成内部折，训练脚本支持用 `--cv-manifest + --fold` 逐折验证；这不改变测试集隔离原则。
+
 ## 验证与报告
 
-必须同时建立两种验证口径：
+当前先建立一个可执行的内部验证口径；待真实视频/场景来源可确认后，再增加严格 Group-OOD 口径：
 
-- `Competition-IID Val`：模拟测试集与训练集同源时的调参口径；
-- `Group-OOD Val`：同一场景、相机、连续序列和近重复图片只能进入同一 Split。
+- `Competition-IID Val`：exact/near 重复组件不跨折的内部 4-fold；
+- `Group-OOD Val`：同一场景、相机、连续序列和近重复图片只能进入同一 Split，目前需要真实来源组或人工确认，不能拿临时文件名块冒充。
 
-官方评分指标尚未从赛事方确认前，内部统一输出：Accuracy、Macro-F1、Balanced Accuracy、每类 Precision/Recall/F1、Confusion Matrix，并同时报告 IID Macro-F1 和 Group-OOD Macro-F1。
+官方评分指标尚未从赛事方确认前，内部统一输出六类混淆矩阵 mIoU，并附带 Accuracy、Macro-F1、Balanced Accuracy、每类 Precision/Recall/F1 和预测分布；模型选择默认以 mIoU 为准。
 
 ## 最小流程
 
 ```text
-数据审计 → Group 切分 → 六分类模型 → 双口径评测 → Bad Case → Exporter
+数据审计 → 少数类/标签复核 → 内部折分 → 六分类模型 → 混淆矩阵 mIoU → Bad Case → Exporter
 ```
 
 内部提交包结构：
@@ -57,4 +69,4 @@
 
 ## 与水体分割的关系
 
-科大讯飞水体分割属于山水智鉴遥感支线。只有当现场图片能够产生合理水体 Mask，且在 Group-OOD 上提升 Macro-F1、没有删除岸边和异常证据时，才考虑作为分类消融项；否则不接入初赛主模型。
+科大讯飞水体分割属于山水智鉴遥感支线；现有 `tools/audit_split_quality.py` 和 `tools/build_water_metadata.py` 是分割专用脚本，不作为本分类前处理入口，也不在本次修改中移动或删除。只有当现场图片能够产生合理水体 Mask，且在 Group-OOD 上提升 mIoU、没有删除岸边和异常证据时，才考虑作为分类消融项；否则不接入初赛主模型。
