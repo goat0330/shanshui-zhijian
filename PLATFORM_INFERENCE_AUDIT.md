@@ -2,7 +2,7 @@
 
 ## 结论
 
-`shuzhi_platform_inference_v1.zip` 已完成构建，可作为赛题三“每张图片输出一个 label”的正式离线推理包候选上传。包内没有训练数据、测试数据、训练标签、OOF、复核材料、旧提交 JSON、固定测试 manifest、HF cache 或项目绝对路径。
+`shuzhi_platform_inference_v1.tar.gz` 已完成构建，作为赛题三“每张图片输出一个 label”的正式离线推理包候选上传。ZIP 仅作为备用格式保留。包内没有训练数据、测试数据、训练标签、OOF、复核材料、旧提交 JSON、固定测试 manifest、HF cache 或项目绝对路径。
 
 本次工作在独立 worktree 和分支 `feat/platform-inference-v1` 完成，未修改稳定 `main`，未修改原始图片和原始 checkpoint。
 
@@ -60,7 +60,7 @@ shuzhi_platform_inference_v1/
     └── fold3_best.pt
 ```
 
-压缩包大小：413,223,037 bytes。未压缩正式包文件总大小：445,506,899 bytes。
+正式 tar.gz 大小：413,611,044 bytes；SHA256：`996443fdd47a4dbbb71ca8e2d1659e2c11c5b988f92ff5b71b2d55c98281c6b6`。备用 ZIP 大小：413,223,037 bytes；未压缩正式包文件总大小：445,506,899 bytes。
 
 ## 验证结果
 
@@ -68,7 +68,7 @@ shuzhi_platform_inference_v1/
 2. 动态小样本：11 张混合 JPG/PNG，包含嵌套目录、横向/纵向和不同分辨率；CUDA 通过，CPU 通过，CPU/CUDA 输出完全一致；字段、字符串类型、标签集合和排序通过。
 3. 隔离测试：从非项目工作目录执行，使用独立复制的推理包、`HF_HUB_OFFLINE=1`、`TRANSFORMERS_OFFLINE=1` 和 socket 网络阻断器；11 张推理通过，未触发网络访问。
 4. 695 张一致性：与现有 `submission_reviewed_v2.json` 逐条对比，数量 695、文件名顺序一致、宽高差异 0、标签差异 0、总记录差异 0。详细结果见 `platform_695_consistency/consistency_report.json`，差异文件见 `platform_695_consistency/prediction_diff.csv`。
-5. 压缩包审计：ZIP 内恰好 11 个正式文件；无 `__pycache__`、训练文件、测试 manifest、`last.pt` 或旧模型目录。ZIP SHA256 已写入 `shuzhi_platform_inference_v1.zip.sha256`。
+5. 压缩包审计：正式 tar.gz 内恰好 11 个正式文件；无 `__pycache__`、训练文件、测试 manifest、`last.pt` 或旧模型目录。tar.gz SHA256 已写入 `shuzhi_platform_inference_v1.tar.gz.sha256`；备用 ZIP 也已完成同样校验。
 
 ## 已知边界
 
