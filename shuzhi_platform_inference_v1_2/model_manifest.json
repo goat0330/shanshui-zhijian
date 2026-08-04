@@ -1,0 +1,75 @@
+{
+    "package_version": "shuzhi_platform_inference_v1.2",
+    "task": "赛题三水域综合异常识别六分类",
+    "labels": [
+        "乱采",
+        "乱建",
+        "乱堆",
+        "乱占",
+        "有漂浮物",
+        "正常"
+    ],
+    "model": {
+        "architecture": "convnext_tiny",
+        "checkpoint_model_name": "convnext_tiny_384",
+        "checkpoint_source": "reviewed_v2 four-fold 448px last-stage continuation models initialized from the reviewed_v2 384px checkpoints",
+        "freeze_mode": "last_stage",
+        "input_size": 448,
+        "interpolation": "bicubic",
+        "mean": [
+            0.485,
+            0.456,
+            0.406
+        ],
+        "std": [
+            0.229,
+            0.224,
+            0.225
+        ],
+        "padding_fill_rgb": [
+            124,
+            116,
+            104
+        ]
+    },
+    "ensemble": {
+        "fold_count": 4,
+        "method": "weighted sum of per-fold softmax probabilities followed by argmax",
+        "weights": [
+            0.25,
+            0.25,
+            0.25,
+            0.25
+        ]
+    },
+    "runtime": {
+        "torch_policy": "Use the competition platform's compatible preinstalled torch and torchvision when available; do not blindly replace its CUDA build.",
+        "tested_python": "3.11.5",
+        "tested_torch": "2.6.0+cu118",
+        "tested_torchvision": "0.21.0",
+        "tested_timm": "1.0.28",
+        "tested_pillow": "11.3.0"
+    },
+    "checkpoints": [
+        {
+            "fold": 0,
+            "path": "weights/fold0_best.pt",
+            "sha256": "1839906f47fcebbd8a2f68505f8ae9c5fe5f6fae8a6099f66b0b9faf7b4f0cf1"
+        },
+        {
+            "fold": 1,
+            "path": "weights/fold1_best.pt",
+            "sha256": "5b993f3ce29b42de29b7ff81ecfc107fe4e268c6e463ad6caffe2a27fda332d3"
+        },
+        {
+            "fold": 2,
+            "path": "weights/fold2_best.pt",
+            "sha256": "bd70033e30f9f112cf876338d3b5720908adcc13f39563a89b76bb4f358748e6"
+        },
+        {
+            "fold": 3,
+            "path": "weights/fold3_best.pt",
+            "sha256": "80c2811c47f3d153dca58d615824ba2546848a8df3dfff66f6b79162193ad3db"
+        }
+    ]
+}

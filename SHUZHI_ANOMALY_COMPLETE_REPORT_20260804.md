@@ -2,31 +2,31 @@
 
 更新时间：2026-08-04  
 项目：山水智鉴/赛题三——水域综合异常识别  
-当前交付分支：`feat/platform-inference-v1`<br>
-推理包代码提交：`b0243f3b24fca3edb5843befa8804e8ad21b342f`<br>
-OpenChamber 完成事件：`shuzhi-overnight-20260804`，状态 `completed`，canonical artifact 检查通过。<br>
+当前交付分支：`main`<br>
+推理包代码提交：以 `main` 最新 HEAD 为准<br>
+OpenChamber 完成事件：`shuzhi-overnight-20260804`、`shuzhi-448-4fold-20260804`，均为 `completed`，canonical artifact 检查通过。<br>
 汇总报告提交：以本分支最新 HEAD 为准。
 
 ## 一、结论先行
 
 本轮已经把赛题三从“本地训练结果”整理为“可交给比赛平台执行的正式离线推理包”。正式包采用 `.tar.gz` 形式，包含四个 reviewed_v2 四折模型权重；另提供一个不含权重和图片、大小远低于 30 MB 的核心代码包，用于代码审查、版本交接和后续重新打包。
 
-当前推荐使用 reviewed_v2 四折候选提交。其 Global OOF 结果为：
+当前推荐使用 reviewed_v2 448px 四折 v1.2 候选提交。其 Global OOF 结果为：
 
-| 指标 | raw_v1 冠军主线 | reviewed_v2 续训候选 | 变化 |
+| 指标 | raw_v1 冠军主线 | v1.1 reviewed_v2 384px | v1.2 reviewed_v2 448px |
 |---|---:|---:|---:|
-| Weighted F1 | 0.979403 | **0.982875** | +0.003472 |
-| mIoU | 0.629527 | **0.639108** | +0.009582 |
-| Macro-F1 | 0.647091 | **0.652262** | +0.005171 |
-| Accuracy | 0.984197 | **0.986831** | +0.002634 |
-| 错误数 | 18 | **15** | -3 |
-| 有漂浮物 Recall | 0.998041 | **0.999022** | +0.000980 |
+| Weighted F1 | 0.979403 | 0.982875 | **0.984696** |
+| mIoU | 0.629527 | 0.639108 | **0.644923** |
+| Macro-F1 | 0.647091 | 0.652262 | **0.655452** |
+| Accuracy | 0.984197 | 0.986831 | **0.988586** |
+| 错误数 | 18 | 15 | **13** |
+| 有漂浮物 Recall | 0.998041 | 0.999022 | 0.998043 |
 
-这一结果通过了预设候选门槛：`0.982875 >= 0.979403`。冠军 `repair_v2` 原始权重没有覆盖，仍保留为候选 A；reviewed_v2 作为候选 B 完成测试推理和正式离线包构建。
+448px 结果通过替换门槛：`0.984696 >= 0.982875`，且错误数从 15 降至 13。v1.1 384px 包和 `repair_v2` 原始权重均未覆盖，继续保留为回退候选。
 
 ### OpenChamber 本轮完成态
 
-本轮 CUDA 训练和后续诊断已由 OpenChamber session `ses_037229559ffeXuWP1YVcFSn0Br` 完成。通过 supervisor 的 canonical `event-read` 复核：`status=completed`、`artifacts_ok=true`、`ready_for_next_task=true`。四项关键产物位于 `competition/shuzhi_anomaly/runs/overnight_20260804/`，包括四折 checkpoint、Global OOF gate、695 条候选 JSON 和最终报告。完整吸收记录见 `OPENCHAMBER_COMPLETION_ABSORPTION_20260804.md`。
+本轮 CUDA 训练和后续诊断已由 OpenChamber session `ses_037229559ffeXuWP1YVcFSn0Br` 完成。448px 任务 `shuzhi-448-4fold-20260804` 通过 supervisor 的 canonical `event-read` 复核：`status=completed`、`artifacts_ok=true`、`ready_for_next_task=true`。四折 checkpoint、Global OOF 和 SHA 记录位于 `competition/shuzhi_anomaly/runs/overnight_20260804/07_resolution448_4fold/`。
 
 ## 二、项目边界和比赛契约
 
@@ -168,12 +168,16 @@ OpenChamber 完成事件：`shuzhi-overnight-20260804`，状态 `completed`，ca
 
 ### 4.3 448 分辨率诊断
 
-在包含少量乱建和正常样本的 fold2 上做了 448 分辨率单 fold 诊断：
+此前在包含少量乱建和正常样本的 fold2 上做了 448 分辨率单 fold 诊断：
 
 - Weighted F1：0.984405，对比 384 fold2 的 0.980900；
 - 错误数：4 降至 3；
 - 解决 `02044.jpg`；
-- 结论：满足扩展到四折的条件，但本轮没有把 448 单折诊断直接替换为正式主线。
+- 结论：满足扩展到四折的条件，后续已执行完整四折扩展。
+
+### 4.4 448px 四折正式扩展
+
+四折均从对应 reviewed_v2 384px best.pt 续训，采用 448 输入、last_stage、batch 8、标准 CE、单 CUDA 进程顺序执行。Global OOF 为 Weighted F1 `0.984696`、mIoU `0.644923`、13 个错误，因此 v1.2 替换 v1.1。
 
 ### 4.4 场景 holdout 诊断
 
@@ -307,18 +311,18 @@ python path\to\shuzhi_platform_inference_v1\main.py `
 | 总记录差异 | 0 |
 | 状态 | PASS |
 
-当前 695 张候选预测分布为：有漂浮物 529、乱占 126、乱采 33、乱堆 6、乱建 1、正常 0。`正常=0` 和 `乱建=1` 是模型能力风险，已经通过回归证明不是新推理入口造成的。
+当前 v1.2 的 695 张候选预测分布为：有漂浮物 524、乱占 135、乱采 33、乱堆 2、乱建 1、正常 0。`正常=0` 和 `乱建=1` 仍是模型能力风险；695 张无标签回归只能验证入口和契约，不能预测隐藏集得分。
 
 ## 八、交付文件
 
 ### 正式平台推理包（含权重）
 
-- 文件：`shuzhi_platform_inference_v1_1.tar.gz`；
-- 大小：413,612,492 bytes；
-- SHA256：`69851bec9c54892f4961ea8e06380cb8af768ef0ac96bd5d98574dbfcd4cc01a`；
-- 校验文件：`shuzhi_platform_inference_v1_1.tar.gz.sha256`。
+- 文件：`shuzhi_platform_inference_v1_2.tar.gz`；
+- 大小：413,611,782 bytes；
+- SHA256：`156df2c4460f59c6b3b504cd2a7658d63645ca0f5e4c1b7849eb9e9bd8ebcac5`；
+- 校验文件：`shuzhi_platform_inference_v1_2.tar.gz.sha256`。
 
-原 ZIP 仍保留作备用交付，不能与正式 tar.gz 混用时优先使用 tar.gz。
+`shuzhi_platform_inference_v1_1.tar.gz` 仍保留作回退交付，不能与正式 tar.gz 混用时优先使用 v1.2。
 
 ### 核心代码包（不含权重，≤30 MB）
 
@@ -332,6 +336,7 @@ python path\to\shuzhi_platform_inference_v1\main.py `
 ### 审计和结果文件
 
 - `PLATFORM_INFERENCE_AUDIT.md`：正式推理包审计；
+- `PLATFORM_INFERENCE_V1_2_448_REPORT.md`：448px 四折 v1.2 训练、运行时和 695 张回归验收；
 - `OPENCHAMBER_COMPLETION_ABSORPTION_20260804.md`：本轮 OpenChamber 完成态和 canonical artifact 吸收记录；
 - `platform_695_consistency/consistency_report.json`：695 张逐条一致性摘要；
 - `platform_695_consistency/prediction_diff.csv`：空差异表；
@@ -341,14 +346,11 @@ python path\to\shuzhi_platform_inference_v1\main.py `
 
 本轮明确没有做：
 
-- 没有重新训练 448 四折正式主线；
 - 没有修改原始 `train.json`；
 - 没有使用测试集伪标签；
 - 没有引入外部数据；
 - 没有使用 YOLO 检测框、分割 mask 或多模态模型；
 - 没有把 `file_block_0005` holdout 的虚高分当成正式验证分；
-- 没有把 448 单折诊断直接替换当前四折候选；
-- 没有合并或修改稳定 `main`。
 
 仍然存在的主要风险：
 
@@ -360,9 +362,9 @@ python path\to\shuzhi_platform_inference_v1\main.py `
 
 ## 十、推荐操作顺序
 
-1. 上传并解压 `shuzhi_platform_inference_v1_1.tar.gz` 作为正式离线推理包。
+1. 上传并解压 `shuzhi_platform_inference_v1_2.tar.gz` 作为正式离线推理包。
 2. 用 `.sha256` 文件校验上传文件完整性。
 3. 在平台环境先执行 `validate_runtime.py`。
 4. 用平台给定隐藏图片目录执行 `main.py`，提交生成的四字段 JSON。
 5. 不要把核心代码包当成可直接提交的推理包；它仅用于代码审查和轻量交接。
-6. 若还有训练时间，后续优先做 448 四折扩展和针对正常/乱建的真实场景补充，而不是继续调推理格式。
+6. 保留 v1.1 作为回退包；等待平台隐藏集得分后，再决定是否继续针对正常/乱建补充真实场景数据。

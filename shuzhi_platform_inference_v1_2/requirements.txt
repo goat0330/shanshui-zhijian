@@ -1,0 +1,8 @@
+# Platform-safe non-framework dependencies.
+# The competition platform should provide a compatible CUDA build of torch
+# and torchvision. Do not blindly replace the platform's CUDA runtime.
+timm==1.0.28
+Pillow==11.3.0
+PyYAML>=5.4.1
+huggingface-hub>=0.17.0
+safetensors>=0.3.1
