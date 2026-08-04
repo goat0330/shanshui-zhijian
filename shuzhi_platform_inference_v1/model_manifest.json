@@ -1,5 +1,5 @@
 {
-    "package_version": "shuzhi_platform_inference_v1",
+    "package_version": "shuzhi_platform_inference_v1.1",
     "task": "赛题三水域综合异常识别六分类",
     "labels": [
         "乱采",
@@ -34,13 +34,21 @@
     },
     "ensemble": {
         "fold_count": 4,
-        "method": "equal mean of per-fold softmax probabilities followed by argmax",
+        "method": "weighted sum of per-fold softmax probabilities followed by argmax",
         "weights": [
             0.25,
             0.25,
             0.25,
             0.25
         ]
+    },
+    "runtime": {
+        "torch_policy": "Use the competition platform's compatible preinstalled torch and torchvision when available; do not blindly replace its CUDA build.",
+        "tested_python": "3.11.5",
+        "tested_torch": "2.6.0+cu118",
+        "tested_torchvision": "0.21.0",
+        "tested_timm": "1.0.28",
+        "tested_pillow": "11.3.0"
     },
     "checkpoints": [
         {

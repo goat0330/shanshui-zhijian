@@ -1,0 +1,26 @@
+{
+  "platform_count": 695,
+  "reference_count": 695,
+  "count_match": true,
+  "order_match": true,
+  "filename_diff": 0,
+  "width_diff": 0,
+  "height_diff": 0,
+  "label_diff": 0,
+  "total_record_diff": 0,
+  "platform_label_distribution": {
+    "有漂浮物": 529,
+    "乱占": 126,
+    "乱采": 33,
+    "乱堆": 6,
+    "乱建": 1
+  },
+  "reference_label_distribution": {
+    "有漂浮物": 529,
+    "乱占": 126,
+    "乱采": 33,
+    "乱堆": 6,
+    "乱建": 1
+  },
+  "status": "pass"
+}
