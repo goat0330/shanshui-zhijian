@@ -1,0 +1,18 @@
+{
+  "stage": "01_reviewed_v2_4fold/fold0",
+  "completed": true,
+  "early_stopped_at_epoch": 4,
+  "best_epoch": 1,
+  "weighted_f1": 0.983986588238662,
+  "champion_weighted_f1": 0.983986588238662,
+  "weighted_f1_drop": 0.0,
+  "macro_f1": 0.6356107387505208,
+  "mIoU": 0.7315570299265952,
+  "error_count": 4,
+  "floating_recall": 0.9960159362549801,
+  "luanjian_predicted": 0,
+  "zhengchang_predicted": 0,
+  "nan_inf": false,
+  "checkpoint_ok": true,
+  "status": "PASS (identical to champion, within thresholds)"
+}

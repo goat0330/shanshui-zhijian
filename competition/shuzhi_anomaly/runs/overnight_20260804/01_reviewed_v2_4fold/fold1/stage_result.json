@@ -1,0 +1,12 @@
+{
+  "stage": "01_reviewed_v2_4fold/fold1",
+  "completed": true,
+  "early_stopped_at_epoch": 4,
+  "best_epoch": 1,
+  "weighted_f1": 0.989647,
+  "champion_weighted_f1": 0.989647,
+  "weighted_f1_drop": 0.0,
+  "error_count": 2,
+  "errors": ["00096.jpg 正常->有漂浮物", "02486.jpg 乱建->乱占"],
+  "status": "PASS (matches champion)"
+}

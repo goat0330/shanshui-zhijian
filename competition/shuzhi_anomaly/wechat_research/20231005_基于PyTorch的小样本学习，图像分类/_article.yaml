@@ -1,0 +1,148 @@
+title: 基于PyTorch的小样本学习，图像分类
+account: 江大白
+publish_date: '2023-10-05'
+source_url: https://mp.weixin.qq.com/s?__biz=Mzg5NzgyNTU2Mg==&mid=2247518866&idx=2
+canonical_id: wechat:Mzg5NzgyNTU2Mg==:2247518866:2
+archived_at: '2026-08-03T14:50:18+08:00'
+archive_schema_version: 5
+search_id: 87
+sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9Lv_0aBUqNG0vQVirjFfvdGr7OmHBdNFH9Kpj75HXgInLNoIPZA_eSytEPzOzx__uiPChShfqSW62jMhWIOWhNZAlbFTJczfXxHIsuYlqEBUNlmBuTExF21wMK3CTkApQweT_4gDYdGfQfs9SqECgK9oRH1wuOLG7fJJXOb5SxfN5LU3lqtPw9g..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+resolved_url: https://mp.weixin.qq.com/s?src=11&timestamp=1785739756&ver=6881&signature=BQNcElsz*KqE55A6S*RYVHsF82zAiagNFwcc1WRv9UTH5ll-wKj0WgC5qiX7-G5omked3bgaHsAHtPAma2mpf7onllnACjHnyfv2K4WA*LlSdtiqnLGDRgqqgAXckgYl&new=1
+content_hash: sha256:61377fcadd56b1478eee67187e6f95b9d0861e21cf9aed18f51543083676a2f9
+images:
+- order: 1
+  source_url: https://mmbiz.qpic.cn/mmbiz_gif/QWAZ7Ok6ecwT5uGKxUFBCjxbjoUZSISjWPHVdlEmWicWYHZtlWvxCdia1Sh1dib4zzuic1asXXiaY1dTJmoATDicnoiag/640?wx_fmt=gif#imgIndex=0
+  original_caption: 图片
+  derived_label: 公众号署名
+  naming_source: role
+  confidence: low
+  local_file: 1_公众号署名.gif
+  sha256: 84428d9f448c60cd7e1cf287470aabfb7608b507ba4a98c88a3bb2991d36d6ed
+- order: 2
+  source_url: https://mmbiz.qpic.cn/mmbiz_gif/Ljib4So7yuWhPmGHfBz7vlEFLwDwiaiaQoCQ1iaUGFFpV3z4Qq9uTTh0gibzDT52BKUwfAM5Kf2jsDpKRmuQuO2asXQ/640?wx_fmt=gif&wxfrom=5&wx_lazy=1#imgIndex=1
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 2_正文配图.gif
+  sha256: 2aa82e6151e1e34a8e522b5e62bbd584c35044da9776bb9e7c565495b896bf07
+- order: 3
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfpSVPALg8pBNxz1vJ50e182tIVGs82gnCxpZ029RxSgjH5j4ZSgiam7EwBxm4Zgy8tBaTrsLalQTsw/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=2
+  original_caption: 什么是小样本学习?
+  derived_label: 什么是小样本学习
+  naming_source: heading
+  confidence: medium
+  local_file: 3_什么是小样本学习.jpg
+  sha256: 4b0a59f437549005c3bdb6a03ec6d4670f0b9ce13950bb9ddaefb9da474c8141
+- order: 4
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfpSVPALg8pBNxz1vJ50e1827RYkRlNI5icA3bRicyuzPCgR4Ticc50SbZ4XU5XwhLc3HrjzmFWpzhVsQ/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=3
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 4_正文配图.jpg
+  sha256: 41923f371f2603226bd1df01e6cafc7b4c2ee14b0d7078a8a97d1bbf5903211c
+- order: 5
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfpSVPALg8pBNxz1vJ50e182VCqWQn5NskLZv5FrG161KNVLcYuUIWRGoxfnAuCoiarEQ2Xd46GGlcA/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=4
+  original_caption: 关系网络 Relation Network
+  derived_label: 关系网络 Relation Network
+  naming_source: heading
+  confidence: medium
+  local_file: 5_关系网络 Relation Network.jpg
+  sha256: add31f4311388e3a17cb560b8c8f155b4565e8fd8b1e070784394c1c5bac6f39
+- order: 6
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfpSVPALg8pBNxz1vJ50e182VUVjoe4k1Pqf9HRgz9zUMnwDzbkJrF4R0T9icRdZIFNm91JjTicMTPibQ/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=5
+  original_caption: 结果的可视化如下：
+  derived_label: 结果的可视化如下
+  naming_source: heading
+  confidence: medium
+  local_file: 6_结果的可视化如下.jpg
+  sha256: a9c1141a4a7eac548763f48e454674a0795bc5e1247e3269e5d0a1099bed926a
+- order: 7
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfpSVPALg8pBNxz1vJ50e182I56vXZjesBIURNfibicR5tzQzEoLfTNsNCmlgwbHOIlJU0Q4licqfaysw/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=6
+  original_caption: 结果的可视化如下：
+  derived_label: 结果的可视化如下
+  naming_source: heading
+  confidence: medium
+  local_file: 7_结果的可视化如下.jpg
+  sha256: 29d42552340874671c8dcd3048bc0f98eddc7358eed5311b50f46bb1774cc217
+- order: 8
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfpSVPALg8pBNxz1vJ50e182FGYxnjxibianzMx5EoOPa8BB736vTqXMlR1gVu4hhY22zFHib8cPebykA/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=7
+  original_caption: 零样本的图像分类
+  derived_label: 零样本的图像分类
+  naming_source: heading
+  confidence: medium
+  local_file: 8_零样本的图像分类.jpg
+  sha256: 501e680e679ff7b5f5ff93a623d101033393d4e3392f0bb981b1c0faa5b0906e
+- order: 9
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/Vic6gHkjpdfmBmianwYw8mjIuceM0NHfzguLWx2TMGoNoicx0G5WiajYiaEFMwFmoZL420bibURZ8yszibpYVapBZUPkg/640?wx_fmt=jpeg&wxfrom=5&tp=wxpic&wx_lazy=1&wx_co=1#imgIndex=8
+  original_caption: 零样本的图像分类
+  derived_label: 零样本的图像分类
+  naming_source: heading
+  confidence: medium
+  local_file: 9_零样本的图像分类.jpg
+  sha256: 0a62d2311a753e03519d46cf60ddb67b25da1af21c5ead9fda93c40c775ec0c9
+- order: 10
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/QWAZ7Ok6ecw7sy16sFbX70kUQxiczoB3OBA8Q9cIIEARia9BVQ16RfEBQxEgwgcibchtZyKQbAQvAicicLFuPiaQQiajQ/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=9
+  original_caption: 零样本的图像分类
+  derived_label: 零样本的图像分类
+  naming_source: heading
+  confidence: medium
+  local_file: 10_零样本的图像分类.jpg
+  sha256: 47007b83f16d0ee4dd816751b71772ee057eab573da2330821035941d76b8df3
+- order: 11
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/QWAZ7Ok6ecxU1Wz3Eh0ZfB4DuCvSqqHL3lWm3icWDFUSs0FAy8SRTx7bia8RcTANxBia0vM00XUhcxCzV3BfI8Etg/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=10
+  original_caption: AIHIA | AI人才创新发展联盟2023年盟友招募
+  derived_label: AIHIA _ AI人才创新发展联盟年盟友招募
+  naming_source: adjacent
+  confidence: medium
+  local_file: 11_AIHIA _ AI人才创新发展联盟年盟友招募.jpg
+  sha256: 5ca47d85391567bd8cfd6793d123bba900c75cf8032613a5ccf1787eaca13f29
+- order: 12
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/QWAZ7Ok6ecykYCCV65unt2MqLz5dEFlPo8dBdCgtUFkd6258iaOPtm88aSdGelgM2PjzNeMuAVt2JHSsyMTAPVQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=11
+  original_caption: AI融资 | 智能物联网公司阿加犀获得高通5000W融资
+  derived_label: AI融资 _ 智能物联网公司阿加犀获得高通W融资
+  naming_source: adjacent
+  confidence: medium
+  local_file: 12_AI融资 _ 智能物联网公司阿加犀获得高通W融资.png
+  sha256: 256f7e268c7186c64051f6f01387358cc1f385d9c4b264b3937fdc5e30e2128c
+- order: 13
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/Zibun5D7npINcy0COoKmIeG0KmvOagGwv2hicWiakgL4QXD2DeSapKrVEHFYPduFOPC42SGkdbPI0WfibOJqtGRohA/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=12
+  original_caption: Yolov5应用 | 家庭安防告警系统全流程及代码 讲解
+  derived_label: Yolov应用 _ 家庭安防告警系统全流程及代码
+  naming_source: adjacent
+  confidence: medium
+  local_file: 13_Yolov应用 _ 家庭安防告警系统全流程及代码.jpg
+  sha256: 820ea8fe429cfd2c417dae4e873a3db9cc463de132a704b74514124c92929dff
+- order: 14
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/Zibun5D7npINh2F0MZZgS5ADJahnYL1BKqoCICW4bwibU0YibnkrvNsvnKkwUx2ewJNGJHy6vhdZxt9vCxSUYPZVg/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=13
+  original_caption: 江大白 | 这些年从0转行AI行业的一些感悟
+  derived_label: 江大白 _ 这些年从0转行AI行业的一些感悟
+  naming_source: adjacent
+  confidence: medium
+  local_file: 14_江大白 _ 这些年从0转行AI行业的一些感悟.jpg
+  sha256: cfa98c74c2d7877bd6e3e071cbed0fb3757600de6100558707bb0560e3f947c9
+- order: 15
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/QWAZ7Ok6ecwBsgXPP7dibZR0vFfoMckTcjxkFn13d05qXxKA831UW9ZG1an5MPtAZwlhjaTfnsnSehULR5UmIJQ/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=14
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 15_正文配图.png
+  sha256: 44635f40082c56ccbb33deabd4dbb14b0fcfc23e9aebceb1dbcae15d88006db3
+- order: 16
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/QWAZ7Ok6ecwBsgXPP7dibZR0vFfoMckTcEkcfKuaaTEU2g7uvAreGSwoepjn3M0lZ2mftjaGRbOeYq0Xib0kMQNg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1#imgIndex=15
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 16_正文配图.png
+  sha256: c0e9de64e95a2ce228f474f04e6b35a3eb3d13458af5b67c5d8a6bc3584e81c5
+- order: 17
+  source_url: https://mmbiz.qpic.cn/mmbiz_gif/3ib4H8Vxvm0gyI2LkjA7BbzJIuhb3q5ibcJtgOXoickO7y08RT4qnn5uzia3C6nxZhTCicO2LMw6mY94g29Rf07lOyg/640?wx_fmt=gif&wxfrom=5&wx_lazy=1#imgIndex=16
+  original_caption: © THE END
+  derived_label: 文末二维码
+  naming_source: role
+  confidence: low
+  local_file: 17_文末二维码.gif
+  sha256: ef73e216440672b73c29ec8c7cf87838baa83ce1c588ec92445ff67b429ddb70

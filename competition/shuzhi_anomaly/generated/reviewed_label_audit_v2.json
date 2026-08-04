@@ -1,0 +1,25 @@
+{
+  "dataset_version": "reviewed_v2",
+  "source_train_json": "D:\\研究生作业\\人工智能实践比赛\\水域综合异常识别_训练集+验证集\\train.json",
+  "source_train_json_sha256": "cd554feac844a9ae20b05401b4e137761921becd9f3e6eda35cfb92f14ac18b7",
+  "decision_csv": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\review_11_minority_v1\\review_decisions_v2.csv",
+  "decision_csv_sha256": "f163550e9529020b28ab0ca8c8e7b7e799a58e4a01a3658dc7474d0f8823ed9f",
+  "record_count": 1144,
+  "decision_count": 11,
+  "changed_label_count": 2,
+  "changed_labels": [
+    {
+      "filename": "00033.jpg",
+      "from": "正常",
+      "to": "有漂浮物"
+    },
+    {
+      "filename": "02111.jpg",
+      "from": "正常",
+      "to": "乱堆"
+    }
+  ],
+  "unreviewed_records_retain_official_labels": true,
+  "raw_train_json_unchanged": true,
+  "reviewed_output": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\generated\\train_reviewed_v2.json"
+}

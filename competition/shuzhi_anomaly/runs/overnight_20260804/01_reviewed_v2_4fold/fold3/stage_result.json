@@ -1,0 +1,14 @@
+{
+  "stage": "01_reviewed_v2_4fold/fold3",
+  "completed": true,
+  "early_stopped_at_epoch": 5,
+  "best_epoch": 2,
+  "weighted_f1": 0.976883,
+  "champion_weighted_f1": 0.973410,
+  "weighted_f1_delta": 0.003473,
+  "error_count": 5,
+  "champion_error_count": 6,
+  "errors_resolved": ["00020.jpg 有漂浮物->乱占 resolved"],
+  "errors": ["00114.jpg 正常->有漂浮物", "01086.jpg 正常->有漂浮物", "02062.jpg 乱占->有漂浮物", "02089.jpg 乱占->有漂浮物", "02489.jpg 乱建->有漂浮物"],
+  "status": "PASS (improved)"
+}

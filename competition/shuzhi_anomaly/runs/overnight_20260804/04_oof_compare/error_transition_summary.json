@@ -1,0 +1,39 @@
+﻿{
+  "timeout": false,
+  "new_oof_ready": true,
+  "new_oof_rows": 1139,
+  "champion_rows": 1139,
+  "champion_total_errors": 16,
+  "new_total_errors": 15,
+  "net_error_delta": -1,
+  "total_resolved": 1,
+  "total_new": 0,
+  "total_persistent": 15,
+  "total_correct_both": 1123,
+  "resolved_files": [
+    "00020.jpg"
+  ],
+  "new_error_files": [],
+  "persistent_files": [
+    "02150.jpg",
+    "02488.jpg",
+    "02044.jpg",
+    "02489.jpg",
+    "00757.jpg",
+    "02486.jpg",
+    "02085.jpg",
+    "00114.jpg",
+    "00100.jpg",
+    "02062.jpg",
+    "01086.jpg",
+    "02089.jpg",
+    "00064.jpg",
+    "00096.jpg",
+    "02487.jpg"
+  ],
+  "output_csv": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\runs\\overnight_20260804\\04_oof_compare\\error_transition.csv",
+  "reviewed_truth_overrides": {
+    "00033.jpg": "有漂浮物",
+    "02111.jpg": "乱堆"
+  }
+}

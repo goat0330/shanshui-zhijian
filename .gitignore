@@ -22,6 +22,9 @@ data/chongqing_demo/*.db
 山水智鉴_OpenCode控制台/
 .agent/
 .opencode/
+!.opencode/
+.opencode/*
+!.opencode/agent-control-plane.json
 
 # Pipeline outputs
 competition/spikes/chongqing_rs_demo/products/
@@ -39,9 +42,12 @@ competition/spikes/chongqing_rs_demo/products/
 mlruns/
 *.pt
 *.pth
+*.safetensors
 *.onnx
 *.ckpt
 *.h5
+competition/shuzhi_anomaly/weights/
+competition/shuzhi_anomaly/train_classifier.before_repair_v2.py
 
 # GeoAgent project memory (internal notes, not for public)
 geocode_memory.md

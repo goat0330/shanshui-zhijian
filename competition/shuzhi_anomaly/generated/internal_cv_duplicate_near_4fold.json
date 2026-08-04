@@ -46,6 +46,6 @@
     "3": []
   },
   "final_group_fold_ready": false,
-  "note": "duplicate_near is a leakage-controlled internal baseline; final Group Fold still requires confirmed visual/source sequence groups.",
+  "note": "exact and near duplicate components are kept together; final Group Fold still requires confirmed visual/source sequence groups.",
   "output": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\generated\\internal_cv_duplicate_near_4fold.csv"
 }

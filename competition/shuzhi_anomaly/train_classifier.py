@@ -1,30 +1,41 @@
-"""Small timm adapter for the six-class water anomaly classifier.
+"""Robust timm trainer for the six-class water anomaly competition.
 
-The script intentionally keeps the competition-specific code local:
-JSON/manifest loading, class+sequence sampling, and confusion-matrix mIoU.
-It never treats an unlabeled test directory as validation data.
+Key repairs versus the earlier adapter:
+- official ConvNeXt 22K->1K 384 checkpoint can be loaded through an alias;
+- true CE baseline defaults to label_smoothing=0;
+- head / staged unfreezing and differential learning rates;
+- AMP and early stopping;
+- per-sample best-epoch OOF logits/probabilities;
+- EXIF-safe JPG/PNG loading and model-config-aware resize+padding;
+- legacy class_sequence sampler is blocked because it truncates each class to
+  the rarest-class capacity.
 """
-
 from __future__ import annotations
 
 import argparse
 import csv
 import json
-import random
-from collections import defaultdict
+from contextlib import nullcontext
 from pathlib import Path
-from typing import Iterable
 
-import timm
 import torch
-from PIL import Image
 from torch import Tensor, nn
-from torch.utils.data import DataLoader, Dataset, Sampler
-from torchvision import transforms
+from torch.utils.data import DataLoader, WeightedRandomSampler
 
-
-LABELS = ("乱采", "乱建", "乱堆", "乱占", "有漂浮物", "正常")
-LABEL_TO_ID = {label: index for index, label in enumerate(LABELS)}
+from classification_common import (
+    LABELS,
+    ClassificationDataset,
+    build_cv_records,
+    build_model,
+    build_transforms,
+    configure_trainable_layers,
+    confusion_matrix_from_ids,
+    json_ready,
+    metrics_from_confusion,
+    optimizer_param_groups,
+    seed_everything,
+    write_prediction_csv,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -36,504 +47,422 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--train-json", type=Path, default=None)
     parser.add_argument(
-        "--val-json",
-        type=Path,
-        default=None,
-        help="Labeled validation JSON. If omitted, use rows with split=val in --manifest.",
-    )
-    parser.add_argument(
         "--manifest",
         type=Path,
         default=Path("competition/shuzhi_anomaly/generated/data_manifest.csv"),
     )
-    parser.add_argument(
-        "--train-index",
-        type=Path,
-        default=None,
-        help="Optional non-destructive train_index.csv; only training_use=True rows are used.",
-    )
-    parser.add_argument("--out-dir", type=Path, default=Path("runs/shuzhi_baseline"))
-    parser.add_argument("--model", default="resnet18")
-    parser.add_argument(
-        "--image-size",
-        type=int,
-        default=384,
-        help="Square output size after aspect-preserving resize and padding.",
-    )
-    parser.add_argument("--batch-size", type=int, default=16)
-    parser.add_argument("--epochs", type=int, default=30)
-    parser.add_argument("--lr", type=float, default=3e-4)
-    parser.add_argument("--weight-decay", type=float, default=1e-4)
-    parser.add_argument("--workers", type=int, default=0)
-    parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument(
-        "--sampler",
-        choices=("standard", "class_sequence"),
-        default="standard",
-        help="standard is the safe baseline; class_sequence is an ablation only.",
-    )
-    parser.add_argument(
-        "--max-frames-per-sequence",
-        type=int,
-        default=4,
-        choices=(1, 2, 3, 4),
-    )
-    parser.add_argument("--label-smoothing", type=float, default=0.03)
-    parser.add_argument("--logit-adjustment", type=float, default=0.0)
-    parser.add_argument(
-        "--selection-metric",
-        choices=("miou", "macro_f1", "accuracy"),
-        default="miou",
-        help="Metric used to select best.pt; mIoU matches the competition objective.",
-    )
+    parser.add_argument("--train-index", type=Path, required=True)
     parser.add_argument(
         "--cv-manifest",
         type=Path,
-        default=None,
-        help="Optional internal CV manifest produced by build_internal_cv.py.",
+        required=True,
+        help="Internal labeled CV manifest with filename and fold columns.",
+    )
+    parser.add_argument("--fold", type=int, required=True)
+    parser.add_argument(
+        "--label-version", choices=("raw_v1", "reviewed_v1", "reviewed_v2"), default="raw_v1"
+    )
+    parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument(
+        "--model",
+        default="convnext_tiny_384",
+        help=(
+            "Alias or timm model name. convnext_tiny_384 resolves to "
+            "hf-hub:timm/convnext_tiny.fb_in22k_ft_in1k_384."
+        ),
+    )
+    parser.add_argument("--cache-dir", type=Path, default=Path("weights/timm"))
+    parser.add_argument("--init-checkpoint", type=Path, default=None)
+    parser.add_argument("--image-size", type=int, default=384)
+    parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("--epochs", type=int, default=20)
+    parser.add_argument("--workers", type=int, default=2)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--freeze-mode",
+        choices=("full", "head", "last_stage", "last2_stages"),
+        default="head",
+    )
+    parser.add_argument("--backbone-lr", type=float, default=2e-5)
+    parser.add_argument("--head-lr", type=float, default=3e-4)
+    parser.add_argument("--weight-decay", type=float, default=0.05)
+    parser.add_argument("--label-smoothing", type=float, default=0.0)
+    parser.add_argument("--logit-adjustment", type=float, default=0.0)
+    parser.add_argument(
+        "--loss", choices=("ce", "balanced_softmax"), default="ce"
     )
     parser.add_argument(
-        "--fold",
-        type=int,
-        default=None,
-        help="Validation fold when --cv-manifest is supplied.",
+        "--sampler",
+        choices=("standard", "power_balanced", "class_balanced_legacy", "class_sequence_legacy"),
+        default="standard",
     )
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument(
+        "--sampling-alpha",
+        type=float,
+        default=0.25,
+        help="For power_balanced: per-sample weight = class_count ** (-alpha).",
+    )
+    parser.add_argument("--samples-per-epoch", type=int, default=0)
+    parser.add_argument("--early-stopping-patience", type=int, default=6)
+    parser.add_argument("--grad-clip", type=float, default=1.0)
+    parser.add_argument(
+        "--selection-metric",
+        choices=("weighted_f1", "macro_f1", "mIoU", "accuracy"),
+        default="weighted_f1",
+    )
+    parser.add_argument("--amp", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--pretrained", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     return parser.parse_args()
 
 
-def seed_everything(seed: int) -> None:
-    random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
+class BalancedSoftmaxLoss(nn.Module):
+    def __init__(self, class_counts: Tensor, label_smoothing: float = 0.0):
+        super().__init__()
+        self.register_buffer("log_counts", class_counts.float().clamp_min(1).log())
+        self.label_smoothing = label_smoothing
 
-
-def load_json_records(path: Path) -> list[dict[str, object]]:
-    records = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(records, list):
-        raise ValueError(f"expected a list of labeled records: {path}")
-    result = []
-    for record in records:
-        filename = str(record["filename"])
-        label = str(record["label"])
-        if label not in LABEL_TO_ID:
-            raise ValueError(f"unknown label {label!r}: {filename}")
-        result.append({"filename": filename, "label": label})
-    return result
-
-
-def load_manifest(path: Path) -> dict[str, dict[str, str]]:
-    if not path.exists():
-        return {}
-    with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        rows = list(csv.DictReader(handle))
-    result = {}
-    for row in rows:
-        filename = row.get("filename", "")
-        if filename:
-            result[filename] = row
-    return result
-
-
-def load_train_index(path: Path) -> list[dict[str, object]]:
-    with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        rows = list(csv.DictReader(handle))
-    return [
-        {"filename": row["filename"], "label": row["label"]}
-        for row in rows
-        if row.get("training_use", "").lower() == "true"
-    ]
-
-
-def discover_images(source_root: Path) -> dict[str, list[Path]]:
-    result: dict[str, list[Path]] = defaultdict(list)
-    for path in source_root.rglob("*.jpg"):
-        result[path.name].append(path)
-    return result
-
-
-def resolve_labeled_records(
-    records: Iterable[dict[str, object]],
-    source_root: Path,
-    manifest: dict[str, dict[str, str]],
-    images: dict[str, list[Path]],
-) -> list[dict[str, object]]:
-    resolved = []
-    for record in records:
-        filename = str(record["filename"])
-        manifest_row = manifest.get(filename, {})
-        relative_path = manifest_row.get("relative_path", "")
-        path = source_root / relative_path if relative_path else None
-        if path is None or not path.exists():
-            candidates = images.get(filename, [])
-            if len(candidates) != 1:
-                raise FileNotFoundError(
-                    f"cannot resolve a unique image for {filename}: {candidates}"
-                )
-            path = candidates[0]
-        sequence_id = manifest_row.get("sequence_id") or f"filename_{filename}"
-        resolved.append(
-            {
-                "filename": filename,
-                "path": path,
-                "label": str(record["label"]),
-                "label_id": LABEL_TO_ID[str(record["label"])],
-                "sequence_id": sequence_id,
-            }
+    def forward(self, logits: Tensor, targets: Tensor) -> Tensor:
+        return nn.functional.cross_entropy(
+            logits + self.log_counts,
+            targets,
+            label_smoothing=self.label_smoothing,
         )
-    return resolved
 
 
-class WaterDataset(Dataset[tuple[Tensor, int]]):
-    def __init__(self, records: list[dict[str, object]], transform: transforms.Compose):
-        self.records = records
-        self.transform = transform
-
-    def __len__(self) -> int:
-        return len(self.records)
-
-    def __getitem__(self, index: int) -> tuple[Tensor, int]:
-        record = self.records[index]
-        with Image.open(record["path"]) as image:
-            image = image.convert("RGB")
-        return self.transform(image), int(record["label_id"])
+def make_grad_scaler(enabled: bool):
+    try:
+        return torch.amp.GradScaler("cuda", enabled=enabled)
+    except (AttributeError, TypeError):
+        return torch.cuda.amp.GradScaler(enabled=enabled)
 
 
-class ClassSequenceSampler(Sampler[int]):
-    """Equal class budget; each sequence contributes at most N frames/epoch."""
-
-    def __init__(
-        self,
-        records: list[dict[str, object]],
-        max_frames_per_sequence: int,
-        seed: int,
-    ):
-        self.seed = seed
-        self.epoch = 0
-        grouped: dict[int, dict[str, list[int]]] = defaultdict(lambda: defaultdict(list))
-        for index, record in enumerate(records):
-            grouped[int(record["label_id"])][str(record["sequence_id"])].append(index)
-        self.grouped = grouped
-        self.max_frames = max_frames_per_sequence
-        self.capacity = {
-            label_id: sum(
-                min(self.max_frames, len(indices))
-                for indices in sequence_rows.values()
-            )
-            for label_id, sequence_rows in grouped.items()
-        }
-        missing = sorted(set(range(len(LABELS))) - set(self.capacity))
-        if missing:
-            raise ValueError(f"training records are missing labels: {[LABELS[i] for i in missing]}")
-        self.class_budget = min(self.capacity.values())
-        if self.class_budget == 0:
-            raise ValueError("class sequence sampler has zero capacity")
-
-    def set_epoch(self, epoch: int) -> None:
-        self.epoch = epoch
-
-    def __iter__(self):
-        rng = random.Random(self.seed + self.epoch)
-        sampled: list[int] = []
-        for label_id in range(len(LABELS)):
-            candidates: list[int] = []
-            sequences = list(self.grouped[label_id].items())
-            rng.shuffle(sequences)
-            for _, indices in sequences:
-                shuffled = list(indices)
-                rng.shuffle(shuffled)
-                candidates.extend(shuffled[: self.max_frames])
-            rng.shuffle(candidates)
-            sampled.extend(candidates[: self.class_budget])
-        rng.shuffle(sampled)
-        return iter(sampled)
-
-    def __len__(self) -> int:
-        return self.class_budget * len(LABELS)
+def autocast_context(enabled: bool):
+    if not enabled:
+        return nullcontext()
+    return torch.autocast(device_type="cuda", dtype=torch.float16)
 
 
-class ResizePad:
-    """Preserve the whole scene instead of cropping away a small anomaly."""
+def resolve_train_json(args: argparse.Namespace) -> Path:
+    if args.train_json is not None:
+        return args.train_json.resolve()
+    if args.label_version == "raw_v1":
+        return (args.source_root.resolve() / "train.json").resolve()
+    return Path(
+        f"competition/shuzhi_anomaly/generated/train_{args.label_version}.json"
+    ).resolve()
 
-    def __init__(self, size: int):
-        self.size = size
 
-    def __call__(self, image: Image.Image) -> Image.Image:
-        width, height = image.size
-        scale = self.size / max(width, height)
-        resized = image.resize(
-            (max(1, round(width * scale)), max(1, round(height * scale))),
-            Image.Resampling.BILINEAR,
+def build_sampler(args: argparse.Namespace, records: list[dict[str, object]]):
+    if args.sampler == "standard":
+        return None
+    if args.sampler == "class_sequence_legacy":
+        raise ValueError(
+            "class_sequence_legacy is intentionally blocked: the old implementation "
+            "sets every class budget to the rarest-class capacity and discarded nearly "
+            "all training rows. Use standard or power_balanced."
         )
-        canvas = Image.new("RGB", (self.size, self.size), (123, 116, 103))
-        left = (self.size - resized.width) // 2
-        top = (self.size - resized.height) // 2
-        canvas.paste(resized, (left, top))
-        return canvas
-
-
-def build_transforms(image_size: int) -> tuple[transforms.Compose, transforms.Compose]:
-    train_transform = transforms.Compose(
-        [
-            ResizePad(image_size),
-            transforms.RandomHorizontalFlip(),
-            transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15),
-            transforms.ToTensor(),
-            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
-        ]
+    labels = torch.tensor([int(row["label_id"]) for row in records])
+    counts = torch.bincount(labels, minlength=len(LABELS)).float()
+    if args.sampler == "class_balanced_legacy":
+        alpha = 1.0
+        print("WARNING: class_balanced_legacy is aggressive and previously caused severe false positives.")
+    else:
+        alpha = args.sampling_alpha
+        if not (0.0 <= alpha <= 1.0):
+            raise ValueError("--sampling-alpha must be between 0 and 1")
+    weights = counts[labels].pow(-alpha)
+    num_samples = args.samples_per_epoch or len(records)
+    print(
+        "sampler counts:",
+        dict(zip(LABELS, counts.tolist())),
+        "alpha:",
+        alpha,
+        "num_samples:",
+        num_samples,
     )
-    val_transform = transforms.Compose(
-        [
-            ResizePad(image_size),
-            transforms.ToTensor(),
-            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
-        ]
-    )
-    return train_transform, val_transform
-
-
-def confusion_matrix(targets: Tensor, predictions: Tensor) -> Tensor:
-    matrix = torch.zeros((len(LABELS), len(LABELS)), dtype=torch.int64)
-    for target, prediction in zip(targets.tolist(), predictions.tolist()):
-        matrix[target, prediction] += 1
-    return matrix
-
-
-def m_iou(matrix: Tensor) -> tuple[float, list[float | None]]:
-    true_positive = matrix.diag().float()
-    denominator = matrix.sum(dim=1) + matrix.sum(dim=0) - true_positive
-    ious: list[float | None] = []
-    for numerator, denom in zip(true_positive, denominator):
-        ious.append(None if denom.item() == 0 else float((numerator / denom).item()))
-    valid = [value for value in ious if value is not None]
-    return (sum(valid) / len(valid) if valid else 0.0), ious
-
-
-def classification_metrics(matrix: Tensor) -> dict[str, object]:
-    true_positive = matrix.diag().float()
-    support = matrix.sum(dim=1).float()
-    predicted = matrix.sum(dim=0).float()
-    precision_denominator = predicted.clamp_min(1.0)
-    recall_denominator = support.clamp_min(1.0)
-    precision = true_positive / precision_denominator
-    recall = true_positive / recall_denominator
-    f1 = 2 * precision * recall / (precision + recall).clamp_min(1e-12)
-    total = matrix.sum().item()
-    accuracy = float(true_positive.sum().item() / total) if total else 0.0
-    macro_f1 = float(f1.mean().item())
-    weighted_f1 = float((f1 * support / support.sum().clamp_min(1.0)).sum().item())
-    return {
-        "accuracy": accuracy,
-        "macro_f1": macro_f1,
-        "weighted_f1": weighted_f1,
-        "balanced_accuracy": float(recall.mean().item()),
-        "per_class_precision": dict(zip(LABELS, precision.tolist())),
-        "per_class_recall": dict(zip(LABELS, recall.tolist())),
-        "per_class_f1": dict(zip(LABELS, f1.tolist())),
-        "prediction_distribution": matrix.sum(dim=0).tolist(),
-    }
+    return WeightedRandomSampler(weights, num_samples=num_samples, replacement=True)
 
 
 def run_epoch(
+    *,
     model: nn.Module,
     loader: DataLoader,
     criterion: nn.Module,
     device: torch.device,
-    optimizer: torch.optim.Optimizer | None = None,
-    adjustment: Tensor | None = None,
-) -> tuple[float, Tensor]:
+    fold: int,
+    optimizer: torch.optim.Optimizer | None,
+    scaler,
+    amp_enabled: bool,
+    grad_clip: float,
+    logit_adjustment: Tensor | None,
+) -> tuple[float, Tensor, list[dict[str, object]]]:
     training = optimizer is not None
     model.train(training)
     total_loss = 0.0
     total_count = 0
-    target_rows: list[Tensor] = []
-    prediction_rows: list[Tensor] = []
-    for images, targets in loader:
+    target_ids: list[int] = []
+    prediction_ids: list[int] = []
+    rows: list[dict[str, object]] = []
+
+    for images, targets, filenames in loader:
         images = images.to(device, non_blocking=True)
         targets = targets.to(device, non_blocking=True)
+        if training:
+            optimizer.zero_grad(set_to_none=True)
+
         with torch.set_grad_enabled(training):
-            logits = model(images)
-            loss_logits = logits + adjustment if adjustment is not None else logits
-            loss = criterion(loss_logits, targets)
+            with autocast_context(amp_enabled):
+                logits = model(images)
+                loss_logits = (
+                    logits + logit_adjustment
+                    if logit_adjustment is not None
+                    else logits
+                )
+                loss = criterion(loss_logits, targets)
             if training:
-                optimizer.zero_grad(set_to_none=True)
-                loss.backward()
-                optimizer.step()
-        total_loss += loss.item() * targets.size(0)
-        total_count += targets.size(0)
-        target_rows.append(targets.detach().cpu())
-        prediction_rows.append(logits.argmax(dim=1).detach().cpu())
-    matrix = confusion_matrix(torch.cat(target_rows), torch.cat(prediction_rows))
-    return total_loss / max(total_count, 1), matrix
+                scaler.scale(loss).backward()
+                if grad_clip > 0:
+                    scaler.unscale_(optimizer)
+                    nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
+                scaler.step(optimizer)
+                scaler.update()
+
+        batch_size = targets.size(0)
+        total_loss += float(loss.item()) * batch_size
+        total_count += batch_size
+        raw_logits = logits.detach().float().cpu()
+        probabilities = raw_logits.softmax(dim=1)
+        predictions = raw_logits.argmax(dim=1)
+        target_cpu = targets.detach().cpu()
+        target_ids.extend(target_cpu.tolist())
+        prediction_ids.extend(predictions.tolist())
+
+        if not training:
+            for filename, target_id, pred_id, logit_row, prob_row in zip(
+                filenames,
+                target_cpu.tolist(),
+                predictions.tolist(),
+                raw_logits.tolist(),
+                probabilities.tolist(),
+            ):
+                row: dict[str, object] = {
+                    "filename": filename,
+                    "fold": fold,
+                    "true_label_id": target_id,
+                    "true_label": LABELS[target_id],
+                    "pred_label_id": pred_id,
+                    "pred_label": LABELS[pred_id],
+                }
+                row.update({f"logit_{label}": value for label, value in zip(LABELS, logit_row)})
+                row.update({f"prob_{label}": value for label, value in zip(LABELS, prob_row)})
+                rows.append(row)
+
+    matrix = confusion_matrix_from_ids(target_ids, prediction_ids)
+    return total_loss / max(total_count, 1), matrix, rows
 
 
 def main() -> int:
     args = parse_args()
     seed_everything(args.seed)
     source_root = args.source_root.resolve()
-    train_json = (args.train_json or source_root / "train.json").resolve()
-    manifest_path = args.manifest.resolve()
-    manifest = load_manifest(manifest_path)
-    images = discover_images(source_root)
-
-    train_source_records = load_json_records(train_json)
-    if args.train_index:
-        train_index_path = args.train_index.resolve()
-        if not train_index_path.exists():
-            raise FileNotFoundError(f"train index does not exist: {train_index_path}")
-        train_source_records = load_train_index(train_index_path)
-    train_records = resolve_labeled_records(
-        train_source_records, source_root, manifest, images
+    train_json = resolve_train_json(args)
+    train_records, val_records, _ = build_cv_records(
+        source_root=source_root,
+        train_json=train_json,
+        manifest_path=args.manifest.resolve(),
+        train_index_path=args.train_index.resolve(),
+        cv_manifest_path=args.cv_manifest.resolve(),
+        fold=args.fold,
     )
-    cv_map: dict[str, dict[str, str]] = {}
-    if args.cv_manifest:
-        if args.fold is None:
-            raise ValueError("--fold is required when --cv-manifest is supplied")
-        with args.cv_manifest.resolve().open("r", encoding="utf-8-sig", newline="") as handle:
-            for row in csv.DictReader(handle):
-                cv_map[row["filename"]] = row
-        if not cv_map:
-            raise ValueError(f"internal CV manifest is empty: {args.cv_manifest}")
-        train_source_records = [
-            record for record in train_source_records
-            if str(record["filename"]) in cv_map
-            and int(cv_map[str(record["filename"])] ["fold"]) != args.fold
-        ]
-        val_source_records = [
-            record for record in load_json_records(train_json)
-            if str(record["filename"]) in cv_map
-            and int(cv_map[str(record["filename"])] ["fold"]) == args.fold
-        ]
-        train_records = resolve_labeled_records(
-            train_source_records, source_root, manifest, images
-        )
-        val_records = resolve_labeled_records(
-            val_source_records, source_root, manifest, images
-        )
-    elif args.val_json:
-        val_records = resolve_labeled_records(
-            load_json_records(args.val_json.resolve()), source_root, manifest, images
-        )
-    else:
-        val_records = []
-        for row in manifest.values():
-            if row.get("split") == "val" and row.get("label") in LABEL_TO_ID:
-                val_records.append(
-                    {
-                        "filename": row["filename"],
-                        "label": row["label"],
-                    }
-                )
-        val_records = resolve_labeled_records(val_records, source_root, manifest, images)
-    if not val_records:
-        raise ValueError(
-            "No labeled validation records found. Pass --val-json or provide labeled rows "
-            "with split=val in --manifest; the unlabeled test directory is not validation."
-        )
 
-    train_transform, val_transform = build_transforms(args.image_size)
-    train_dataset = WaterDataset(train_records, train_transform)
-    val_dataset = WaterDataset(val_records, val_transform)
-    sampler: Sampler[int] | None = None
-    if args.sampler == "class_sequence":
-        sampler = ClassSequenceSampler(
-            train_records, args.max_frames_per_sequence, args.seed
-        )
-        print(
-            "class_sequence capacity:",
-            {label: sampler.capacity[index] for index, label in enumerate(LABELS)},
-            "per_class_budget:",
-            sampler.class_budget,
-        )
-        if len({str(row["sequence_id"]) for row in train_records}) <= 9:
-            print("WARNING: sequence_id appears provisional/coarse; review before trusting Group Fold.")
+    bundle = build_model(
+        args.model,
+        num_classes=len(LABELS),
+        pretrained=args.pretrained,
+        cache_dir=args.cache_dir.resolve(),
+        checkpoint_path=args.init_checkpoint.resolve() if args.init_checkpoint else None,
+    )
+    trainable = configure_trainable_layers(bundle.model, args.freeze_mode)
+    print(
+        f"model={bundle.resolved_name} freeze_mode={args.freeze_mode} "
+        f"trainable={trainable['trainable']:,}/{trainable['total']:,}"
+    )
+
+    train_transform = build_transforms(
+        image_size=args.image_size, data_config=bundle.data_config, train=True
+    )
+    val_transform = build_transforms(
+        image_size=args.image_size, data_config=bundle.data_config, train=False
+    )
+    train_dataset = ClassificationDataset(train_records, train_transform)
+    val_dataset = ClassificationDataset(val_records, val_transform)
+    sampler = build_sampler(args, train_records)
+    device = torch.device(args.device)
+    pin_memory = device.type == "cuda"
     train_loader = DataLoader(
         train_dataset,
         batch_size=args.batch_size,
         sampler=sampler,
         shuffle=sampler is None,
         num_workers=args.workers,
-        pin_memory=args.device.startswith("cuda"),
+        pin_memory=pin_memory,
+        persistent_workers=args.workers > 0,
     )
     val_loader = DataLoader(
         val_dataset,
         batch_size=args.batch_size,
         shuffle=False,
         num_workers=args.workers,
-        pin_memory=args.device.startswith("cuda"),
+        pin_memory=pin_memory,
+        persistent_workers=args.workers > 0,
     )
 
-    device = torch.device(args.device)
-    model = timm.create_model(
-        args.model,
-        pretrained=args.pretrained,
-        num_classes=len(LABELS),
-    ).to(device)
-    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
+    model = bundle.model.to(device)
+    class_counts = torch.bincount(
+        torch.tensor([int(row["label_id"]) for row in train_records]),
+        minlength=len(LABELS),
+    ).float()
+    if args.loss == "balanced_softmax":
+        criterion: nn.Module = BalancedSoftmaxLoss(
+            class_counts.to(device), label_smoothing=args.label_smoothing
+        )
+    else:
+        criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
+
+    optimizer = torch.optim.AdamW(
+        optimizer_param_groups(
+            model,
+            backbone_lr=args.backbone_lr,
+            head_lr=args.head_lr,
+            weight_decay=args.weight_decay,
+        )
+    )
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=max(args.epochs, 1)
+    )
+    amp_enabled = args.amp and device.type == "cuda"
+    scaler = make_grad_scaler(amp_enabled)
+
     adjustment = None
-    if args.logit_adjustment:
-        counts = torch.bincount(
-            torch.tensor([int(row["label_id"]) for row in train_records]),
-            minlength=len(LABELS),
-        ).float()
-        adjustment = args.logit_adjustment * (counts / counts.sum()).log().to(device)
+    if args.logit_adjustment != 0:
+        prior = class_counts / class_counts.sum()
+        adjustment = args.logit_adjustment * prior.clamp_min(1e-12).log().to(device)
 
     out_dir = args.out_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
-    best_selection_score = -1.0
-    history = []
-    for epoch in range(args.epochs):
-        if isinstance(sampler, ClassSequenceSampler):
-            sampler.set_epoch(epoch)
-        train_loss, _ = run_epoch(model, train_loader, criterion, device, optimizer, adjustment)
-        val_loss, matrix = run_epoch(model, val_loader, criterion, device)
-        score, per_class = m_iou(matrix)
-        metrics = classification_metrics(matrix)
-        row = {
-            "epoch": epoch + 1,
-            "train_loss": train_loss,
-            "val_loss": val_loss,
-            "mIoU": score,
-            "per_class_IoU": dict(zip(LABELS, per_class)),
-            **metrics,
-            "confusion_matrix": matrix.tolist(),
-        }
-        history.append(row)
-        selection_score = {
-            "miou": score,
-            "macro_f1": metrics["macro_f1"],
-            "accuracy": metrics["accuracy"],
-        }[args.selection_metric]
-        print(
-            f"epoch={epoch + 1:03d} train_loss={train_loss:.4f} "
-            f"val_loss={val_loss:.4f} mIoU={score:.4f} "
-            f"macro_f1={metrics['macro_f1']:.4f}"
+    run_config = {
+        **vars(args),
+        "resolved_model_name": bundle.resolved_name,
+        "model_data_config": bundle.data_config,
+        "train_size": len(train_records),
+        "val_size": len(val_records),
+        "trainable_parameters": trainable,
+        "train_json": train_json,
+    }
+    (out_dir / "run_config.json").write_text(
+        json.dumps(json_ready(run_config), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    best_score = float("-inf")
+    best_epoch = 0
+    stale_epochs = 0
+    history: list[dict[str, object]] = []
+    for epoch in range(1, args.epochs + 1):
+        train_loss, _, _ = run_epoch(
+            model=model,
+            loader=train_loader,
+            criterion=criterion,
+            device=device,
+            fold=args.fold,
+            optimizer=optimizer,
+            scaler=scaler,
+            amp_enabled=amp_enabled,
+            grad_clip=args.grad_clip,
+            logit_adjustment=adjustment,
         )
-        if selection_score > best_selection_score:
-            best_selection_score = selection_score
-            torch.save(
-                {
-                    "model": model.state_dict(),
-                    "model_name": args.model,
-                    "labels": LABELS,
-                    "mIoU": score,
-                    "selection_metric": args.selection_metric,
-                    "selection_score": selection_score,
-                    "epoch": epoch + 1,
-                    "args": vars(args),
-                },
-                out_dir / "best.pt",
+        val_loss, matrix, prediction_rows = run_epoch(
+            model=model,
+            loader=val_loader,
+            criterion=criterion,
+            device=device,
+            fold=args.fold,
+            optimizer=None,
+            scaler=scaler,
+            amp_enabled=amp_enabled,
+            grad_clip=args.grad_clip,
+            logit_adjustment=None,
+        )
+        metrics = metrics_from_confusion(matrix)
+        metrics.update(
+            {
+                "epoch": epoch,
+                "train_loss": train_loss,
+                "val_loss": val_loss,
+                "learning_rates": [group["lr"] for group in optimizer.param_groups],
+            }
+        )
+        history.append(metrics)
+        selection_score = float(metrics[args.selection_metric])
+        print(
+            f"epoch={epoch:03d} train_loss={train_loss:.4f} val_loss={val_loss:.4f} "
+            f"weighted_f1={metrics['weighted_f1']:.4f} "
+            f"macro_f1={metrics['macro_f1']:.4f} mIoU={metrics['mIoU']:.4f}",
+            flush=True,
+        )
+
+        checkpoint = {
+            "model": model.state_dict(),
+            "model_name": args.model,
+            "resolved_model_name": bundle.resolved_name,
+            "labels": LABELS,
+            "epoch": epoch,
+            "metrics": metrics,
+            "args": json_ready(vars(args)),
+            "data_config": bundle.data_config,
+        }
+        torch.save(checkpoint, out_dir / "last.pt")
+
+        if selection_score > best_score:
+            best_score = selection_score
+            best_epoch = epoch
+            stale_epochs = 0
+            torch.save(checkpoint, out_dir / "best.pt")
+            write_prediction_csv(out_dir / "oof_predictions.csv", prediction_rows)
+            (out_dir / "best_metrics.json").write_text(
+                json.dumps(json_ready(metrics), ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
             )
+            with (out_dir / "confusion_matrix.csv").open(
+                "w", encoding="utf-8-sig", newline=""
+            ) as handle:
+                writer = csv.writer(handle)
+                writer.writerow(["true\\pred", *LABELS])
+                for label, row in zip(LABELS, metrics["confusion_matrix"]):
+                    writer.writerow([label, *row])
+        else:
+            stale_epochs += 1
         scheduler.step()
+
+        (out_dir / "history.json").write_text(
+            json.dumps(json_ready(history), ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+        if args.early_stopping_patience > 0 and stale_epochs >= args.early_stopping_patience:
+            print(
+                f"early_stop epoch={epoch} best_epoch={best_epoch} "
+                f"best_{args.selection_metric}={best_score:.6f}"
+            )
+            break
+
     (out_dir / "history.json").write_text(
-        json.dumps(history, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        json.dumps(json_ready(history), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
     )
     print(
-        f"best_{args.selection_metric}={best_selection_score:.4f} "
+        f"best_{args.selection_metric}={best_score:.6f} best_epoch={best_epoch} "
         f"checkpoint={out_dir / 'best.pt'}"
     )
     return 0

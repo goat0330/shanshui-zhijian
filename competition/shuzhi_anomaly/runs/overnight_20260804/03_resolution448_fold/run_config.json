@@ -1,0 +1,61 @@
+{
+  "source_root": "D:\\研究生作业\\人工智能实践比赛\\水域综合异常识别_训练集+验证集",
+  "train_json": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\generated\\train_reviewed_v2.json",
+  "manifest": "competition\\shuzhi_anomaly\\generated\\data_manifest.csv",
+  "train_index": "generated\\train_index.csv",
+  "cv_manifest": "generated\\internal_cv_duplicate_near_4fold.csv",
+  "fold": 2,
+  "label_version": "reviewed_v2",
+  "out_dir": "runs\\overnight_20260804\\03_resolution448_fold",
+  "model": "convnext_tiny_384",
+  "cache_dir": "weights\\timm",
+  "init_checkpoint": "runs\\overnight_20260804\\01_reviewed_v2_4fold\\fold2\\best.pt",
+  "image_size": 448,
+  "batch_size": 8,
+  "epochs": 10,
+  "workers": 0,
+  "seed": 42,
+  "freeze_mode": "last_stage",
+  "backbone_lr": 5e-06,
+  "head_lr": 5e-05,
+  "weight_decay": 0.05,
+  "label_smoothing": 0.0,
+  "logit_adjustment": 0.0,
+  "loss": "ce",
+  "sampler": "standard",
+  "sampling_alpha": 0.25,
+  "samples_per_epoch": 0,
+  "early_stopping_patience": 3,
+  "grad_clip": 1.0,
+  "selection_metric": "weighted_f1",
+  "amp": true,
+  "pretrained": true,
+  "device": "cuda",
+  "resolved_model_name": "hf-hub:timm/convnext_tiny.fb_in22k_ft_in1k_384",
+  "model_data_config": {
+    "input_size": [
+      3,
+      384,
+      384
+    ],
+    "interpolation": "bicubic",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "crop_pct": 1.0,
+    "crop_mode": "squash"
+  },
+  "train_size": 851,
+  "val_size": 288,
+  "trainable_parameters": {
+    "total": 27824742,
+    "trainable": 15476742
+  }
+}

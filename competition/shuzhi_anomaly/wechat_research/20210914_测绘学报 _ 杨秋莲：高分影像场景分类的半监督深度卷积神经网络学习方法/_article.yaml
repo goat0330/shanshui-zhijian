@@ -1,0 +1,220 @@
+title: 测绘学报 | 杨秋莲：高分影像场景分类的半监督深度卷积神经网络学习方法
+account: 智绘科服
+publish_date: '2021-09-14'
+source_url: https://mp.weixin.qq.com/s?__biz=MzA5ODA1MjkxOQ==&mid=2649923284&idx=2
+canonical_id: wechat:MzA5ODA1MjkxOQ==:2649923284:2
+archived_at: '2026-08-03T14:51:33+08:00'
+archive_schema_version: 5
+search_id: 118
+sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9yhCZE9m_BJ0r3oPX5iVfvp7E4HqOk6t2tr92GwL4LB9htVOy6Bx6NZiwBxfpfEKe6XMOPF_hnawI8MeWMMBEl73wMR1VNW9cyyUsNm6aFZkYDvCzhV96uQRB0m38sQOseJSOJG4vrj7E0QauKdPgCpZD3Ve9Iez5EuSiv7hTITrf3q8uRDTfkw..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+resolved_url: https://mp.weixin.qq.com/s?src=11&timestamp=1785739785&ver=6881&signature=img2GBfxon1ThxBXEc9EVSQ8FnMOHbmCuKmbHm6buMupcqjjXJbuNG8iHdTDj0HzQNh-ZU14zC3GdD845nssCaYED1Q3uts8-Veotu8UYcLeSPND8TLsBXyuTLZrqguG&new=1
+content_hash: sha256:3365214f405cfb92be23b9416dde8028979311939e04d8f7fb4938e41413dd37
+images:
+- order: 1
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0VCia04SRZS1sLfj3XNdOfhoh9qau2jiaUdkjj0klAm7rmH1ZicqdlJiaicomAt5ibNxxEVfq7HlCsLzuA/640?wx_fmt=jpeg#imgIndex=0
+  original_caption: 图片
+  derived_label: 文章首图
+  naming_source: role
+  confidence: low
+  local_file: 1_文章首图.jpg
+  sha256: 0e8e5a95304490800cf2d2271c8792dcfe74761dba6b78f7fb93ab5fce672c00
+- order: 2
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJEGAjHmiaPGV8MS3dEmEKf7WIcOmiaJVfDPT6QxWopQUgTzgw6EKzRz6A/640?wx_fmt=jpeg#imgIndex=1
+  original_caption: 971760979@qq.com
+  derived_label: 971760979@qq.com
+  naming_source: title
+  confidence: high
+  local_file: 2_971760979@qq.com.jpg
+  sha256: 54455d55c7ebd9670d978c6c54527399c3fabedf3977bde7744e6337ce026bcd
+- order: 3
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJB8iamF5a7fljY4svDBy8T6EZHE6FQFnyQRGnZ4KzBaKMcGJuwZX0Fqg/640?wx_fmt=jpeg#imgIndex=2
+  original_caption: 通讯作者
+  derived_label: 通讯作者
+  naming_source: title
+  confidence: high
+  local_file: 3_通讯作者.jpg
+  sha256: f9df70f766abd4a39e9c16ef6b6b4a5ee43151d6f25714aa7f4d6c61652eb21d
+- order: 4
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJEGAjHmiaPGV8MS3dEmEKf7WIcOmiaJVfDPT6QxWopQUgTzgw6EKzRz6A/640?wx_fmt=jpeg#imgIndex=3
+  original_caption: yanfeiliu@whu.edu.cn
+  derived_label: yanfeiliu@whu.edu.cn
+  naming_source: title
+  confidence: high
+  local_file: 4_yanfeiliu@whu.edu.cn.jpg
+  sha256: 54455d55c7ebd9670d978c6c54527399c3fabedf3977bde7744e6337ce026bcd
+- order: 5
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/dprQ4S1lMU2phEicLHCGGurdOqouSAEA4ESvsJWHUyNwQRm7JZIfG2To95mibpNwrkPmj6glkVCysPBibhRbbmGjA/640?wx_fmt=png#imgIndex=4
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 5_正文配图.png
+  sha256: 73d477173ddad1fb3c57958c1e099735390e9254a3d142238e971f6d9d698636
+- order: 6
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/dprQ4S1lMU2phEicLHCGGurdOqouSAEA4bOhXC7K5Wwmll7HVoxj4X9FueH9we11HpDAYOIz7StjFSRudah39Lw/640?wx_fmt=png#imgIndex=5
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 6_正文配图.png
+  sha256: b5db79ecdcb5e0f032f30002b6e84fe4b6367ba0b19871b78c1a0aa1179a3dea
+- order: 7
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJwcKLYXpvIIzb49bP2HNdCdZ958L35e8LbaI9Sh6KovkRcKdR6EmfIQ/640?wx_fmt=jpeg#imgIndex=6
+  original_caption: 复制到剪切板
+  derived_label: 复制到剪切板
+  naming_source: title
+  confidence: high
+  local_file: 7_复制到剪切板.jpg
+  sha256: e0c0bd2b4b50a3a0597e9c40612d897c097751db2621c57bf38212f50acece9c
+- order: 8
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJwcKLYXpvIIzb49bP2HNdCdZ958L35e8LbaI9Sh6KovkRcKdR6EmfIQ/640?wx_fmt=jpeg#imgIndex=7
+  original_caption: 复制到剪切板
+  derived_label: 复制到剪切板
+  naming_source: title
+  confidence: high
+  local_file: 8_复制到剪切板.jpg
+  sha256: e0c0bd2b4b50a3a0597e9c40612d897c097751db2621c57bf38212f50acece9c
+- order: 9
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/dprQ4S1lMU2phEicLHCGGurdOqouSAEA4bOhXC7K5Wwmll7HVoxj4X9FueH9we11HpDAYOIz7StjFSRudah39Lw/640?wx_fmt=png#imgIndex=8
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 9_正文配图.png
+  sha256: b5db79ecdcb5e0f032f30002b6e84fe4b6367ba0b19871b78c1a0aa1179a3dea
+- order: 10
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJLiaXSGFSRGhA1naWwUsQfYmxhgmYL5OCzibf2aassIoeckoEWhEmp8LA/640?wx_fmt=jpeg#imgIndex=9
+  original_caption: 1 基于卷积神经网络的高分辨率影像场景分类
+  derived_label: 1 基于卷积神经网络的高分辨率影像场景分类
+  naming_source: heading
+  confidence: medium
+  local_file: 10_1 基于卷积神经网络的高分辨率影像场景分类.jpg
+  sha256: c8a65fa70dd127ce6e5c9d4390ca9a2ca938b21d37ca696954a6376167bf67fc
+- order: 11
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJa5eaxbZWMwNDh7hRswhNrbE2OR1Iy6TFYof2EYqrMicd4BpbhHOIhSw/640?wx_fmt=jpeg#imgIndex=10
+  original_caption: 点击查看原图
+  derived_label: 点击查看原图
+  naming_source: title
+  confidence: high
+  local_file: 11_点击查看原图.jpg
+  sha256: d0e7cbdb3f0e278121d61bd22a179521165af73578a652e7c0171fac121849da
+- order: 12
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJmRxUuKke3xRBRN7Gqm6AwYhVvaImGfHgPK4ve2FN1fuSXsicL8xHM3Q/640?wx_fmt=jpeg#imgIndex=11
+  original_caption: 点击查看原图
+  derived_label: 点击查看原图
+  naming_source: title
+  confidence: high
+  local_file: 12_点击查看原图.jpg
+  sha256: 126270d8a85e39c7472ada563dafb7fdb788e744fe16b2c955915e5208b2dcfc
+- order: 13
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJwFsI2yJOZrzCsMmwhjCILoKafWqakt1icmOI2CxpCZaNt8ehy2IH2Ng/640?wx_fmt=jpeg#imgIndex=12
+  original_caption: 2 高分影像场景分类的半监督深度卷积神经网络学习方法
+  derived_label: 高分影像场景分类的半监督深度卷积神经网络学习方法
+  naming_source: heading
+  confidence: medium
+  local_file: 13_高分影像场景分类的半监督深度卷积神经网络学习方法.jpg
+  sha256: 0a3fc09af65e786b2f183d3ac3a337b20e592e49d5fb8a557c2f2ea2fcc59aa0
+- order: 14
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJFFMXGVOQ9mTKCMR4XWX8Sg9nxqYChASTaFL4iaqh593NrsFuvw38rAA/640?wx_fmt=jpeg#imgIndex=13
+  original_caption: 2 高分影像场景分类的半监督深度卷积神经网络学习方法
+  derived_label: 高分影像场景分类的半监督深度卷积神经网络学习方法
+  naming_source: heading
+  confidence: medium
+  local_file: 14_高分影像场景分类的半监督深度卷积神经网络学习方法.jpg
+  sha256: 639a4034e4e095c40b3135efaa3fa290e2731c011e8bf6c7dc115dd25156db29
+- order: 15
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJLPicoN5H8veD8c4c3RLMUrrXg6ZazNCbeJaZWLhib1USZGJI0bR9gxJg/640?wx_fmt=jpeg#imgIndex=14
+  original_caption: 2 高分影像场景分类的半监督深度卷积神经网络学习方法
+  derived_label: 高分影像场景分类的半监督深度卷积神经网络学习方法
+  naming_source: heading
+  confidence: medium
+  local_file: 15_高分影像场景分类的半监督深度卷积神经网络学习方法.jpg
+  sha256: 1e2a8f1b198f17bec6d5982beb101abd75b183eb687e3be46cfcd42e48adb2b8
+- order: 16
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJ8OZguIaozVEicbAyXB3KjeZ6QFHZicz6gmqvRSlupuGHsgOgQuvJ7WnQ/640?wx_fmt=jpeg#imgIndex=15
+  original_caption: 2 高分影像场景分类的半监督深度卷积神经网络学习方法
+  derived_label: 高分影像场景分类的半监督深度卷积神经网络学习方法
+  naming_source: heading
+  confidence: medium
+  local_file: 16_高分影像场景分类的半监督深度卷积神经网络学习方法.jpg
+  sha256: 3b73029bc7092d0769896b4b9e12f7cebae8b8630a8096bc0acebd702ccb2784
+- order: 17
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJEEUj6g8Gzk3OPgdBxEYDUCoBKOVTqo1DeLKujWwv0H9Yd3UfQwv2rg/640?wx_fmt=jpeg#imgIndex=16
+  original_caption: 2 高分影像场景分类的半监督深度卷积神经网络学习方法
+  derived_label: 高分影像场景分类的半监督深度卷积神经网络学习方法
+  naming_source: heading
+  confidence: medium
+  local_file: 17_高分影像场景分类的半监督深度卷积神经网络学习方法.jpg
+  sha256: a151a4868fb31494c7ec2c7df5124cb01dc20b97b38f61394cb77d72004c26f8
+- order: 18
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJMwhKnBHR6ibcrkzuXZNFny7CdQ8RjG1664ZxvPPglJ4KqSAubMe5ZyA/640?wx_fmt=jpeg#imgIndex=17
+  original_caption: 点击查看原图
+  derived_label: 点击查看原图
+  naming_source: title
+  confidence: high
+  local_file: 18_点击查看原图.jpg
+  sha256: 815693444a397d53a1a97e01db64a0cd13c1c4b88808bb5488cec27155bd0c88
+- order: 19
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJn9MWyj7YBYR9Dx9Uiau1E3jicfx3oSaDWsjd9fR4LibQwX5BworJIBLjw/640?wx_fmt=jpeg#imgIndex=18
+  original_caption: 点击查看原图
+  derived_label: 点击查看原图
+  naming_source: title
+  confidence: high
+  local_file: 19_点击查看原图.jpg
+  sha256: a565bf8f9fb15ae57e733a56481e5eea7ba5f7b9b363529c5d14092131081510
+- order: 20
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJddmibF8Mkva59gj1Q6Gm23LNx3ExfuJBSSmiajA2W5icHI5GXLRLxDVPQ/640?wx_fmt=jpeg#imgIndex=19
+  original_caption: 点击查看原图
+  derived_label: 点击查看原图
+  naming_source: title
+  confidence: high
+  local_file: 20_点击查看原图.jpg
+  sha256: 066c2064169deac9bdbbc9cd950e75c18a4f9dd8e03748bd8f11a748c3f4e807
+- order: 21
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJje9OJ35Uk4pKmZ6eJCugW6k602I7aI4XvpzicD1GFnzibMvQZgy6ZkQw/640?wx_fmt=jpeg#imgIndex=20
+  original_caption: 点击查看原图
+  derived_label: 点击查看原图
+  naming_source: title
+  confidence: high
+  local_file: 21_点击查看原图.jpg
+  sha256: eaf67a9f75d3a978e4264dd5e6ce2d1f47a020d5d378d469e14cbd512ea2242e
+- order: 22
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJRnCtBP7a9rKkY2BjnT0zJF6vbSU6DyMHI10Q6tB42exkMzUzViard1A/640?wx_fmt=jpeg#imgIndex=21
+  original_caption: 点击查看原图
+  derived_label: 点击查看原图
+  naming_source: title
+  confidence: high
+  local_file: 22_点击查看原图.jpg
+  sha256: 734ab25c1f343eb9d382ddee48788f4f6930998eae4f3b93666e4283f08bf391
+- order: 23
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJalop0kxeUTZzFDy5o8iaickyRSL69wQpIG1RvtbccxIANGYbT9xMS4Jw/640?wx_fmt=jpeg#imgIndex=22
+  original_caption: 点击查看原图
+  derived_label: 点击查看原图
+  naming_source: title
+  confidence: high
+  local_file: 23_点击查看原图.jpg
+  sha256: 0be07f755892b0182c2ac6d2d47f3761ecdd4991d0a86bd913bdc954d0f1bf7f
+- order: 24
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU0f1UFLibY2ZwzlyviclKVPfJia6mEt5FxGO1tky6fonkyicbYbMtHR6icoaPoLvdtWsHD7y5wb1kZNG8g/640?wx_fmt=jpeg#imgIndex=23
+  original_caption: 点击查看原图
+  derived_label: 点击查看原图
+  naming_source: title
+  confidence: high
+  local_file: 24_点击查看原图.jpg
+  sha256: 648c8281b68cfcce456f2feaf6ee9be35db61769b5cc44d1e3f3cc75398c1145
+- order: 25
+  source_url: https://mmbiz.qpic.cn/mmbiz_gif/dprQ4S1lMU203VBRBWKu5FzuKKN4N829Iib9bPQs84AwVs1eOiaZQ3qsKzOW43jxibfCj6qC6CwSNcMJnV0tUqSwQ/640?wx_fmt=gif#imgIndex=24
+  original_caption: 复审：宋启凡 终审：金 君
+  derived_label: 复审：宋启凡 终审：金 君
+  naming_source: adjacent
+  confidence: medium
+  local_file: 25_复审：宋启凡 终审：金 君.gif
+  sha256: 80e85cf64d69b8784d790637d940bf2bcbf1703f27b481c8d9c3860e5ff869eb
+- order: 26
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/dprQ4S1lMU3BibdiaVR4qO4HtkrQAHILmm1xnicEZe2ic4nlMHZjn6oPZ5KRLocaucm6HmEIHYoyQeV7mliaiagrXl8g/640?wx_fmt=jpeg#imgIndex=25
+  original_caption: 初审：张艳玲
+  derived_label: 初审：张艳玲
+  naming_source: heading
+  confidence: medium
+  local_file: 26_初审：张艳玲.jpg
+  sha256: 7340d227d510b5743f4603d4fc9add0974f876e10a30e5f6edbfe71da88d2c7b

@@ -69,6 +69,7 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 def make_groups(
     rows: list[dict[str, str]],
     manifest: dict[str, dict[str, str]],
+    exact_duplicate_rows: list[dict[str, str]],
     near_pairs: list[dict[str, str]],
     mode: str,
     allow_provisional: bool,
@@ -88,6 +89,14 @@ def make_groups(
 
     union_find = UnionFind(filenames)
     known = set(filenames)
+    exact_members: dict[str, list[str]] = defaultdict(list)
+    for row in exact_duplicate_rows:
+        filename = row["filename"]
+        if filename in known and row.get("duplicate_group"):
+            exact_members[row["duplicate_group"]].append(filename)
+    for members in exact_members.values():
+        for filename in members[1:]:
+            union_find.union(members[0], filename)
     for pair in near_pairs:
         left = pair["left_filename"]
         right = pair["right_filename"]
@@ -112,6 +121,7 @@ def main() -> int:
     ]
     manifest_rows = read_csv(generated_dir / "data_manifest.csv")
     manifest = {row["filename"]: row for row in manifest_rows}
+    exact_duplicate_rows = read_csv(generated_dir / "exact_duplicate_groups.csv")
     near_pairs = read_csv(generated_dir / "near_duplicate_candidates.csv")
     if not train_rows:
         raise ValueError("no enabled labeled training rows found")
@@ -119,7 +129,12 @@ def main() -> int:
         raise ValueError("train_index contains filenames missing from data_manifest")
 
     groups = make_groups(
-        train_rows, manifest, near_pairs, args.group_mode, args.allow_provisional
+        train_rows,
+        manifest,
+        exact_duplicate_rows,
+        near_pairs,
+        args.group_mode,
+        args.allow_provisional,
     )
     if len(set(groups.values())) < args.folds:
         raise ValueError(
@@ -180,7 +195,7 @@ def main() -> int:
         },
         "final_group_fold_ready": False,
         "note": (
-            "duplicate_near is a leakage-controlled internal baseline; final Group Fold "
+            "exact and near duplicate components are kept together; final Group Fold "
             "still requires confirmed visual/source sequence groups."
         ),
         "output": str(output_path),

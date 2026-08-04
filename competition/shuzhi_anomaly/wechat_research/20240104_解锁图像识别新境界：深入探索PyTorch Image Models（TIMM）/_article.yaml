@@ -1,0 +1,60 @@
+title: 解锁图像识别新境界：深入探索PyTorch Image Models（TIMM）
+account: 未来拥抱AI
+publish_date: '2024-01-04'
+source_url: https://mp.weixin.qq.com/s?__biz=Mzg2NTQ1Njc3OQ==&mid=2247490613&idx=1
+canonical_id: wechat:Mzg2NTQ1Njc3OQ==:2247490613:1
+archived_at: '2026-08-03T14:51:01+08:00'
+archive_schema_version: 5
+search_id: 110
+sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9SVuDh0H7fqGy6d7jg823pIDYjeTLX_gXZKJvBNEi45UT7geL_ZRAi_Tlvn99hYmMwzwvfSMdkkNr0sOdIrhXL3gfCrOFsMz8c14CYz711gcT3yyll8XH5nCDBb7xScycCo1_M-hSBe_XzW2qLnSu9dyGc5HykUyQitZQ_y5LA6nS-e4Yz84xMA..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+resolved_url: https://mp.weixin.qq.com/s?src=11&timestamp=1785739781&ver=6881&signature=fd-N1kFTaigE-SQJXvD1VjNw**tUnS5dps8-7PLAKvs*AiMSb39VDqzuH1oB56P*ERdSr3sJywUzpVBvfBwqQgyvNE9iTE7q6s4rWZq0U5Z4uzqjFIR3cjBXuDCOI4Rm&new=1
+content_hash: sha256:a0fbfe48344e55bcf22071ea2ecbadfe4287daaeaadf66d7528ea86a9ded71ff
+images:
+- order: 1
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/NKfjqyBZy1HE5EPv5NnBicIicicaPSnyDxHO5icp4ARNBOlVsZehE3eibzJvWjJTp77s0HTNgAJibUzXybyWLVUdhSpA/640?wx_fmt=png&from=appmsg#imgIndex=0
+  original_caption: 图片
+  derived_label: 文章首图
+  naming_source: role
+  confidence: low
+  local_file: 1_文章首图.png
+  sha256: 1be03909ea3a2283997385204a10df7c4110dacb3b21f85066c8ea4b2fad9284
+- order: 2
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/NKfjqyBZy1HE5EPv5NnBicIicicaPSnyDxH5z8zkGcuKroveIrdWxJI33aw8txMRPIT1ciabVqXOpB1uyppVLIK7tw/640?wx_fmt=png&from=appmsg#imgIndex=1
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 2_正文配图.png
+  sha256: d7b9c283d17d75e0adb21d914570e3e965f4dc341baa7bcec7be1fba805d88b9
+- order: 3
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/NKfjqyBZy1HE5EPv5NnBicIicicaPSnyDxHuUOWnDpC17JusKDH56fm9FiaxMCOibwbrpv2RAT41hhoIzkVf7shFXJw/640?wx_fmt=png&from=appmsg#imgIndex=2
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 3_正文配图.png
+  sha256: 886fa1c6403fcec62f8485bedf6f2db28e6aab7bc9d75a070966db7f93ca91e6
+- order: 4
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/NKfjqyBZy1HE5EPv5NnBicIicicaPSnyDxH28WPcWicl2GWmiakTwNXUxNgWXib0EOaRO1xepNia37m3BE5l1GlU1kOBA/640?wx_fmt=png&from=appmsg#imgIndex=3
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 4_正文配图.png
+  sha256: 8f82622ac24e0b0dfad169b5648c56534671ae08c933dc30202a5e1ab67912c7
+- order: 5
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/NKfjqyBZy1HE5EPv5NnBicIicicaPSnyDxH0zOibTRA3N49rNZ07gZ3FCmnGcspmpY9xsp0ceJ1j2uvoqd62PQHzOw/640?wx_fmt=png&from=appmsg#imgIndex=4
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 5_正文配图.png
+  sha256: 518cc519dacf9a62c3503a2537d2daded5e994ee3a137eb3aa0374853c846252
+- order: 6
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/NKfjqyBZy1HE5EPv5NnBicIicicaPSnyDxHAC10YqibcHgvxuhHyC37mOpk2Nu2sB52IuhUqoup6xup9MKlY3qUeMQ/640?wx_fmt=png&from=appmsg#imgIndex=5
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 6_正文配图.png
+  sha256: 31336a4bda06386ab20e8c0ee784d62c3325ad4f27f2af39dd33c3597aa00a1d

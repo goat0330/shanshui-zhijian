@@ -1,0 +1,7 @@
+# Add these only if absent from the existing environment.
+timm==1.0.28
+huggingface_hub>=0.24
+safetensors>=0.4
+scikit-learn>=1.4
+Pillow>=10
+numpy>=1.26

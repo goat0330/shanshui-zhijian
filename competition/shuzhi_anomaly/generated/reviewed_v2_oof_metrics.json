@@ -1,0 +1,81 @@
+{
+  "label_source": "reviewed_v2_confirmed_11_only",
+  "oof_rows": 1139,
+  "changed_truth_rows": [
+    "00033.jpg",
+    "02111.jpg"
+  ],
+  "accuracy": 0.9859525899912204,
+  "weighted_f1": 0.9820223367395382,
+  "macro_f1": 0.6508734614578945,
+  "balanced_accuracy": 0.6482849532507067,
+  "mIoU": 0.6366322802493015,
+  "per_class": {
+    "乱采": {
+      "support": 24,
+      "predicted_count": 24,
+      "tp": 24,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "iou": 1.0
+    },
+    "乱建": {
+      "support": 4,
+      "predicted_count": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 4,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "iou": 0.0
+    },
+    "乱堆": {
+      "support": 24,
+      "predicted_count": 23,
+      "tp": 23,
+      "fp": 0,
+      "fn": 1,
+      "precision": 1.0,
+      "recall": 0.9583333333333334,
+      "f1": 0.9787234042553191,
+      "iou": 0.9583333333333334
+    },
+    "乱占": {
+      "support": 60,
+      "predicted_count": 60,
+      "tp": 56,
+      "fp": 4,
+      "fn": 4,
+      "precision": 0.9333333333333333,
+      "recall": 0.9333333333333333,
+      "f1": 0.9333333333333333,
+      "iou": 0.875
+    },
+    "有漂浮物": {
+      "support": 1022,
+      "predicted_count": 1032,
+      "tp": 1020,
+      "fp": 12,
+      "fn": 2,
+      "precision": 0.9883720930232558,
+      "recall": 0.9980430528375733,
+      "f1": 0.9931840311587146,
+      "iou": 0.9864603481624759
+    },
+    "正常": {
+      "support": 5,
+      "predicted_count": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "iou": 0.0
+    }
+  }
+}

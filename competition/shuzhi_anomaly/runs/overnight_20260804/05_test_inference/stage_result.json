@@ -1,0 +1,33 @@
+{
+  "stage": "05_test_inference",
+  "completed": true,
+  "timestamp": "2026-08-04T03:35:00+08:00",
+  "candidates_evaluated": {
+    "A_raw_v1_mainline": {"gate": "champion baseline, retained", "status": "mainline"},
+    "B_reviewed_v2": {"gate": "PASS (Global weighted_f1 0.982875 >= 0.979403)", "test_inference": "done"},
+    "C_448_diagnostic": {"gate": "single-fold diagnostic; extension recommended but not executed as full candidate", "test_inference": "not run (diagnostic only)"}
+  },
+  "test_inference": {
+    "candidate": "B_reviewed_v2 (4-fold softmax equal-weight average)",
+    "method": "equal-weight 4-fold softmax averaging, no threshold/class bias",
+    "count": 695,
+    "jpg": 691,
+    "png": 4,
+    "duplicates": 0,
+    "missing": 0,
+    "labels_used": ["乱采", "乱建", "乱堆", "乱占", "有漂浮物", "正常"],
+    "submission_file": "runs/overnight_20260804/05_test_inference/submission_reviewed_v2.json",
+    "probabilities_file": "runs/overnight_20260804/05_test_inference/test_probabilities_reviewed_v2.csv",
+    "validation": "validate_submission.py valid=true, count=695, six-class labels OK",
+    "checkpoints": [
+      "runs/overnight_20260804/01_reviewed_v2_4fold/fold0/best.pt",
+      "runs/overnight_20260804/01_reviewed_v2_4fold/fold1/best.pt",
+      "runs/overnight_20260804/01_reviewed_v2_4fold/fold2/best.pt",
+      "runs/overnight_20260804/01_reviewed_v2_4fold/fold3/best.pt"
+    ]
+  },
+  "sha256": {
+    "submission_reviewed_v2.json": "274FB26E7045239FF4761B5A2B40B0550B17A9029D73305BEC666842B597EA23",
+    "test_probabilities_reviewed_v2.csv": "2773942F2A6CBEC72F03D67221D0513F1FEB96D282B0FF5CB9C54F2E1FC73FE2"
+  }
+}

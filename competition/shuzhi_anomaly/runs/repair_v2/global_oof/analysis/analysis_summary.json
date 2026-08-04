@@ -1,0 +1,12 @@
+{
+  "oof_rows": 1139,
+  "errors": 18,
+  "non_floating_predicted_as_floating": 13,
+  "outputs": [
+    "per_class_metrics.csv",
+    "minority_error_census.csv",
+    "low_confidence_samples.csv",
+    "small_margin_samples.csv",
+    "high_confidence_errors.csv"
+  ]
+}

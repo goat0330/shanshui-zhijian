@@ -1,0 +1,36 @@
+{
+  "stage": "04_resolution448_fold",
+  "completed": true,
+  "timestamp": "2026-08-04T03:22:00+08:00",
+  "purpose": "448px single-fold diagnostic (fold2) - DIAGNOSTIC ONLY, mainline unchanged",
+  "fold": 2,
+  "reason_fold2": "fold2 contains 2 乱建 + 3 正常 (only fold with >=1 乱建 and >=1 正常 support in val)",
+  "config": {
+    "init": "runs/overnight_20260804/01_reviewed_v2_4fold/fold2/best.pt (384px)",
+    "image_size": 448,
+    "freeze_mode": "last_stage",
+    "backbone_lr": 5e-06,
+    "head_lr": 5e-05,
+    "epochs_max": 10,
+    "patience": 3,
+    "early_stopped_epoch": 4,
+    "best_epoch": 1,
+    "batch_size": 8,
+    "workers": 0,
+    "amp": true,
+    "seed": 42
+  },
+  "metrics": {
+    "weighted_f1": 0.984405,
+    "comparison_384_fold2_weighted_f1": 0.980900,
+    "weighted_f1_delta": 0.003505,
+    "error_count": 3,
+    "comparison_384_fold2_error_count": 4,
+    "error_delta": -1,
+    "errors_resolved_vs_384": ["02044.jpg 乱占->有漂浮物 resolved at 448"],
+    "errors": ["00064.jpg 正常->有漂浮物", "02487.jpg 乱建->有漂浮物", "02488.jpg 乱建->有漂浮物"],
+    "relabeled_rescued": ["00033.jpg correct", "02111.jpg correct"]
+  },
+  "extension_recommendation": "Weighted F1 improved (+0.0035, 0.984405 >= 0.980900) and error count reduced (4->3), rescuing 02044.jpg. CONDITION MET: recommend evaluating 448px extension for all 4 folds.",
+  "mainline_untouched": true
+}

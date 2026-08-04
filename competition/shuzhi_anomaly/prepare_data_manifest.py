@@ -19,6 +19,7 @@ from PIL import Image
 
 
 LABELS = ("乱采", "乱建", "乱堆", "乱占", "有漂浮物", "正常")
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 CSV_FIELDS = (
     "filename",
     "relative_path",
@@ -180,7 +181,14 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     labels = load_labels(labels_path)
-    images = sorted(source_root.rglob("*.jpg"))
+    images = sorted(
+        (
+            image
+            for image in source_root.rglob("*")
+            if image.is_file() and image.suffix.lower() in IMAGE_EXTENSIONS
+        ),
+        key=lambda image: image.relative_to(source_root).as_posix(),
+    )
     by_name: dict[str, list[Path]] = defaultdict(list)
     for image in images:
         by_name[image.name].append(image)
@@ -297,6 +305,31 @@ def main() -> int:
                     (str(left["filename"]), str(right["filename"]))
                 )
 
+    near_parent: dict[str, str] = {}
+
+    def near_find(value: str) -> str:
+        near_parent.setdefault(value, value)
+        if near_parent[value] != value:
+            near_parent[value] = near_find(near_parent[value])
+        return near_parent[value]
+
+    def near_union(left: str, right: str) -> None:
+        left_root = near_find(left)
+        right_root = near_find(right)
+        if left_root != right_root:
+            near_parent[right_root] = left_root
+
+    for pair in near_pairs:
+        near_union(str(pair["left_filename"]), str(pair["right_filename"]))
+    near_roots = {name: near_find(name) for name in near_parent}
+    near_group_ids = {
+        root: f"near_{index:04d}"
+        for index, root in enumerate(sorted(set(near_roots.values())))
+    }
+    near_group_by_name = {
+        name: near_group_ids[root] for name, root in near_roots.items()
+    }
+
     review_reasons: dict[str, set[str]] = defaultdict(set)
     label_counts = Counter(str(row["label"]) for row in train_rows)
     minority_threshold = 60
@@ -330,6 +363,8 @@ def main() -> int:
                     "reasons": ";".join(reasons),
                     "priority": priority,
                     "review_status": "pending_manual_review",
+                    "evidence_scale": "",
+                    "evidence_location": "",
                     "review_notes": "",
                 }
             )
@@ -440,7 +475,39 @@ def main() -> int:
             "filename", "relative_path", "original_label", "reviewed_label",
             "alternate_label", "sequence_id", "scene_id", "source_type",
             "confidence", "reasons", "priority", "review_status", "review_notes",
+            "evidence_scale", "evidence_location",
         ),
+    )
+    train_manifest_rows = []
+    for row in train_rows:
+        train_manifest_rows.append(
+            {
+                "filename": row["filename"],
+                "relative_path": row["relative_path"],
+                "label": row["label"],
+                "width": row["width"],
+                "height": row["height"],
+                "sha256": row["sha256"],
+                "difference_hash": row["difference_hash"],
+                "decode_status": "ok" if row["image_ok"] else row["review_status"],
+                "enabled": row["training_use"],
+                "duplicate_group_id": row["duplicate_group"],
+                "near_duplicate_group_id": near_group_by_name.get(str(row["filename"]), ""),
+                "scene_id": row["sequence_id"],
+            }
+        )
+    train_manifest_path = out_dir / "train_manifest_v1.csv"
+    write_csv(
+        train_manifest_path,
+        train_manifest_rows,
+        (
+            "filename", "relative_path", "label", "width", "height", "sha256",
+            "difference_hash", "decode_status", "enabled", "duplicate_group_id",
+            "near_duplicate_group_id", "scene_id",
+        ),
+    )
+    (out_dir / "train_manifest_v1.sha256").write_text(
+        sha256(train_manifest_path) + "  train_manifest_v1.csv\n", encoding="utf-8"
     )
     test_rows = sorted(
         (row for row in rows if row["split"] == "test"),
@@ -470,6 +537,29 @@ def main() -> int:
     )
     (out_dir / "test_manifest_v1.sha256").write_text(
         sha256(test_manifest_path) + "  test_manifest_v1.csv\n", encoding="utf-8"
+    )
+    test_diff_rows = []
+    for row in test_rows:
+        extension = Path(str(row["filename"])).suffix.lower()
+        if extension != ".jpg":
+            test_diff_rows.append(
+                {
+                    "filename": row["filename"],
+                    "relative_path": row["relative_path"],
+                    "extension": extension,
+                    "jpg_only_scan": False,
+                    "all_supported_image_scan": True,
+                    "reason": "supported_non_jpg_image_omitted_by_691_scan",
+                    "decision": "include_in_test_manifest_v1",
+                }
+            )
+    write_csv(
+        out_dir / "test_691_vs_695_diff.csv",
+        test_diff_rows,
+        (
+            "filename", "relative_path", "extension", "jpg_only_scan",
+            "all_supported_image_scan", "reason", "decision",
+        ),
     )
     write_csv(
         out_dir / "sequence_review_summary.csv",
@@ -503,12 +593,17 @@ def main() -> int:
         "exact_duplicate_group_types": dict(duplicate_group_types),
         "exact_duplicate_override_count": len(exact_duplicate_overrides),
         "near_duplicate_candidate_pair_count": len(near_pairs),
+        "near_duplicate_group_count": len(near_group_ids),
         "train_rows": len(train_rows),
         "train_rows_enabled": sum(row["training_use"] is True for row in train_rows),
         "label_review_candidate_count": len(review_rows),
         "validation_ready": any(row["split"] == "val" and row["label"] for row in rows),
         "provisional_sequence_count": len({row["sequence_id"] for row in rows}),
         "sequence_id_method": "filename contiguous blocks only; low-confidence review field, not final Group Fold",
+        "supported_image_extensions": sorted(IMAGE_EXTENSIONS),
+        "test_jpg_count": sum(Path(str(row["filename"])).suffix.lower() == ".jpg" for row in test_rows),
+        "test_supported_image_count": len(test_rows),
+        "test_non_jpg_count": len(test_diff_rows),
     }
     (out_dir / "audit_report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -529,8 +624,10 @@ def main() -> int:
     print(f"duplicates: {out_dir / 'exact_duplicate_groups.csv'}")
     print(f"near duplicates: {out_dir / 'near_duplicate_candidates.csv'}")
     print(f"train index: {out_dir / 'train_index.csv'}")
+    print(f"train manifest: {train_manifest_path}")
     print(f"review queue: {out_dir / 'label_review_candidates.csv'}")
     print(f"test manifest: {test_manifest_path}")
+    print(f"test 691 vs 695 diff: {out_dir / 'test_691_vs_695_diff.csv'}")
     return 0
 
 

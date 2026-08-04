@@ -1,0 +1,86 @@
+{
+  "scene_group": "file_block_0005",
+  "label_source": "generated/train_reviewed_v2.json",
+  "class_order": [
+    "乱采",
+    "乱建",
+    "乱堆",
+    "乱占",
+    "有漂浮物",
+    "正常"
+  ],
+  "val_holdout": {
+    "count": 801,
+    "count_per_class": {
+      "乱采": 0,
+      "乱建": 0,
+      "乱堆": 0,
+      "乱占": 0,
+      "有漂浮物": 800,
+      "正常": 1
+    },
+    "classes_present": [
+      "有漂浮物",
+      "正常"
+    ],
+    "constant_predict_most_frequent": {
+      "most_frequent_class": "有漂浮物",
+      "n_most_frequent": 800,
+      "total": 801,
+      "accuracy": 0.9987515605493134
+    }
+  },
+  "train": {
+    "count": 343,
+    "count_per_class": {
+      "乱采": 24,
+      "乱建": 4,
+      "乱堆": 24,
+      "乱占": 60,
+      "有漂浮物": 227,
+      "正常": 4
+    },
+    "classes_present": [
+      "乱占",
+      "乱堆",
+      "乱建",
+      "乱采",
+      "有漂浮物",
+      "正常"
+    ],
+    "constant_predict_most_frequent": {
+      "most_frequent_class": "有漂浮物",
+      "n_most_frequent": 227,
+      "total": 343,
+      "accuracy": 0.6618075801749271
+    }
+  },
+  "full_train": {
+    "count": 1144,
+    "count_per_class": {
+      "乱采": 24,
+      "乱建": 4,
+      "乱堆": 24,
+      "乱占": 60,
+      "有漂浮物": 1027,
+      "正常": 5
+    }
+  },
+  "fold_overlap": {
+    "per_fold_count": {
+      "3": 199,
+      "0": 195,
+      "1": 203,
+      "2": 204
+    },
+    "holdout_in_cv": 801,
+    "holdout_missing_from_cv": 0
+  },
+  "consistency": {
+    "holdout_train_overlap": 0,
+    "holdout_non_empty": true,
+    "manifest_train_total": 1144,
+    "reviewed_records": 1144,
+    "train_index_records": 1144
+  }
+}

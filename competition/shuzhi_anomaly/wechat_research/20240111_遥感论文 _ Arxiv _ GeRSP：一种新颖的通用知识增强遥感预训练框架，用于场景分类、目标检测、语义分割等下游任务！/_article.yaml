@@ -1,0 +1,140 @@
+title: 遥感论文 | Arxiv | GeRSP：一种新颖的通用知识增强遥感预训练框架，用于场景分类、目标检测、语义分割等下游任务！
+account: GISer阿兴
+publish_date: '2024-01-11'
+source_url: https://mp.weixin.qq.com/s?__biz=MzkyMTYwMDc0MQ==&mid=2247484530&idx=1
+canonical_id: wechat:MzkyMTYwMDc0MQ==:2247484530:1
+archived_at: '2026-08-03T11:59:31+08:00'
+archive_schema_version: 5
+search_id: 82
+sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7_7MA7nglutNzehD43LDFz1qXa8Fplpd9gCcoDecJPFxANiEaI4-sftGFWmV0YiKE8MtHJDKZJJKbaMnu5AArJbn4sN0yMI0JLWEjckjeN5BgbV9C2rmhZMFY8ReGTTFqnRU3v2RT-goi5wLVPaXZ-UvztfScS_reqr4Rv04gmkRGzCf-4ooJQjwlmpzVbMJqGXLXwJ6ocsz0OK9DLfgmPA..&type=2&query=%E9%81%A5%E6%84%9F%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB&token=EBC2011C307D76E13F396623BF3E8D063F285D056A70120B
+resolved_url: https://mp.weixin.qq.com/s?src=11&timestamp=1785729547&ver=6881&signature=fbRdroPjo87LDwTmOe0IIe5nLqrLDnqvZSYUiKzz2barukT6oK4DOCCzWyvAWTOUUf0BRBqtwhQeHZBDEwnjfzR*tq0ONE3XBJB5gd1vUi2vPFdsjU6KT3Xeh6t7L23p&new=1
+content_hash: sha256:85648406c96755a1affd98773cf089352219e797f59357205e5ade11d1bdb59f
+images:
+- order: 1
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxjR4MzZ5GXpsBwJyNGwhAiaI7aBdzD85xkZkSV8Qic3X4oicZibb73kYh2g/640?wx_fmt=png&from=appmsg#imgIndex=0
+  original_caption: 图片
+  derived_label: 文章首图
+  naming_source: role
+  confidence: low
+  local_file: 1_文章首图.png
+  sha256: 51cc16a52c388ecc0fd605fcc7b8b5c497362cc4a58f76387b4652c23c889397
+- order: 2
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxsv5fCOLfTRnowN9AlVnjo4RSibAvpqhtql1yRSPjXj1nkwkorYDwYdQ/640?wx_fmt=png&from=appmsg#imgIndex=1
+  original_caption: 方法
+  derived_label: 方法
+  naming_source: adjacent
+  confidence: medium
+  local_file: 2_方法.png
+  sha256: d4ebf5d8022b73bc3a9b695916d718fa7ce0d9965869af611df6716f89fb1173
+- order: 3
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxFBiaOKc5curdvduHKXxiajTicCBFeyw6D6iaSYsSmNUyIQMSOeNhaicsiavg/640?wx_fmt=png&from=appmsg#imgIndex=2
+  original_caption: 模型总览
+  derived_label: 模型总览
+  naming_source: heading
+  confidence: medium
+  local_file: 3_模型总览.png
+  sha256: 654f84fb8ceed635aa1313e2efb09696fba72d4ea663b4ebff78329185f8cc28
+- order: 4
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxOrKp3IBGqDJ5cJoaZQY4CDAY0SrEmIsbgusgdvicWzDU1pDg8vCPAxg/640?wx_fmt=png&from=appmsg#imgIndex=3
+  original_caption: 特征提取
+  derived_label: 特征提取
+  naming_source: adjacent
+  confidence: medium
+  local_file: 4_特征提取.png
+  sha256: 829adc5753aedb58123a8a3bb71548126e3d234e319a31b32265fb59b11e598a
+- order: 5
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxTKsNrT5piaKxO0IPgr9XtziaTricAbp2fFbmY4JK6SCf7tVBibsK9mCacg/640?wx_fmt=png&from=appmsg#imgIndex=4
+  original_caption: InfoNCE 损失作为对比损失函数
+  derived_label: InfoNCE 损失作为对比损失函数
+  naming_source: adjacent
+  confidence: medium
+  local_file: 5_InfoNCE 损失作为对比损失函数.png
+  sha256: 429f38c872cb024fa1321a39ca8ec6e15cfd871bb0fc8300b2f212c926ffa60d
+- order: 6
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxe6gZBnMKaP88e1duGMspL7FECr23ibk16u9BeFwZib0GGWYjcCkRjXtw/640?wx_fmt=png&from=appmsg#imgIndex=5
+  original_caption: 两个loss结合
+  derived_label: 两个loss结合
+  naming_source: adjacent
+  confidence: medium
+  local_file: 6_两个loss结合.png
+  sha256: 8395a047b980e0734063a5ffce3bb922d969386e11548fb0802663d2267ac805
+- order: 7
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxG23MBZ3o1N7h7t24YiciakX1JcnoMJQ4Wicf5NRKLfoRV1xnYMR2aLiahw/640?wx_fmt=png&from=appmsg#imgIndex=6
+  original_caption: 预训练
+  derived_label: 预训练
+  naming_source: adjacent
+  confidence: medium
+  local_file: 7_预训练.png
+  sha256: 9f7cda04e997f0765b055354bdedf439b497b4974999837a249e216b51027787
+- order: 8
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxxO0dhUrKNHMaibgltVoBNPl521uzvW0F8ATRWiase3jCNicqEiaKbHQUkQ/640?wx_fmt=png&from=appmsg#imgIndex=7
+  original_caption: 学习率设置
+  derived_label: 学习率设置
+  naming_source: heading
+  confidence: medium
+  local_file: 8_学习率设置.png
+  sha256: ca6f99ff0a17ac71554c2de76d53d2b4db2aa60ab0317c6203c03f31a729785e
+- order: 9
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxsqVdOk0t6wpZFklt5GgGJHdExMsBRbpNFGXUN1s8ZsAUWb59FNVzLw/640?wx_fmt=png&from=appmsg#imgIndex=8
+  original_caption: 目标检测
+  derived_label: 目标检测
+  naming_source: adjacent
+  confidence: medium
+  local_file: 9_目标检测.png
+  sha256: f33785882dcbb5046bb3c555f2834a52597a0ceef5e1bfda9f28a35092bb0837
+- order: 10
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBx8iaONiclYrZdxJ0Ob410Qmzy2KnsMEEWouKNea5Yeo8Yh5Orx42lKRkg/640?wx_fmt=png&from=appmsg#imgIndex=9
+  original_caption: DOTA数据集：
+  derived_label: DOTA数据集
+  naming_source: adjacent
+  confidence: medium
+  local_file: 10_DOTA数据集.png
+  sha256: c0b92e08ebe3fc11bfcfe24ca54ac40ba6511246f5adcdb7e9238f99b17b4c9a
+- order: 11
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxBZib44jbhPLrZaiciaOeFYRyhVgO2aomA3X6G013YeDDNa5tjnpRj5HDw/640?wx_fmt=png&from=appmsg#imgIndex=10
+  original_caption: 语义分割
+  derived_label: 语义分割
+  naming_source: adjacent
+  confidence: medium
+  local_file: 11_语义分割.png
+  sha256: 1d54b83954aa4de61f4dae67367e503a22adb63bf4b60a61d789c4ae17a75a24
+- order: 12
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBx7WhRBIqCSiavNlrkpIqP7oK5w1BSNgvQ4Y1Xr9e4dD0ONicibFIoq25MQ/640?wx_fmt=png&from=appmsg#imgIndex=11
+  original_caption: α的取值
+  derived_label: α的取值
+  naming_source: adjacent
+  confidence: medium
+  local_file: 12_α的取值.png
+  sha256: 14ebdb89f325dd5fb6ddaf0681fa32022feeb9e3a5ea545bc5b5993b8ad5dd05
+- order: 13
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxsaHY0J4fyYsBL2I5OGB77geJd5x63cpibejiaKU4c2eCUQe7TmuF5ccw/640?wx_fmt=png&from=appmsg#imgIndex=12
+  original_caption: 结果可视化
+  derived_label: 结果可视化
+  naming_source: adjacent
+  confidence: medium
+  local_file: 13_结果可视化.png
+  sha256: 7103f24a6c555dab6cbadb6c5c368240027aedd53d1a727cf6bdea071f45d073
+- order: 14
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBx5VHJyVeMR6CjUgCdgK4qibEialwficKuAlBJh6iaziav5ia1UhwRlKakzPZg/640?wx_fmt=png&from=appmsg#imgIndex=13
+  original_caption: 结果可视化
+  derived_label: 结果可视化
+  naming_source: adjacent
+  confidence: medium
+  local_file: 14_结果可视化.png
+  sha256: 0200693480f2e21e1466180b5f43c4d45cdc9b514323b3eedad6c49c9bfb5637
+- order: 15
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxkLthp0aEEO6XUg9ehFWx8nPyGPbeU8IQ4opv9xujHppV6egGhBiar6g/640?wx_fmt=png&from=appmsg#imgIndex=14
+  original_caption: 结果可视化
+  derived_label: 结果可视化
+  naming_source: adjacent
+  confidence: medium
+  local_file: 15_结果可视化.png
+  sha256: 8b8de27f19923544bd72e0665584ea1d3c23d82a0fbd128eafdeccc36e96dfc9
+- order: 16
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/HB9U4icHhJhznAu8iaqBvJMfPicUm2d8CBxibYG0CfRKE20Jj3LEwWBfKMw23HzN0Fz0MNUwoQ71TibaJjzDiagdKGMw/640?wx_fmt=png&from=appmsg#imgIndex=15
+  original_caption: 结果可视化
+  derived_label: 结果可视化
+  naming_source: adjacent
+  confidence: medium
+  local_file: 16_结果可视化.png
+  sha256: f71282895997b88f624ddef094cddb8e4b04bb35513dd97eb020bbbc2fc2a1d2

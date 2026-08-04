@@ -1,0 +1,172 @@
+title: RSP：遥感预训练的实证研究
+account: 将门创投
+publish_date: '2022-05-11'
+source_url: https://mp.weixin.qq.com/s?__biz=MzAxMzc2NDAxOQ==&mid=2650427521&idx=2
+canonical_id: wechat:MzAxMzc2NDAxOQ==:2650427521:2
+archived_at: '2026-08-03T11:57:59+08:00'
+archive_schema_version: 5
+search_id: 52
+sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9RFcF9IDO3HqiDoW8yNP4VkzI4bLz71E5dk3jpup_CzisOoJTyqUgl0z0LfQj5YG9cM8Pj4fGeoM0j1LuGfDIGeybci9IT5YrzWX7hNvpx2vlcxPhJdMoely8ZMqfvpAxIDh1v8DpHbSGVaN0Rlo1PXpAcBg5-1WfMO6h_soIq5xj3x9Nw6p-Fg..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+resolved_url: https://mp.weixin.qq.com/s?src=11&timestamp=1785729316&ver=6881&signature=y3JDMIgEer3AJ60TYOsoVZnSpl5QtfgT4Jp29kIkD635NCplSPDWvnp9oYeqC5FgJRqsjAsPa3MX1ULEaLjV7qZIbzMkicU3fhaY0h*8tnIw-v-JEt-ErQ4yfyL8cXuY&new=1
+content_hash: sha256:cf009097e6b64f4ded87daf7293c1e81420ffd52dd482dea29370fc0119410a2
+images:
+- order: 1
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47ibYA4t7AyOWSibVmWHXjqKIkZgftLdVDsERiaxjibAd5e9o6DEOabB0GAw/640?wx_fmt=png#imgIndex=0
+  original_caption: 图片
+  derived_label: 文章首图
+  naming_source: role
+  confidence: low
+  local_file: 1_文章首图.png
+  sha256: 1033d46d5b3214edf26b07d3e33ff6a26042af17b825b371b5f2daf61b9f572c
+- order: 2
+  source_url: https://mmbiz.qpic.cn/mmbiz_gif/ibaXaPIy7jV0qMBsb1dzQgpADYpxzdmULq5EYyPSD9r6hBb7rQMOAibyJDTlMPG3pl6UVic4icGPib6MMve5EsoD37A/640?wx_fmt=gif#imgIndex=1
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 2_正文配图.gif
+  sha256: d7fe8207977466b248056ae011ee7e5e8fb1066f8303663ba00b5a02c6729c01
+- order: 3
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47qNJBicBdejophpz4GyYm92WQ7tck1LC46MbOSKlSfjcibM5YAunDWPJg/640?wx_fmt=png#imgIndex=2
+  original_caption: 2.2 ViTAE和ViTAEv2
+  derived_label: 2.2 ViTAE和ViTAEv2
+  naming_source: adjacent
+  confidence: medium
+  local_file: 3_2.2 ViTAE和ViTAEv2.png
+  sha256: 23ed6e2ad01bc5b141f585bc599078a7d71a787adb8af508e64f2d011b4e3cb6
+- order: 4
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47FaMIetdZUcd7zWXwVGaer9ond1v3PUQkxYooM2yTvxYjqp67ibvCqLA/640?wx_fmt=png#imgIndex=3
+  original_caption: 2.2 ViTAE和ViTAEv2
+  derived_label: 2.2 ViTAE和ViTAEv2
+  naming_source: heading
+  confidence: medium
+  local_file: 4_2.2 ViTAE和ViTAEv2.png
+  sha256: 840a0113c6f4ba847a752ac061cbeef9a8d87b1e183eed0cad7937d8af35c080
+- order: 5
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47bDoI0HIVUow2HY5rGIAXVJz1q7RicnyscIfhcTFVyqjPLCY18FicjGgQ/640?wx_fmt=jpeg#imgIndex=4
+  original_caption: 3.1 确定预训练模型
+  derived_label: 3.1 确定预训练模型
+  naming_source: heading
+  confidence: medium
+  local_file: 5_3.1 确定预训练模型.jpg
+  sha256: 3beffa29bd769e1f338f5fc9841fe5726f785beaf616e0a57c894e427b73c247
+- order: 6
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47Q6F7HE5EdwfeAQXMe4x2m4ia8cbqSF3HzzJD04Swdu3QOucW6m38ziaw/640?wx_fmt=jpeg#imgIndex=5
+  original_caption: 3.1 确定预训练模型
+  derived_label: 3.1 确定预训练模型
+  naming_source: heading
+  confidence: medium
+  local_file: 6_3.1 确定预训练模型.jpg
+  sha256: ce136cba3c4379a006bd4ec36c87ebf54f768fe391c4148d69f075e116512531
+- order: 7
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47r0tgQricdJzYY0dmuL9LibuLynYKjyuMoMwWynW75GxYSya5KvjukWLw/640?wx_fmt=png#imgIndex=6
+  original_caption: 2.2 获得合适的权重
+  derived_label: 2.2 获得合适的权重
+  naming_source: heading
+  confidence: medium
+  local_file: 7_2.2 获得合适的权重.png
+  sha256: 07e5de0db045b9fd1977164f180f1f810ea73f79e3ec6b144b08559a25417413
+- order: 8
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47ryAtTibKMXPxzic8h20vqJ6BeumsoqeThehtDn924AxJ8UPU28qQZUOQ/640?wx_fmt=png#imgIndex=7
+  original_caption: 2.2 获得合适的权重
+  derived_label: 2.2 获得合适的权重
+  naming_source: heading
+  confidence: medium
+  local_file: 8_2.2 获得合适的权重.png
+  sha256: 3fde24dd0856b7a08c282e0baf12c104fc9ae7f30e88997437286c7439638639
+- order: 9
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp474NQribh2dJ3vkcibApQ5VLFok3eX9ay4ibEUIicbCCcNbicz6mwxKTouxPQ/640?wx_fmt=png#imgIndex=8
+  original_caption: 4.1 场景识别
+  derived_label: 4.1 场景识别
+  naming_source: adjacent
+  confidence: medium
+  local_file: 9_4.1 场景识别.png
+  sha256: 05bd8ba5f520e48ba31eacf56444a8e89ff49a365d367a27ac26f1f2b9ae8cdc
+- order: 10
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47Tecq6xwHy2TntytOTnm3gMZxM4uyLCLOia62eiaVFg4Zic2icHupegc0zw/640?wx_fmt=png#imgIndex=9
+  original_caption: 4.1 场景识别
+  derived_label: 4.1 场景识别
+  naming_source: heading
+  confidence: medium
+  local_file: 10_4.1 场景识别.png
+  sha256: 543cf4724555720aa2db13117f12f5302c5bec03426817952a882f42d83abe9b
+- order: 11
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47AmClaCj1miabkmW7eoEAfc55lmy2FF8gb4mLeLfW2rLq4ofGSlmGvbA/640?wx_fmt=png#imgIndex=10
+  original_caption: 4.2 语义分割
+  derived_label: 4.2 语义分割
+  naming_source: adjacent
+  confidence: medium
+  local_file: 11_4.2 语义分割.png
+  sha256: 94d3f916f86505b7c2a0c0bbeb5c78505f4f8e682649a64eddd5046098ce27b6
+- order: 12
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47LDmNu3LibUYKVqGZQogTTEp94pzGQvBC5CDVkiaGzcNNkbcFEYnrgUGg/640?wx_fmt=png#imgIndex=11
+  original_caption: 4.2 语义分割
+  derived_label: 4.2 语义分割
+  naming_source: heading
+  confidence: medium
+  local_file: 12_4.2 语义分割.png
+  sha256: 738eec299e6b00063dca2095839fea4a1f528c7ebf171592f181cae70153715d
+- order: 13
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47cpV3TtaibpNd1oPrBDCQTDK8LCTssI6ANB9XYadQOqbXK6caFtLc3iaQ/640?wx_fmt=png#imgIndex=12
+  original_caption: 4.3 目标检测
+  derived_label: 4.3 目标检测
+  naming_source: adjacent
+  confidence: medium
+  local_file: 13_4.3 目标检测.png
+  sha256: 7c74fad904777eafb1c9a8b0d7299fb1eaa93f6c386e13e435caf2c6101d77dd
+- order: 14
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47VmhNvXmHibHgMUlkOjCaqa6KvI5C8BuRXRCpibcyPYB6s7JCjHu0NKjA/640?wx_fmt=png#imgIndex=13
+  original_caption: 4.3 目标检测
+  derived_label: 4.3 目标检测
+  naming_source: heading
+  confidence: medium
+  local_file: 14_4.3 目标检测.png
+  sha256: 5e06bf5e9a8de397a7d6bb6c54a05e35c51773b6e1282aa3a21c962df5a404f0
+- order: 15
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47ZlPRibffjw0VSPjqPspa9icOxbelnBMyOX6IUlxlficvZFt3UYQocwWmg/640?wx_fmt=png#imgIndex=14
+  original_caption: 4.4 变化检测
+  derived_label: 4.4 变化检测
+  naming_source: adjacent
+  confidence: medium
+  local_file: 15_4.4 变化检测.png
+  sha256: ccda6305466f091ec53cac0dd08be68dc6760d87b3e9935a36fcbda764fd5a06
+- order: 16
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp47Fo0hp8uRvWZauWulnnLvLI2gLkx9IT8XU7k4acxaIiaicuhanZ3Ez5kw/640?wx_fmt=png#imgIndex=15
+  original_caption: 4.4 变化检测
+  derived_label: 4.4 变化检测
+  naming_source: heading
+  confidence: medium
+  local_file: 16_4.4 变化检测.png
+  sha256: 32ae4fab0f799b9a167375e754337fd02cb4ef9cda71fd434c1e6d671a986f40
+- order: 17
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV19Iib63NlnUPP9uYeO2Pp4788N0pyUjuIvfoAvmZFh2IOEJdajqmdom0wicpruys2fTTZibFBPVFIvQ/640?wx_fmt=png#imgIndex=16
+  original_caption: 4.5 不同遥感预训练骨干网络的综合比较
+  derived_label: 4.5 不同遥感预训练骨干网络的综合比较
+  naming_source: adjacent
+  confidence: medium
+  local_file: 17_4.5 不同遥感预训练骨干网络的综合比较.png
+  sha256: cdb0a42b5a4b74f6a40410c42b14e161efd6dfd2b3baadb3657ca99702ee3b1b
+- order: 18
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV34gGB02tibuoaMJnkf8icp4CltnCrnqXVMJOOTO6eAlOgtiaE8B8bm25vdXpU6whsm948tswnqGUuog/640?wx_fmt=png#imgIndex=17
+  original_caption: 五、结论
+  derived_label: 五、结论
+  naming_source: heading
+  confidence: medium
+  local_file: 18_五、结论.png
+  sha256: 6e9788bc0068b713d49a0fd56c04ff691d518b5da3d34a0e5ca168698f09ff6d
+- order: 19
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/ibaXaPIy7jV34gGB02tibuoaMJnkf8icp4ClNnrDTyLhV9iazDnticNib2hpjICibxvlteGmQ2RBnwBopoRAZQZ4de5Yw/640?wx_fmt=png#imgIndex=18
+  original_caption: 五、结论
+  derived_label: 五、结论
+  naming_source: heading
+  confidence: medium
+  local_file: 19_五、结论.png
+  sha256: c89c0f890da960b600a32f1808a122313b5598fa4039bc5320974c835362b5ba
+- order: 20
+  source_url: https://mmbiz.qpic.cn/mmbiz_gif/ibaXaPIy7jV2sicvpEgy5W3RjOOeUewRuhywlwnMH5Pd0fr4jCia5sJnr02lCwC7FMIzdHgPHonG6sHqTecm0sAbQ/640?wx_fmt=gif#imgIndex=19
+  original_caption: 五、结论
+  derived_label: 五、结论
+  naming_source: heading
+  confidence: medium
+  local_file: 20_五、结论.gif
+  sha256: 74902f3e5014bd626ffd8800d7c753eb18d1088bf81910cd01f80c06624edfc5

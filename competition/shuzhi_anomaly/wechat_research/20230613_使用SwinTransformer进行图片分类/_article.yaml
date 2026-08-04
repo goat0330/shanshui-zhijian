@@ -1,0 +1,84 @@
+title: 使用SwinTransformer进行图片分类
+account: 算法美食屋
+publish_date: '2023-06-13'
+source_url: https://mp.weixin.qq.com/s?__biz=MzU3OTQzNTU2OA==&mid=2247492248&idx=1
+canonical_id: wechat:MzU3OTQzNTU2OA==:2247492248:1
+archived_at: '2026-08-03T11:56:49+08:00'
+archive_schema_version: 5
+search_id: 51
+sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9bRckJICBTwBpc-IzpolAIvJwKtP9-_8bMHaINqp50E_TacJ8vK_maNw_SbtLnwVo7F5cWte55WqDl11diR30R6K6lLvPtrmncVxtV2Sis24eg5zDZabt3ldQ5NqlE0q5lWSiLKr6I0-tv_gG2nEcCvsCccharYC3992LHWWJYMxf_71bqkOtiw..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+resolved_url: https://mp.weixin.qq.com/s?src=11&timestamp=1785729316&ver=6881&signature=77DkhOzXxukqLWJo5rWwJaWl5c5K8bqyCbLHq5xaRNdPUQ-DOMYEyN0stCRbhU8x-8SA10TxRfDqa-fyQ6rOYFfYBvFk1t7-wGvXvW-v*4mW4u8j-E47G-L7Q9TQVsvj&new=1
+content_hash: sha256:7dcc9ca0bf534a4f53c2afe40dc8f5200c95987314a84435f4f04dada88449f3
+images:
+- order: 1
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/4WgILHBwVH8Rd7ENvPQ4H4eicpfclgBb7eRHSD6ZmMnWNdqseQNjl0v0ibTkGgicjib3UMCzSCZzuJOTGUXWxCCOxA/640?wx_fmt=png#imgIndex=0
+  original_caption: 图片
+  derived_label: 文章首图
+  naming_source: role
+  confidence: low
+  local_file: 1_文章首图.png
+  sha256: 11131c6d8e452d2aa1be69c036c18b18af6af53fb5fd23705f4760605cbec455
+- order: 2
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/4WgILHBwVH8Hut03hriad53icCeQ3YKVQash9XyvxBFEDvfuE34UwiabHb9ZniaQTLjA0B8yVmSEmEd9iaBlBFFYssQ/640?wx_fmt=png#imgIndex=1
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 2_正文配图.png
+  sha256: 0afce5234f246b3a3e86f29f6af41cfd8273dcfa71cf5c488fbea57a9a107882
+- order: 3
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/4WgILHBwVH8Hut03hriad53icCeQ3YKVQaS8Ob993VDdJouSnicf7fpBA1vV3sXt9aJicia7OOWhianiau0pxSS18ru1Q/640?wx_fmt=png#imgIndex=2
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 3_正文配图.png
+  sha256: 29cd844a1eef313011fbcfec1e28dc9f4be1c1cf7221769f303867030f4245be
+- order: 4
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/4WgILHBwVH8Hut03hriad53icCeQ3YKVQavVXCcyxf62LIiamECg0pjuibWp6t9t9KyYQdicprpLUGdSmicjxImMhdnw/640?wx_fmt=png#imgIndex=3
+  original_caption: 〇，预训练模型
+  derived_label: 〇，预训练模型
+  naming_source: heading
+  confidence: medium
+  local_file: 4_〇，预训练模型.png
+  sha256: 2e74fa139f98c2056755f9071b7871db9a73c1822270adc31fcd52d1bdcaefc3
+- order: 5
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/4WgILHBwVH8Hut03hriad53icCeQ3YKVQadMKs879K6bZH2NzAZnhAAEY7X1CxSIud8jrqMpV5wbOkT7dibPSkMnw/640?wx_fmt=png#imgIndex=4
+  original_caption: 一，准备数据
+  derived_label: 一，准备数据
+  naming_source: heading
+  confidence: medium
+  local_file: 5_一，准备数据.png
+  sha256: 39c0f4b7fe2350eaaf2aa1878c3f6fa92232a066ff6bef42efa731041129a517
+- order: 6
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/4WgILHBwVH8Hut03hriad53icCeQ3YKVQaMAsuTXHg6cDbmpzN7M9CPNQ2zIE9ZM9U9kSl5WvTKPFWLDBaibDkvTQ/640?wx_fmt=png#imgIndex=5
+  original_caption: 一，准备数据
+  derived_label: 一，准备数据
+  naming_source: heading
+  confidence: medium
+  local_file: 6_一，准备数据.png
+  sha256: bb247c38559039edfe122e3a28e6a7cba24d7a474f0baff7cecbdf6d09c086a3
+- order: 7
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/4WgILHBwVH8Hut03hriad53icCeQ3YKVQacglposIhqEia7lM3cxRUBq88aibaI1kqljeaFXPlbicAA8YrKjOAYic5yQ/640?wx_fmt=png#imgIndex=6
+  original_caption: 三，训练模型
+  derived_label: 三，训练模型
+  naming_source: heading
+  confidence: medium
+  local_file: 7_三，训练模型.png
+  sha256: 171b3665f239638d7a44c69420779f728d73f6a09dfc77ef7ab551cbb02c9e88
+- order: 8
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/4WgILHBwVH8Hut03hriad53icCeQ3YKVQaoAJIVU2P9dmxGbCUgwQX0QJ10y6etalZgYQbmwlXksWteViae0kMQoA/640?wx_fmt=png#imgIndex=7
+  original_caption: 六，保存模型
+  derived_label: 六，保存模型
+  naming_source: heading
+  confidence: medium
+  local_file: 8_六，保存模型.png
+  sha256: 029eb91d9e22585c96666dde9af3a5e4d5379ef91558a96815f098ee5013352c
+- order: 9
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/4WgILHBwVH8Rd7ENvPQ4H4eicpfclgBb7oS23YhvtpnlkBezia6XDtt1A9icktYmmCrmEIqyyPjj9xGUJufMmicHeA/640?wx_fmt=png#imgIndex=8
+  original_caption: 六，保存模型
+  derived_label: 六，保存模型
+  naming_source: heading
+  confidence: medium
+  local_file: 9_六，保存模型.png
+  sha256: 4187b5ab556db0a733284b004d275cb69ea127b61bda76e1e3672bf91e8a8790

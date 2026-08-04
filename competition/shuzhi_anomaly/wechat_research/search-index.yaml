@@ -1,0 +1,2222 @@
+version: 1
+updated_at: '2026-08-03T14:51:33+08:00'
+results:
+- id: 1
+  title: 人工智能,计算机视觉,机器学习, 图像和视频处理论文速递--(2026-07-28)
+  account: 璇玑枢
+  publish_date: '2026-07-28'
+  summary: 'mIoU of SAM3-derived masks under tight boxes and surpasses ... 图像分类的空频双域协同学习链接:
+    https://arxiv.org/abs/2607....'
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 1
+    searched_at: '2026-08-03T11:55:06+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7nhMMf1x6D5VzehD43LDFz1qXa8Fplpd99VINpT4CKl4dLqS1V5s3zIlQsGGyP9f_ZWb2gXAIyvr-VThDYsvg-tUwN0buObRiRjJYMkzKv7kqWCQ-GJEuxAmwHu2tH6et0WKoWk2xoKOOfvm_c_mU5WdKlIhZA1q9sxcaTGXbc8m8t9U8uXnKFOlKFrualy761atvA0v_vOMtPujwwRB2Pw..&type=2&query=%E9%95%BF%E5%B0%BE%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20mIoU%20%E5%B0%91%E6%95%B0%E7%B1%BB&token=EBBC7205307D76E13F396623BF3E8D063F285D056A70111A
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 2
+  title: CVPR2026 | 无需额外训练的水下世界分割探索!
+  account: 遥感与深度学习
+  publish_date: '2026-03-19'
+  summary: Special三组数据集呈明显长尾分布,少数主类样本量大,大量稀... aAcc、mIoU、mAcc 三项指标,支持多骨干网络(ViT-B/16、ViT-...
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 2
+    searched_at: '2026-08-03T11:55:06+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7nhMMf1x6D5VzehD43LDFz1qXa8Fplpd9GcxP9MqIIzx7a3KejcSg2cG6uxFHcqe-9K8CACZ-SE2pkaXwo80hUUfZ2HtGiqacqNYNrmEMLYi4qHeryxMuLBlJYDmM5RNtVkhi4kWDz0yXtt5i23hpTHBxDEP5ClhMmfKACVNIhbhiw1D4j0-4HAGEJXUBa569j-nM8YqOwNFe0WC6Sbi7DA..&type=2&query=%E9%95%BF%E5%B0%BE%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20mIoU%20%E5%B0%91%E6%95%B0%E7%B1%BB&token=EBBC7205307D76E13F396623BF3E8D063F285D056A70111A
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 3
+  title: DatasetDM:使用扩散模型合成带有感知注释的数据 (NIPS2023)
+  account: 小小cv笔记
+  publish_date: '2024-04-21'
+  summary: 上,只有少数工作试图解决人体姿势估计[18]或医学图像分析[21]等... 合成数据分别获得了13.3%的mIoU和12.1%的AP的显著收益.•...
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 3
+    searched_at: '2026-08-03T11:55:06+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7nhMMf1x6D5VzehD43LDFz1qXa8Fplpd9WUkAAZ5NOPJuk2eQfaPTrwArLmYAkncSAg-4GQ33SmI_C87RWeaf8J2RLzuZsFfwI6xPTeooW2jLL4xMtSyOB5eHLyf3haccf2-kjWKYE4ZS3nMo54HnHRlT7Wj8wCwOgvpLtH26zKB4CdqUwEzyd14ekvaDdQyjS5enzLt2obhQ_LeJW-Rhtg..&type=2&query=%E9%95%BF%E5%B0%BE%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20mIoU%20%E5%B0%91%E6%95%B0%E7%B1%BB&token=EBBC7205307D76E13F396623BF3E8D063F285D056A70111A
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 4
+  title: 小米自动驾驶算法分析,能打几分?
+  account: 阿宝1990
+  publish_date: '2024-04-21'
+  summary: mIoU (Mean Intersection over Union,均交并比):为语义分割的标... 长尾问题和3D场景的粗糙描述:尽管3D目标检测算法取得了进展...
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 4
+    searched_at: '2026-08-03T11:55:06+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7nhMMf1x6D5VzehD43LDFz1qXa8Fplpd9FjqEsKaGEmqFjy983BaLqdUhvDRygvS-XPTLYpWYc_nONwlTjgHdpDdoLIh_nVMOIwAfQ08aqu3Zo2HpW3WiiYURzoaMYRPhNV6oaBg5kmdwmlRrJyYt22_ofMPiLsjG8ie8HgJ7LfVAS_qiiODor18dUOLCWrB62yxlW3SHvq7vzHZXxeLdyg..&type=2&query=%E9%95%BF%E5%B0%BE%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20mIoU%20%E5%B0%91%E6%95%B0%E7%B1%BB&token=EBBC7205307D76E13F396623BF3E8D063F285D056A70111A
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 5
+  title: 独门秘籍奉上!听说这是CCF遥感地块分割比赛冠军的“获胜法宝”!
+  account: 飞桨PaddlePaddle
+  publish_date: '2021-02-19'
+  summary: 所以,提升模型分类能力(mIOU)的关键是解决类别不均衡问题... 而是逐像素少数服从多数的硬投票,并且用二分类预测逐优先级覆...
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 5
+    searched_at: '2026-08-03T11:55:06+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7nhMMf1x6D5VzehD43LDFz1qXa8Fplpd980mHo5eYnpbmo8np094K9XJYR7cpmvB7nO-iOD4QDqX7tq4ktso9TX1TBZDElYX4kz_OIVzQmYz-zMcvRKE7ZJhu55F6MhgkjqpyGBXiiFaOMLg1myCalec_vsTQXy4f55vKCfQ6bf-BjH48xjPAM_97CbpcKJqqwgtYdCS8lCy00NVofL2iDw..&type=2&query=%E9%95%BF%E5%B0%BE%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20mIoU%20%E5%B0%91%E6%95%B0%E7%B1%BB&token=EBBC7205307D76E13F396623BF3E8D063F285D056A70111A
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 6
+  title: 3.25-3|VLM语言引导空间表示增强;前向高斯泼溅密度预测与控制;MLLM语义约束开放标签3D目标检测
+  account: AI研究前瞻
+  publish_date: '2026-03-25'
+  summary: mIoU,相较于原始模型提升了 3.8%,刷新了该领域的 SOTA 记录... 只能识别训练集里预设的少数类别.虽然近年来研究者尝试利用多...
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 6
+    searched_at: '2026-08-03T11:55:06+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7nhMMf1x6D5VzehD43LDFz1qXa8Fplpd9gwWm3AlrXVwwnnIAhHV6rsFvChxPwGxdWTJXBcr5EpIeQERc2fxOLNjK38xQ0NTeKAgARrGZxrz-Vcm_U-AdWF4Y201bOJ7m-gwJpgPPk1IByIbB0L73_siIzJbCNmTPONI15GvB6R5uFd3H5c7yO_hA7JAe0WOAfn3Hy2fMTEfuL0unUdKkuw..&type=2&query=%E9%95%BF%E5%B0%BE%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20mIoU%20%E5%B0%91%E6%95%B0%E7%B1%BB&token=EBBC7205307D76E13F396623BF3E8D063F285D056A70111A
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 7
+  title: 大型储能电站智能巡检关键技术--感知模型技术路线
+  account: 蓬松男孩
+  publish_date: '2026-07-23'
+  summary: 低质图允许拒识但要可解释分类Accuracy、F1、AUC、ECE 校准误差关注尾类召回和置信度校准,避免高置信错判分割mIoU、Dice、...
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 7
+    searched_at: '2026-08-03T11:55:06+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7nhMMf1x6D5VzehD43LDFz1qXa8Fplpd9m_c54zyqM_LF4BDHadgmPCT1y-3zPnEfYzSJy4R8KvsVXfrtNEGFGuScf6yRLlpENEiB2kS9n7H4esv6McTCQJ56NzmveW5bTH7DlEKqm4gak4h62UkA_siyVpe2C-P9EE81kUBnB3RpoQL_CWGso67zAq4dnQ4ScvYpfxYp4olS6t2rFt2rnA..&type=2&query=%E9%95%BF%E5%B0%BE%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20mIoU%20%E5%B0%91%E6%95%B0%E7%B1%BB&token=EBBC7205307D76E13F396623BF3E8D063F285D056A70111A
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 8
+  title: 【源头活水】T-PAMI 2021:换个损失函数就能实现数据扩增?
+  account: 人工智能前沿讲习
+  publish_date: '2021-01-22'
+  summary: 图像识别效果与效果较佳的传统数据扩增方法有效互补(RA、AA... 的基础上将mIOU提升1%以上图13:Cityscapes 语义分割的实验结...
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 8
+    searched_at: '2026-08-03T11:55:06+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7nhMMf1x6D5VzehD43LDFz1qXa8Fplpd9JC0CxbUILvfoxAp7JBJaE-8wpzsv-ZggblJCdfhgurrG6bwArqZ2Kg-3ew1dQ4BUgsdDv_rFyBJDieueRSaDP_OkB0nMZeoytvpDAZsuAhAXaHJtPLbJ1XX9vkMSqa2xHX328J9UmQedg9GClbqtMqK1XRW1BzDk-49TuQjPgKx5Nu7CnoSqqg..&type=2&query=%E9%95%BF%E5%B0%BE%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20mIoU%20%E5%B0%91%E6%95%B0%E7%B1%BB&token=EBBC7205307D76E13F396623BF3E8D063F285D056A70111A
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 9
+  title: LeCun连续转发!新作VISReg攻克JEPA世界模型「表征坍塌」核心难题
+  account: 新智元
+  publish_date: '2026-07-28'
+  summary: 的优势不局限于分类.在 ADE20K 线性语义分割上(ViT-B/16),其 mIoU 为 30.16,高于 DINO(29.40)与 MAE(23.60),仅次于
+    MoCoV3...
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 9
+    searched_at: '2026-08-03T11:55:06+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7nhMMf1x6D5VzehD43LDFz1qXa8Fplpd9BKtL-FmkrG5_5H1rc8XEtLeunGTc0PDMRX5RC8CNzK3Oxo7HvjwgRQXOyxzL1e68nBO0exVUorSyct0QI1qU4HJfKaG317bx_JVAzgIXlZao-uMxbcvpDVS0OGmXARq_fR8WLu19Yk6OQwwPGSIBNKrC09s4hT2ygv5xnOcwuRzy08OLTBhW0A..&type=2&query=%E9%95%BF%E5%B0%BE%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20mIoU%20%E5%B0%91%E6%95%B0%E7%B1%BB&token=EBBC7205307D76E13F396623BF3E8D063F285D056A70111A
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 10
+  title: 计算机视觉学术速递[6.24]
+  account: arXiv每日学术速递
+  publish_date: '2021-06-24'
+  summary: Data and Web Science Group, University of Mannheim链接:https://arxiv.org/abs/2106.12303摘要:在过去的十年中,深度图像分类网...
+  queries:
+  - 长尾图像分类 mIoU 少数类
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 长尾图像分类 mIoU 少数类
+    rank: 10
+    searched_at: '2026-08-03T11:55:06+08:00'
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 2
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9yEpqcBTS-PlMoa1V-Is64tHL2N0M4jxuE9WFjUwBP1eemo43aZZ1y-qq2cH-ht46K-JH8l9LpTXdXxLSLY59yNbxF7M933dyBZg81d4VM8WquotvimVtE1sjnt6q7fF1KMAVFO7GRJQAM-XCWAoWTSfoNiB9MXJsgGPpy1XTxjB5LU3lqtPw9g..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 11
+  title: 'Balanced-Meta Softmax: 长尾视觉识别方案解读'
+  account: OpenCV中文网
+  publish_date: '2020-11-25'
+  summary: 这是一个类别不平衡的二维数据三分类问题,三个类别分别为红、... Balanced Meta-Softmax (BALMS),在这两个任务上都达到或超过...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 1
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd9a7-2ekSfsw-bIdasJ_UWoiO0qBV_Az95-b9xJ8o4ZYLMMG5u4cjQ7v3OdNedpA3IYrhd-qjgl5cp0DQ5FdnVTQfFEKOFwjaSpELcCKA_FN3krvuxsiIKXvIhK7yQVzjzeoQoYkdXQxjSBfGsuSALwJOx7m6J97gNwma2s8LTv4YO8fIRwtipOg..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzUzODkxNzQzMw==&mid=2247487231&idx=1
+  canonical_id: wechat:MzUzODkxNzQzMw==:2247487231:1
+  status: archived
+  local_path: 20201125_Balanced-Meta Softmax_ 长尾视觉识别方案解读/原文.md
+  content_hash: sha256:901009d961a1cea4a5a5331b12b655a06b9ec6634514353780daae891a38f8ef
+  last_error: ''
+- id: 12
+  title: CVPR 2020 | 解决目标检测长尾问题简单方法:Balanced Group Softmax
+  account: AI科技评论
+  publish_date: '2020-06-19'
+  summary: 提出了Balanced Group Softmax,这是一个简单的思想,效果很不... 这种不平衡将使low-shot 类别(尾类)的分类分数比many-shot
+    类...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 2
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd911IVEpKD4NwTBHiTH8zJztjQ_primiIrQxuB9HiFLjb7UY2g04yEIjgOaDSoAp8eFqm84bdwV9c_gc6yN7pFah9qeygCTRAPdHTYOD_UIFQvAG2GM8QlBHDxENwU91DUhs4MZGkw2AO4Zg8bENbgnpWjswHHJxOc-KaH9qPclts6Ebq8fk9diw..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 13
+  title: CVPR 2022 (Oral) | 回归标签不平衡? 试试Balanced MSE
+  account: 我爱计算机视觉
+  publish_date: '2022-04-28'
+  summary: Balanced Softmax与Balanced MSE,第一次将不平衡分类与不平衡回归融入了统一的框架中讨论.未来更多的不平衡分类技巧也可通...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 3
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd9qnJbBmv9AwPrnepMgIphKFBtFU1oAhAE1VQKCz61ZhmA_FnpI1FV5aUi_iV40slNQlNiUbctZM_MUT_qa2VPxUmUWT8rpyUmJYpDWMzfdEFFVCJP5l7d6wq27OjZIFjAv6tyd0j5MCKQtNYoExPkIGL69s_6jzzO8BrlCfP3Uqv6zvkPgoArRQ..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 14
+  title: 课程总结 | 视觉任务中长尾分布问题研究进展与挑战
+  account: 商汤学术
+  publish_date: '2020-09-24'
+  summary: 的长尾分布多标签图像分类工作,专注于解决长尾分布数据集下的... balanced group softmax 的方法,从而进一步提高 bbox
+    head 对于 ...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 4
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd9wC8j3a_l9xNKgd00siK0w7DeqeBUpCjCFv1_0WhHg-RD65AYzM_-dXXywr0jwyQdFrEN22nHoeqM65W7hBNzomAwCt8G6VkQIXTiEHqkjiwh5EZ2RLpoE1BR2WxDmFnw2I2mT6mP2NDbkI9BDk61lJJUzuillucMnXiPITHtOtdFH6In5Ei3zg..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 15
+  title: 字节一面:样本不均衡,怎么解?
+  account: Jack Cui
+  publish_date: '2022-09-13'
+  summary: 3.1. 类别平衡的 Softmax 交叉熵损失给定一个标号为y的样本,该... 每类训练样本的个数上面显示了每个类具有不同不平衡因素的图像...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 5
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd9c-QrMsts2XAflhfqDN4xf2YHlLztkaVDv5KGd2bd3uuzi8swkf1lUKGzZwEOJsc10raqQZFkhY3EoGmT3R5t_nQjmR7_gwGyrpaMLQ2PqlxY8YvbL5YFv7XyaTFsWPJ55G96VV0CVOeO29u6xsA8z-R4qepEuGvTB87lTQiYjzJCy6umSSPEsg..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 16
+  title: 如何在类别不均衡的数据集上提高精度?
+  account: 计算机视觉life
+  publish_date: '2019-11-11'
+  summary: (softmax-cross-entropy、focal loss等)提出了一个针对每个类别... balanced-loss-pytorch样本的有效数量在处理长尾数据集(其中大...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 6
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd9MGRvqbyLmC__2Yue_7XHzBe5kpuujBb16ij0DNr0VPwi9wd-cXqkssBOpwpV40fVLTTd0C5s0yfAqD84om28nHAf7hOaGjOzIrtfroEgCWr0_2h9Re_cFfMhXB4yh9Sl0H9L3xV3g1d_UPATaoS0HHZoAl5PRh4BFm1bJ5VbmkvuL0unUdKkuw..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 17
+  title: CVPR2022:计算机视觉中长尾数据平衡对比学习
+  account: GiantPandaCV
+  publish_date: '2022-07-24'
+  summary: 监督对比损失在图像分类任务中,通常目标是学习一个复杂函数φ... Balanced Softmax 相比,通过根据类频率调整 prediction
+    来添加 ...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 7
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd9l5htUuCtJyLkUYnnTGMEoDO3TBsk9hAtGJm8XEl7dzfboo_ranjTmHqJmIVUTNMkj8x0AUji24bQmm4DF88kC5_La6HUAA9MuiVU2f3LSceqUlMnxjsVU4ACtM6yvjk34WBUiXxO5ISmPbVugY92V1ejbWGr9IHkIXmLOqrQqA1OJBjQH7pCxQ..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzA4MjY4NTk0NQ==&mid=2247504326&idx=1
+  canonical_id: wechat:MzA4MjY4NTk0NQ==:2247504326:1
+  status: archived
+  local_path: 20220724_CVPR2022：计算机视觉中长尾数据平衡对比学习/原文.md
+  content_hash: sha256:9f9657a2e7f16fa113a7c3ba7cbeb8ddef2c3f3286f5763d260f943fbc6733e1
+  last_error: ''
+- id: 18
+  title: OpenNet打开目标检测新视野 | 蒸馏+不平衡损失让目标检测拥抱不公平的开放视界
+  account: 集智书童
+  publish_date: '2023-12-04'
+  summary: Softmax 作为激活函数,输出具有多个值,即每个类别的概率,所... Balanced Loss 的分类损失则会同时减少易于分类样本对损失的贡...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 8
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd9sIpMHItMEAihoiOGo79K86FVJv3FKB3Hxs1j4aJ_nT_LkavzneuyIR7ptOEacp8igOaCzBagAN8VmGZk9IBM9dbu_rmaMDkE5IgNfbvvDByrCUJlZj4JX_w6HYxVl5LEfTc-XRtyCe9VsLt8HyYWLOpB_2vOEQK9817wms-AQ10SYTqT4eyLmA..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 19
+  title: 2020年以来的图像分割进展:结构,损失函数,数据集以及框架
+  account: AI公园
+  publish_date: '2020-04-01'
+  summary: -balanced LossIoU-balanced分类损失的目的是增加高IoU样本的梯... 它用于类别不平衡的情况.Lovász-Softmax
+    loss该loss基于子模块...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 9
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd9f5JBS4gQCYI7Xa-heMPXWiLq5O6HnhEc7f6bx7GrL_Gg9FAlvOX7gWyVLR6cb8VOOxLqB_fubdU8JxNjSefmateHDH_3zQPNS2YddqEWMHd-763DXw2zCKtaTSLlCHWuqy-KEpb0NGX0h2pTX5RollhvfUlaPuV8DMHZZZSMv-rP28temKTOwg..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 20
+  title: 图像分割模型调优技巧,loss函数大盘点
+  account: 算法邦
+  publish_date: '2021-02-05'
+  summary: 在多分类任务中,经常采用 softmax 激活函数+交叉熵损失函数,... 叉熵损失函数只是在交叉熵Loss的基础上为每一个类别添加了一个...
+  queries:
+  - 图像分类 类别不平衡 Balanced Softmax
+  rank_history:
+  - query: 图像分类 类别不平衡 Balanced Softmax
+    rank: 10
+    searched_at: '2026-08-03T11:55:08+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7KnAw2siPo0lzehD43LDFz1qXa8Fplpd9iT1-bUWDFUvqZCP4sjhWIxVtYNjk_to0ZComZPRRizBOoyGJpq9wp3VFhnzqVPvfdWICqPha0MU1RNnZ9PgNbl_TA9W1qxOM1kri1M6BliSESEeDWi7qdmIgzTJO9vacpL8Ols3xMCmAV9j4KfnczkYLb60qW-gaf2AYYBm_yJZFH6In5Ei3zg..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%20Balanced%20Softmax&token=EBBC7CE3307D76E13F396623BF3E8D063F285D056A70111C
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 21
+  title: 研讨会预告:新一代卷积网络ConvNeXt训练实践与AI模型适配框架NVIDIA TAO解析
+  account: 智能车情报局
+  publish_date: '2022-04-23'
+  summary: 科技有限公司资深系统架构师庄翔甯将直播讲解新一代卷积神经网络ConvNeXt和NVIDIA预训练模型迁移工具TAO.NVIDIA TAO是一个...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 1
+    searched_at: '2026-08-03T11:55:10+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7T6Ody7wtNOhzehD43LDFz1qXa8Fplpd9OIQhK3lQoh4ogP-k-SZOrEvKLSzYNXzIZ37-gVecU7TFueeSQpQyFpiKnoG71bQTLSz5DVigx5_Zqnw2F_1Vlvl-Y7fe17sjQar7wJObeZssToRZwfw2QJ1LqVzUC6n4lSmsWt9t-qCJBt2tP9Z4kvVegqbexkJayR-KhM8lusjdrgozfSg6bw..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%20ConvNeXt%20Swin&token=EBBC86CF307D76E13F396623BF3E8D063F285D056A70111E
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 22
+  title: 武汉大学遥感信息工程学院廖钊宏:基于Swin Transformer-CNN的单目遥感影像高程估计方法及其在公路建设场景中的应用
+  account: 智绘科服
+  publish_date: '2024-05-08'
+  summary: 本文对该问题进行了研究,针对大幅遥感图像中各部分高程分布差异大,模型训练难度大的问题,提出了一种基于Swin Transformer和...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  - Swin Transformer 遥感 图像分类 预训练
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 2
+    searched_at: '2026-08-03T11:55:10+08:00'
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 3
+    searched_at: '2026-08-03T11:55:15+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9yhCZE9m_BJ0r3oPX5iVfvsEb1e7IibB3vhjhaaY1M_4g4ZzBZaP0HNw-MVs7CGFZenU7Y1OPVb0A7XoeUWFDH2u9CxR4ErhjMhhhRoP4TR1-WsP9HZB4x3G6EXQRjSf68SxjJYx4qSytVm7o7g-xzjDIhUBIvA3BUa6vjBqeo96AFV_3u-a3OQ..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 23
+  title: YOLOv5、v7改进之三十七:结合CVPR2022新作ConvNeXt网络
+  account: 人工智能AI算法工程师
+  publish_date: '2022-10-21'
+  summary: 然而,通过ImageNet-22K预训练,ConvNeXt能够超越... 果:本人在遥感数据集上进行实验,有涨点效果.需要请关注留言...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 3
+    searched_at: '2026-08-03T11:55:10+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7T6Ody7wtNOhzehD43LDFz1qXa8Fplpd9w7ekn1atd0M12I1ip3UwpWes5UkNor6UpaMy3TB0GgxmpGT7HeNwN7SC7ETQ38c-lWv-vGwrSlfAg72sdmCR2YMc9psT29EZW_eoRq2uIiXJumY3x6ya0LVD7VW3nwc6aiaVcAOSoV31pzHrUAIJKO-8CFRFnWZMooygxr7JVEuTJmCU1UgHwQ..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%20ConvNeXt%20Swin&token=EBBC86CF307D76E13F396623BF3E8D063F285D056A70111E
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 24
+  title: 长沙理工大学计算机与通信工程学院王威教授:面向遥感图像场景分类的GLFFNet模型 |《测绘学报》2023年52卷第10期
+  account: 智绘科服
+  publish_date: '2023-12-24'
+  summary: 模型的遥感图像场景分类算法框架,有效提高了遥感图像分类的精... [28]、ConvNext[29].对照组还包含了Transformer结构中分类表现...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 4
+    searched_at: '2026-08-03T11:55:10+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7T6Ody7wtNOhzehD43LDFz1qXa8Fplpd9yhCZE9m_BJ0r3oPX5iVfvsEb1e7IibB3vhjhaaY1M_4g4ZzBZaP0HMMrm_VFUTkcPq_QFAohgiQuUVVjnUwlCR_YKYPJ_7gT2w2zbCplc8wwqYcODUlEpoAsM09Z5GngaXT627fMWV0NRrN9wSzwlYr2t7wUl0P43eLR0w-YD5xQL0Hr9Gyd3Q..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%20ConvNeXt%20Swin&token=EBBC86CF307D76E13F396623BF3E8D063F285D056A70111E
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 25
+  title: ICCV 2023 | 南开大学提出LSKNet:遥感旋转目标检测新SOTA!
+  account: FightingCV
+  publish_date: '2023-07-19'
+  summary: 但忽略了遥感场景中出现的独特的先验知识.这种先验知识是非常... 模型是高效视频学习者ECCV2022|只能11%的参数就能优于Swin...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 5
+    searched_at: '2026-08-03T11:55:10+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7T6Ody7wtNOhzehD43LDFz1qXa8Fplpd98LWI5nbfZ1zfPyk3rmvItq9u0BETlJqjFUcu9qBIWH4V-x70-MonZGPvz_ZItHxsWz3nCaw_jlrqnl6G-JOH4SAuY4wplcuBNfcaB0uXpjIgISHVxivKSLV8OHwozauacD_mEkfZNDuKksAhV5Qk-lloTMti0EPUYFNzMQ9lFcHs46dn8Efgxg..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%20ConvNeXt%20Swin&token=EBBC86CF307D76E13F396623BF3E8D063F285D056A70111E
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 26
+  title: 《Nature》| Merlin:面向腹部CT影像的3D视觉-语言基础模型与数据集
+  account: 数智康研
+  publish_date: '2026-03-11'
+  summary: 后者则先进行表型分类预训练,再使用对比损失进行微调.三、... 具有较小感受野的ResNet骨干网络性能优于ConvNeXt和Swin ...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 6
+    searched_at: '2026-08-03T11:55:10+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7T6Ody7wtNOhzehD43LDFz1qXa8Fplpd9QYeDdOLGaaC_m0Ao6AgQZYM5NB7itB_CTlVcCeCjZaxiw793i74gdcxvN_V3Yb5lMiLSpjn2DewNh8Uci5w3_jQQEfyYVnmYk9gTjU-3nKimrUcxrcbjpmhTlU4YziVIu4M3Ws95OsYP4Ysvck2NXl2GgDHyJjr48DB4Ksgr2plOJBjQH7pCxQ..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%20ConvNeXt%20Swin&token=EBBC86CF307D76E13F396623BF3E8D063F285D056A70111E
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 27
+  title: ResNet卷土重来!全新纯卷积架构ConvNeXt,性能反超Transformer
+  account: 算法邦
+  publish_date: '2022-03-15'
+  summary: 最终得到了ConvNeXt-T 模型,性能超过了 Swin-T.ConvNeXt 在不同的 FLOPs 均可以超过 Swin,如果采用ImageNet21K
+    预训练后,...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 7
+    searched_at: '2026-08-03T11:55:10+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7T6Ody7wtNOhzehD43LDFz1qXa8Fplpd9iT1-bUWDFUvqZCP4sjhWIxVtYNjk_to0ZComZPRRizBOoyGJpq9wp1sIIYIqqKBpjrVUvopqIRuZ-ttV49DOWojdl8ye6Ac__F7AYDPiocY0EkxqenwFrVQViOXz9dYoAfRZmqsv9AZlkZfxBzILiWHYTJTl3Lqffqe6VdK8RK56VKrzu_4XKA..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%20ConvNeXt%20Swin&token=EBBC86CF307D76E13F396623BF3E8D063F285D056A70111E
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 28
+  title: 'Mamba入局遥感图像分割 | Samba: 首个基于SSM的遥感高分图像语义分割框架'
+  account: CVHub
+  publish_date: '2024-04-05'
+  summary: 如ConvNeXt、ResNet、Deeplab V3+和PSPNet,以及ViT-based的方法,如Swin-T.为了确保公平比较,测试的方法都未加载预训练...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 8
+    searched_at: '2026-08-03T11:55:10+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7T6Ody7wtNOhzehD43LDFz1qXa8Fplpd9-O7XnmpyfQ_V1cUbIYGiD0qiaC7JFvqSJs0118X138CCJxjBrD9owEHSi2uw-T9uxjZzrf3SnlohLStSimJYVZwqTkUf_WDiU1rOkY7m0P4NKXV9XqeaXpNfXJvjyWes-udj_WEWf6ly-rC18yW340mCApXVGVrnRITXPdCPuDUCYioxHkzTmA..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%20ConvNeXt%20Swin&token=EBBC86CF307D76E13F396623BF3E8D063F285D056A70111E
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 29
+  title: CNN卷土重来!ConvNeXt V2超强新骨干!当MAE遇见卷积神经网络!
+  account: CVer
+  publish_date: '2023-01-03'
+  summary: ConvNeXt V2 最终在各种识别基准上的性能,包括 ImageNet 分类... 的模型:然后便是 Swin Transformer received
+    ICCV 2021 best ...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 9
+    searched_at: '2026-08-03T11:55:10+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7T6Ody7wtNOhzehD43LDFz1qXa8Fplpd9GtMtFb1KKqIu0pzuK606_HSm6liUNNp1KdoNFPqGuY-M24wuydxWP_mTb7H24_4S14KC1knXQ60iZnCeXnnddnqzCOoJfYhcf7b63C3svvb4Ai1Kgp0YeBI-VFXE0bcacG5Hxlh7t9ItgI0ysfMf3vLB1kn4DIDKUlJ_3M9H3exQ_LeJW-Rhtg..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%20ConvNeXt%20Swin&token=EBBC86CF307D76E13F396623BF3E8D063F285D056A70111E
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 30
+  title: 工具箱思维:在计算机视觉中如何选对工具、用好工具(计算机视觉篇)
+  account: 深图算法
+  publish_date: '2026-03-18'
+  summary: 自动驾驶、机器人抓取医疗影像分析、自动驾驶场景解析、遥感解... ConvNeXT 等现代 CNN 架构并存竞争,混合架构(如 Swin ...
+  queries:
+  - 遥感 场景分类 预训练模型 ConvNeXt Swin
+  rank_history:
+  - query: 遥感 场景分类 预训练模型 ConvNeXt Swin
+    rank: 10
+    searched_at: '2026-08-03T11:55:10+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7T6Ody7wtNOhzehD43LDFz1qXa8Fplpd94eulF8OHS2OFKEfiKYFCHbkNYdYiX2OkO7qLanIHAIDgaKIfXIokKypC-OSoSYCmZh4dSi8TCk9YoPJ7kCn37c7j_nCM46HfsdVwaDtfIScscwSTYG4sKFxbEUMR6WC5cF2EXeYdMCrNLZEYKnnNqRWX8rYG-JuA40QpPFYk1f1flztgI7RZ1g..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B%20ConvNeXt%20Swin&token=EBBC86CF307D76E13F396623BF3E8D063F285D056A70111E
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 31
+  title: 低空应用专题:科技护河-天梭智飞在水域巡检中的应用
+  account: 千景大数据
+  publish_date: '2026-03-11'
+  summary: “四乱”:乱占、乱采、乱堆、乱建;✦未备案船只、违规航行;✦堤坝裂缝、渗水、结构隐患;✦水面漂浮物、岸线垃圾.识别→定...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 1
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9wI273slyioUBnXBX6dQ6sLmrGugs4SUWttazFkB_CKerIVQFnklGdu2exjQw_uSXyysrGJTlp5gwwdqQzU7oz59c_8Bv_nXgOWpi0ksVOKg6v211I0TvYWhhvZc6towHa1g6Plfh5g8Z3N3xgoWinOC6XDxdTiDYE83n5z38h9wY-UZGbO56rA..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzkxMDU2ODAxMA==&mid=2247487104&idx=1
+  canonical_id: wechat:MzkxMDU2ODAxMA==:2247487104:1
+  status: archived
+  local_path: 20260311_低空应用专题：科技护河-天梭智飞在水域巡检中的应用/原文.md
+  content_hash: sha256:06bac56c3382f5c7799e786c2c79c0898e855489ed337bf88d5c167a7e87c3c2
+  last_error: ''
+- id: 32
+  title: 媒体聚焦 | 数字赋能 “智”水有方——山东聊城市位山灌区高质量推进数字孪生先行先试工作
+  account: 位山灌区
+  publish_date: '2023-10-17'
+  summary: 对水位、闸门开度、水面漂浮物、钓鱼游泳等场景进行AI识别,通... “平台发现河湖'四乱'(乱占、乱采、乱堆、乱建)等违法行为...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 2
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9THwgkz8quPwA0DTeA6FhMjGhIRrLEfDIFc3a47clLKD-f_SznfaL9PFNk9Z7i016AcrRaLTKRhxtUF6-Ombl0wl8VU5jT5FQKZnbryYR42z69RhzahKg3W2RxSqn8SPpym6vBe6yqN_DVPbXWI-VX6UacnWhWLLgebHXjLblEKZFH6In5Ei3zg..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 33
+  title: 智慧水利,AI守护,还河流水清岸美!
+  account: 赛达科技
+  publish_date: '2022-06-13'
+  summary: 水位、雨水情等关键信息同时也可实时掌握水面漂浮物、排水口、... “销号”推进“乱建、乱占、乱采、乱堆”四乱问题的整治(无人...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 3
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9uICr2aHLMWfz_jaqy3zR1yyqOBsfC-cA1Ap-v16LcNrKMlJTEDAGQtHPr0CWFOY4xaRyHCSO8fL5h4Axx0MmAK6yxWBIAusey1lCQ0sBsz2wnETq8Vxq42baFprus4_tTf-sfz4rqDKnuCnEPjOZpnfpUrYrqxmzP_jqHuLZ9DFflztgI7RZ1g..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 34
+  title: 丹江口库区及其上游流域水质安全保障建议
+  account: 中国水利杂志
+  publish_date: '2026-02-13'
+  summary: 河湖库“四乱”(乱占、乱采、乱堆、乱建)、水华、水土流失等... 开展丹江口库区大面积漂浮物分布智能监控与识别技术研究.建设...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 4
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd930HreLWQXtKlD42skFg1xFsSui8VZUnAIKu9ALU_c8Wlvn479hTO3TGPm0_gKvdc3nVQVeKerIos-NDJu9PN-IwGdEN2UQnSxA50xT3JH5E7Ch2TIQj92B5M9uii7FgqR0NeWukxZIh5BWoipeQnTgLGcvAgcIC61qgDO01blwH1AfaFW2DefQ..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 35
+  title: 一网统飞:低空经济时代的核心价值挖掘与全场景化应用实践
+  account: 亮见数字智慧城市
+  publish_date: '2026-03-03'
+  summary: 智能识别算法,可自动识别河道 “四乱”(乱占、乱采、乱堆、乱建)、污水排放、河道漂浮物、堤防破损、非法采砂等问题,精准定...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 5
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9soZMbXX0XwjnoWl-ImuI_2m2CgFrm3psOKmZ1KduN_ql4dOK9o48dFqx6S91xU-BADI2soHBx3JMQlC1QVsOEd71b-PHWrhBX0Wmh1h9dGj2ifkMb4CrbdhCNRovNrh6p2jbnu_eCOHTOvyZ4W9BAb0nEP20t8GkRJveasy7WXzFcvUoAZZH7Q..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 36
+  title: “天空地水工”一体化监测感知网—“地”(水土保持站、视频站)
+  account: 毅观察
+  publish_date: '2026-02-13'
+  summary: 2)漂浮物检测:自动识别垃圾、死畜、油污等,触发告警.3)非... 视频站典型应用场景1、河湖“清四乱”监管自动识别乱占、乱采...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 6
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9BD7f4hA5vxN_hgvvS1DotJKadl_n79eQn_4BXETg2gpKf5npfNiKEXUIKzgVfhkVFdrsGKxdJkZJQIv-f0X0nOwg91_bPADRrB7vjQu5dyVtImncOkuu48TjKqI5k1GqK0R3W2C_QOyFKs8yJ7JJUCW7ApqkTFN7VahduyM0CLff3q8uRDTfkw..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 37
+  title: 淮北＂AI河长＂上岗:36公里引江济淮干线巡检效率提升4倍以上,河湖长制数字化模式复制性分析
+  account: 数说123之安徽
+  publish_date: '2026-07-28'
+  summary: 「识别核心目标」:水面漂浮物岸线 “四乱”(乱占、乱采、乱堆、乱建)非法排污口「业务流程变革」:治理逻辑由 “人线下排查...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 7
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9cVJpPkw4cEe5CSh2kr4_pJFnQHBBsa0nMrtatSiJcW4tskcPVwesK8ApkwVDoeyUr-3lX2X3QieRklyyEFDP1HdsgVH1WlTN7Dkdc4Vpo5Jw0P4N1izM0oTQjvmxz4KzU1f6PUvYuAzNdQXnZGEaVts5CNiqDMVPo_BLsm8fPwFflztgI7RZ1g..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 38
+  title: 四川新津区低空政务应用服务项目建设内容
+  account: 全时空GIS
+  publish_date: '2026-07-22'
+  summary: ＂四乱＂巡查对河道乱占、乱采、乱堆、乱建等＂四乱＂行为进行... 河道管理线范围5水务局水质异常对水体颜色异常、漂浮物、泡沫...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 8
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9CQgPVhV-UNwIi69Mf5zNs84gJvbdeBa_rKp9TeV3znNWlgh19qhAI1_Xvf6bywQWkSR0blfLTbpmOtl90xMfrPIkKxe5U3F8gI3y11kxQo_HELmr-gEu4N5KUrRPejWF9DTVXtom0uSSFSIk8hUZQLqiQxGIjVmnx67I2FCTzW_1AfaFW2DefQ..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 39
+  title: 【解局】河湖长制该怎样服务和借力全省全域全民“一把扫帚扫到底 干干净净迎国庆”大行动?
+  account: 湖北河湖长
+  publish_date: '2019-04-10'
+  summary: 强力开展河湖“清四乱”(乱占、乱采、乱堆、乱建)和“三清”... 对露天堆放的生活垃圾、建筑垃圾、废品废料、河塘漂浮物、露天...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 9
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9Ipqrfh0EYH0f7s9YGTvvk9VY6n1EzsQ55HAKObuZZXJJaPMD5UG4tShgckl543XW5LJBiFU1zKYwxBgeGq0R1hjlLxmIRNNJBuESLh4S5IfWyCt1Fd0SagF-1khHrGSSEuCo6LYUQGP8WUw3Evgxksmt3Wmk9N6TQDq3LLKvIdRj3x9Nw6p-Fg..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 40
+  title: 逐“绿”前行 | 数据公司打造管水护水兴水“数字引擎”
+  account: 今日杭钢
+  publish_date: '2023-06-07'
+  summary: 子场景能实时监控河道漂浮物、生态流量、河道“四乱”(乱占、乱采、乱堆、乱建)等情况,一旦发现水质异常,便可第一时间派发...
+  queries:
+  - 水域异常识别 漂浮物 乱采 乱建
+  rank_history:
+  - query: 水域异常识别 漂浮物 乱采 乱建
+    rank: 10
+    searched_at: '2026-08-03T11:55:11+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9tyorLlYdT9vkVvZyR9AbArv944iPUQ_Dzgf-todEXO7mfFWyH4Hk1UuyRhmbPz3evrS-3MvkWStPesgNica0auH23AccGTDsO-FvD2KcXbQDQVgy6sGj8akeTp660q2K019Q5XkOZ5dCPfUgNFspRzHKGsaM0uHbMVcp3J9vv8nI3OTRHYU2og..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 41
+  title: SAM2+CLIP融合新思路!UniVCD让无监督遥感图像变化检测更高效
+  account: CV51
+  publish_date: '2026-03-05'
+  summary: 显著超越SAM-DINOv2、APE-DINOv2等对比方法;对于水体类别... 刷新遥感图像分类上限AAAI2026 | 联邦医学图像分割大突破!...
+  queries:
+  - DINOv2 遥感 图像分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 1
+    searched_at: '2026-08-03T11:55:13+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7ByGMrK9apqFzehD43LDFz1qXa8Fplpd90qdEuw-djq_sa8Ewzx9sdWYA8VpcsE_1Oyo9LvjdsTwWysCe_4ir2GVB8csACyJZdTNK-B4SP--sZzrEFBJih-bivjOU2WKr1FxOg8taSUJS1aoWNcf4qsy2JrQRCTnAR2PdDy10OMzmsi3tPRsq1jdYRRZtVYDrKDs8PZZ8XFxr1dbZWbKUeQ..&type=2&query=DINOv2%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBC9A0E307D76E13F396623BF3E8D063F285D056A701122
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 42
+  title: CVPR 2026 | 让DINOv3支持多光谱遥感数据! 双教师对比蒸馏框架DEO实现光学与多光谱特征的统一学习
+  account: CVer
+  publish_date: '2026-02-25'
+  summary: 通用VFM(如DINOv2、DINOv3)通过大规模对比预训练学到了结... 风格迁移、遥感图像、行为识别、视频理解、图像融合、图像检索...
+  queries:
+  - DINOv2 遥感 图像分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 2
+    searched_at: '2026-08-03T11:55:13+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7ByGMrK9apqFzehD43LDFz1qXa8Fplpd9GtMtFb1KKqIu0pzuK606_HSm6liUNNp1KdoNFPqGuY-M24wuydxWP3I9oR2uGo8n4MBM1RZRerrVx4bgZNVzDE2t3XM5IHOwZxyDbepBBhYCp8Xt8cRXuKFOr_NERKBqvcxwEMHhD7fK-B2uDK-XLHT93Ha8fPgzHZ50i8zF-DTdrgozfSg6bw..&type=2&query=DINOv2%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBC9A0E307D76E13F396623BF3E8D063F285D056A701122
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 43
+  title: 文献荐读|RSE:结合甚高分辨率影像、Sentinel-2时间序列数据与机器学习方法绘制中国干旱与半干旱生态系统灌丛覆盖度图
+  account: 数字生态GuoLab
+  publish_date: '2026-03-13'
+  summary: 包括Dino V2视觉特征提取器作为编码器头部和CNN分类器作为解码器头部.Dino V2是一种最先进的视觉特征提取基础模型,通过自...
+  queries:
+  - DINOv2 遥感 图像分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 3
+    searched_at: '2026-08-03T11:55:13+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7ByGMrK9apqFzehD43LDFz1qXa8Fplpd9XRqT9uK7FwTYytOrlK79OScyuKBkWc2M7DOSbXyXZioqXPWQBozKXGmzJsx7po83K2C5ktBc6fUk_wACHpn3FvqE7ulBt5S6KBIgRAyRYi7KKdgS1TiirGFPhK3anRmJylISxKL5KlSoYDu3SIDgemE5pOSOok-xCLBHxKcKst86Ebq8fk9diw..&type=2&query=DINOv2%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBC9A0E307D76E13F396623BF3E8D063F285D056A701122
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 44
+  title: RSE|结合超高分辨率影像、Sentinel-2时间序列数据和机器学习技术,绘制中国干旱和半干旱生态系统中灌木丰度分布图.
+  account: GeoEco前沿学术圈
+  publish_date: '2026-03-23'
+  summary: 包括Dino V2视觉特征提取器作为编码器头部和CNN分类器作为解码器头部.Dino V2是一种最先进的视觉特征提取基础模型,通过自...
+  queries:
+  - DINOv2 遥感 图像分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 4
+    searched_at: '2026-08-03T11:55:13+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7ByGMrK9apqFzehD43LDFz1qXa8Fplpd9JWktlC18gU-JTYpOWDatF0YiLUTT4JOSeyggOC1Xv8yS3mwIuVqDizrlSw8jPi_ZTa46ujH6Jl-eIyhVz8ZrftDj1be8a4KPFOHJeQTDbarymqg6ZfNsVCweMXLRpJu2nlheRPMEnHOb6lgjTm65jSVSiF1YPGdnissIL8t09_OTJmCU1UgHwQ..&type=2&query=DINOv2%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBC9A0E307D76E13F396623BF3E8D063F285D056A701122
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 45
+  title: 顶刊TPAMI|中南大学团队提出融合判别式与扩散生成式学习的遥感语义分割边界优化方法
+  account: 遥感与深度学习
+  publish_date: '2026-03-30'
+  summary: 遥感语义分割基准数据集一览为全面评估模型在复杂场景下的边界... 随后加载并冻结预训练权重,将其无损映射至与原始影像对齐的特...
+  queries:
+  - DINOv2 遥感 图像分类
+  - 遥感预训练 权重 场景分类
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 5
+    searched_at: '2026-08-03T11:55:13+08:00'
+  - query: 遥感预训练 权重 场景分类
+    rank: 10
+    searched_at: '2026-08-03T11:59:07+08:00'
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 8
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9GcxP9MqIIzx7a3KejcSg2cG6uxFHcqe-9K8CACZ-SE2pkaXwo80hUdazQS66js6kKeqOeKgoRRixv3Kai9MNezEIfUeYitWHCCalccEV5aR1adOrHKbrO98m98r3i-f4EOZt5aq36WvHFd49NAhDZUKfaLK4aDfuHaM2vtRD-sjRtmyIGw2VAg..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 46
+  title: 谷歌新作UNITE:一个模型解决所有3D场景理解任务,3D场景理解的「大一统」时代来了!
+  account: CV51
+  publish_date: '2026-03-10'
+  summary: 2D基础模型(如CLIP、SAM、DINOv2)和多模态大模型在语义提... 刷新遥感图像分类上限AAAI2026 | 联邦医学图像分割大突破!...
+  queries:
+  - DINOv2 遥感 图像分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 6
+    searched_at: '2026-08-03T11:55:13+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7ByGMrK9apqFzehD43LDFz1qXa8Fplpd90qdEuw-djq_sa8Ewzx9sdWYA8VpcsE_1Oyo9LvjdsTwWysCe_4ir2Pve7hIQbYgPg0QFf_R8eWcFObXuf3OUspP4gDJ26QN5ijmsFyoSCcU37Zxa69-nu8J5jso1T8QpS5x3FYuOiPPKBu5DU_DTP9bknNt7GfuvWZgXtM_Jdk6q3X8EKMKOIA..&type=2&query=DINOv2%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBC9A0E307D76E13F396623BF3E8D063F285D056A701122
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 47
+  title: 【ISPRS 2026】双时相影像的时空联合建模:FreqChange 融合频域感知与语义先验提升遥感语义变化检测
+  account: 空天视觉智能
+  publish_date: '2026-07-24'
+  summary: 用于遥感图像语义变化检测的基于先验引导频率感知时空学习方法... SatMAE、ScaleMAE、MobileSAM、DINOv2 等模型也表现接近,...
+  queries:
+  - DINOv2 遥感 图像分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 7
+    searched_at: '2026-08-03T11:55:13+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7ByGMrK9apqFzehD43LDFz1qXa8Fplpd9oF0ECEzKt8xy2CKteu8U956-nsuB2SCmSOiuPPuWc4rMBWuuLDkd0arddt-sDlRX2fnp7XMahyXST4OyBn4fRJ-2K2D-ZiSvwNMjCbcpDShUbvjBYxpdfLM2CdH03GywYCRGLODuCig8mU_qdPw4VKzeyZh8v4wPrxRFWfvpG8I89kyxDwoXvg..&type=2&query=DINOv2%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBC9A0E307D76E13F396623BF3E8D063F285D056A701122
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 48
+  title: 多源遥感融合精准映射灌木覆盖度
+  account: 智能学术汇
+  publish_date: '2026-03-26'
+  summary: 且与共生的草、裸土光谱高度重叠,传统遥感方法(如光谱解混)... 解码器为卷积神经网络(CNN)分类器.这种设计利用了Dino V2...
+  queries:
+  - DINOv2 遥感 图像分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 8
+    searched_at: '2026-08-03T11:55:13+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7ByGMrK9apqFzehD43LDFz1qXa8Fplpd95c9NEjORzOgJFKVAbRjLxeDj7PlyKtu0RQ7DD0eSEuL70veDenrCQuNybIjt7h5IR7Yo70SqGqtEoL3gsJFJC1QdwE0GGWyB3ZvWlOy69j6sYmbIIgtrEvmM_T_uzxSksz0LbuyOIv8Lzb5a01q8nWNpI0lZ29GUUtIcatEuRyUtPujwwRB2Pw..&type=2&query=DINOv2%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBC9A0E307D76E13F396623BF3E8D063F285D056A701122
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 49
+  title: (2025|Meta,ViT,大规模自监督训练稳定性,Gram 锚定/patch一致性,高分辨率训练,多学生并行蒸馏,RoPE,密集视觉特征)DINOv3
+  account: EDPJ
+  publish_date: '2026-03-28'
+  summary: DINOv2 例证了这些优势,在图像理解任务中取得了令人印象深刻... 自监督学习特别适合训练组织病理学、生物学、医学影像、遥感、...
+  queries:
+  - DINOv2 遥感 图像分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 9
+    searched_at: '2026-08-03T11:55:13+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7ByGMrK9apqFzehD43LDFz1qXa8Fplpd9svL64NYqgI4zaKmsti4x2l2JqwzEGlULxhgFlWK1J6lNX1ffyc4RODgwLO2E2KR2Q7O8L8rbsUocChzBVQ-cld0c_WNUxXFU72WuhqSKk5hHmoZj4MwxLogXebiTS0KNoqceMhEsXiBSJ6qo_2J7E4i2wrQwxHpdplz9g99lK_I5eBgmN3LoYQ..&type=2&query=DINOv2%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBC9A0E307D76E13F396623BF3E8D063F285D056A701122
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 50
+  title: 科研成果速递-TPAMI | 融合判别式与扩散生成式学习的遥感语义分割边界优化方法
+  account: GeoXLab
+  publish_date: '2026-03-29'
+  summary: 在五个遥感语义分割数据集(涵盖二分类与多分类分割)上进行的... DINOv2 方法及其经 IDGBR 边界细化后的结果.蓝色区域表示假阴...
+  queries:
+  - DINOv2 遥感 图像分类
+  rank_history:
+  - query: DINOv2 遥感 图像分类
+    rank: 10
+    searched_at: '2026-08-03T11:55:13+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7ByGMrK9apqFzehD43LDFz1qXa8Fplpd9g5wLwA7bQ9DEJYiwGv1wVkp3f7SID-PremWtAhW5vp6cmrncNgzZDTJ1qlgPlBFUxGj7D69gBGIe-AVvq6KXiIkglLSi4JWjRKTOHyoRpvTJkbVxcEtyMWaKMCRqzZP4YiDnAPc0sm1PBzPPh_T4X_p5KnfNTyRn6seUufApXyhS6t2rFt2rnA..&type=2&query=DINOv2%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBC9A0E307D76E13F396623BF3E8D063F285D056A701122
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 51
+  title: 使用SwinTransformer进行图片分类
+  account: 算法美食屋
+  publish_date: '2023-06-13'
+  summary: 做一个猫狗图片分类任务.公众号算法美食屋后台回复关键词:... 预训练模型import timm from urllib.request import
+    urlopenfrom PIL ...
+  queries:
+  - Swin Transformer 遥感 图像分类 预训练
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 1
+    searched_at: '2026-08-03T11:55:15+08:00'
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 2
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9bRckJICBTwBpc-IzpolAIvJwKtP9-_8bMHaINqp50E_TacJ8vK_maMYpDFIK4LdG4BuXZbXCSSJc4mgr2HoG3UdcDVNFtDVRdTapubWEe661EyDyP9FPaP-p98rTImkQ-gmGgJQZRpoQOMZx2ZkmTDJawquhEHvjj6S-MwfVNwLS-e4Yz84xMA..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzU3OTQzNTU2OA==&mid=2247492248&idx=1
+  canonical_id: wechat:MzU3OTQzNTU2OA==:2247492248:1
+  status: archived
+  local_path: 20230613_使用SwinTransformer进行图片分类/原文.md
+  content_hash: sha256:7dcc9ca0bf534a4f53c2afe40dc8f5200c95987314a84435f4f04dada88449f3
+  last_error: ''
+- id: 52
+  title: RSP:遥感预训练的实证研究
+  account: 将门创投
+  publish_date: '2022-05-11'
+  summary: 然而,大多数现有的遥感深度模型都是用ImageNet预训练权重初始... 在ImageNet分类任务和下游视觉任务上取得了很好的结果.此外,...
+  queries:
+  - Swin Transformer 遥感 图像分类 预训练
+  - 遥感预训练 权重 场景分类
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 2
+    searched_at: '2026-08-03T11:55:15+08:00'
+  - query: 遥感预训练 权重 场景分类
+    rank: 1
+    searched_at: '2026-08-03T11:59:07+08:00'
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 5
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9RFcF9IDO3HqiDoW8yNP4VkzI4bLz71E5dk3jpup_CzisOoJTyqUgl4w96VmVMjNsJmpSuH-Y1Nam76Shrk_VnaknBnvrUYkP0XgMW7qsgPmylhJ9pm9l5DomqVz5o-1de7C2mRIZSeWm_EacobiBi8TWW2_W9M2XqJG-G6kSCodQ_LeJW-Rhtg..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzAxMzc2NDAxOQ==&mid=2650427521&idx=2
+  canonical_id: wechat:MzAxMzc2NDAxOQ==:2650427521:2
+  status: archived
+  local_path: 20220511_RSP：遥感预训练的实证研究/原文.md
+  content_hash: sha256:cf009097e6b64f4ded87daf7293c1e81420ffd52dd482dea29370fc0119410a2
+  last_error: ''
+- id: 53
+  title: 全球首个面向遥感任务设计的亿级视觉Transformer大模型
+  account: CVer
+  publish_date: '2022-12-09'
+  summary: 并据此研究大模型在遥感图像理解任务上的性能,包括图像分类、... 预训练阶段的视觉Transformer的网络结构图2展示了所采用的Plain...
+  queries:
+  - Swin Transformer 遥感 图像分类 预训练
+  rank_history:
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 4
+    searched_at: '2026-08-03T11:55:15+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9GtMtFb1KKqIu0pzuK606_HSm6liUNNp1KdoNFPqGuY-M24wuydxWP3SVDi27CZfo4emODuGZjwTmMwOPL9iscYjaykooIR16R_RVDVrkBlTHGragKntO6XIjth_ulA5ETdxNQltG2qnxofqxID1LdwoAxY11bkNB0C8pJNXzkHxFkDr8IT4KYw..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 54
+  title: GeoAI 2022第二期 | 基于遥感影像的预训练研究进展
+  account: 高性能空间计算智能实验室
+  publish_date: '2022-05-11'
+  summary: 以及最新提出的Swin Transformer和ViTAE Transformer模型.进一... 其中,基于ViTAEv2的遥感预训练模型,在图像分类、物体检测、...
+  queries:
+  - Swin Transformer 遥感 图像分类 预训练
+  rank_history:
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 5
+    searched_at: '2026-08-03T11:55:15+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9d5fmVC32WZxrzLePuPzbsTOGXzIPnPWtH3PA3T-7HS09dLouktAlbklO1bw7-TnpgTuqx_-AqlAw7jQlTODYDdFIazgWL7MGQ1Wx1UqqJE57FKUE89PtZgjKoLMMfE2WQoq7fjtw3mD61hQh-6h7xGPpM59gXMYT0dcSlJgbHEIYJSSFPgfogQ..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 55
+  title: 科研成果 | RingMamba:基于视觉状态空间模型的遥感多传感器预训练方法
+  account: 赛博智能
+  publish_date: '2026-03-26'
+  summary: 基于视觉状态空间模型的遥感多传感器预训练方法本文介绍一种面... GPU,分类模型,批次大小64.Swin-B窗口大小随输入图像尺寸...
+  queries:
+  - Swin Transformer 遥感 图像分类 预训练
+  rank_history:
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 6
+    searched_at: '2026-08-03T11:55:15+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9Z4-oHtPyYa7Cw_ha13BQ9ENhlCSMrCRMC8Z-myPvJsGZDueoosP04fTlsZS1y9EuuZFhIuH79TpVOCehZqZ35HHnZvWjHvZ1YV3oDuEVrvtQbw8k1qM19QD2Ptc9oJmNmIZGM2ttg38FtoviNvEgSgA9spCggmGB6-dgKvELh0mE8RsmObDbtQ..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 56
+  title: RSMamba | 打破界限,引领图像分类新架构,具有成为 Backbone 模型的巨大潜力 !
+  account: AI视界引擎
+  publish_date: '2024-04-03'
+  summary: 遥感图像分类构成了各种理解任务的基础,在遥感图像解释中起到... [16]、ViT [7]和Swin Transformer [8]系列.这些方法在UC
+    Merced...
+  queries:
+  - Swin Transformer 遥感 图像分类 预训练
+  rank_history:
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 7
+    searched_at: '2026-08-03T11:55:15+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9YVQtSG5f9wzbiaoCZKSAc5mkOJwsCNjkzYGlYJnag2aeOisPKsUxwhp3ulnpTJSFtV7m9WhHXxNcqi8SMbJtuImGUAoVkgKROFNgz1Dq574fMJv3r9_Qba5oTaMm-_EGipbXeb8XcY3-SRc7KaH9Chbb3U5zTbRF1AKTbUrl4eXm0CtGSSkZQQ..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 57
+  title: 论文分享|基于扩散模型和几何先验的单目遥感影像3D建筑重建
+  account: NNU三维世界
+  publish_date: '2026-03-13'
+  summary: 预训练编码器(如 Swin Transformer)存在的域间隙(自然图像与遥感影像语义特征差异大)、仅依赖语义信息无法区分屋顶 - 立面的...
+  queries:
+  - Swin Transformer 遥感 图像分类 预训练
+  rank_history:
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 8
+    searched_at: '2026-08-03T11:55:15+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9bDP0_GuKRymPXsFbJVSQrbGOjD-8RERAFW33EVpphxivRkYyrMJ3RuscexwtvvA71XrgLjv0fNrn3tMDXB7UR5cdKGUZGD_J73REBKYtxMUhauet0wZK2dh5ESbazyZ8EwiBuNWKMjXCZM2yZ7uo45zznC9DAEbxZ0AFez-di1gtPujwwRB2Pw..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 58
+  title: Meta-Transformer:用一个 Transformer 模型去编码12类模态(多模态超详细解读)
+  account: 极市平台
+  publish_date: '2023-10-30'
+  summary: 当使用在图像上预训练的冻结参数时,Meta-Transformer-B16F 在 ... Swin Transformer 系列 和 InternImage
+    相比,Meta-Transformer 在...
+  queries:
+  - Swin Transformer 遥感 图像分类 预训练
+  rank_history:
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 9
+    searched_at: '2026-08-03T11:55:15+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9wWzFTDqb8FmDLB09ggb7SHjF1WoQdqX-jL0C8byz8RJ09ulXCbWH6hvTTwFobm-LSNO9sVkwZBuxPb8LRx31yIQNiDiN4wQLmNpMFbtzfcBiDWK4d1AOdFwMvE1IH-vMKrSys28Hf80sTqw4DIzuthV-YzjGiw7jA_DX00gKzgSTJmCU1UgHwQ..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 59
+  title: 【成果速览】| ​高光谱遥感影像的自监督学习:3DSwinT-HCL
+  account: 遥感信息处理研究所
+  publish_date: '2022-09-09'
+  summary: 而Swin Transformer则融合了Transformer的序列建模能力以及视觉... 当采用ImageNet-1k数据集的SwinT预训练权重时,分类效果得到...
+  queries:
+  - Swin Transformer 遥感 图像分类 预训练
+  rank_history:
+  - query: Swin Transformer 遥感 图像分类 预训练
+    rank: 10
+    searched_at: '2026-08-03T11:55:15+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7VadaoYEWwTdzehD43LDFz1qXa8Fplpd9UD-YyMwtz7AowCUNLw_kse8NXzId8NxQvZSYQOfp6mLZeiZasRdgdJr-VrOdCSOH7-U-PuXR029wV-UNr9T1CYfjSKxDV9zyli0Z4o6mmfQ9GnV7mPi4_8R5hFebsllYsDDF2T0lIUVmrP0t585Kl5eQ_OWJzzQW89ZbImEVYMUSYTqT4eyLmA..&type=2&query=Swin%20Transformer%20%E9%81%A5%E6%84%9F%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83&token=EBBCA3FC307D76E13F396623BF3E8D063F285D056A701124
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 60
+  title: timm 图像分类模型选择指南
+  account: AIsharer
+  publish_date: '2026-03-13'
+  summary: 图像分类模型选择指南虽然大语言模型和多模态模型占据了大量关... 实战代码:如何在 timm 中加载这些模型以下代码展示了如何列出...
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 1
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9lkpfgMJx1Br2sEMd1Fmgc7J9LsCsvECWpcHy7_IwLiJAY9bH77bGGDmr86zQyzWgipCbNBMGAojgQEBpXaom37UAxocYLfmsXwfkdotW8WKsouN6yeeaMr8xAtRVU9hnHIig_72csEn5VxBMNZFYPINCx62JncpE9xrqZnNIs7CE8RsmObDbtQ..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzUyMDE3NDQ0NQ==&mid=2247484197&idx=1
+  canonical_id: wechat:MzUyMDE3NDQ0NQ==:2247484197:1
+  status: archived
+  local_path: 20260313_timm 图像分类模型选择指南/原文.md
+  content_hash: sha256:ccec7135dce29820f99d06eedbea2dc8f420657376ec11d5b187710791d88575
+  last_error: ''
+- id: 61
+  title: 图像分类训练技巧之数据增强总结
+  account: 小白学视觉
+  publish_date: '2023-08-17'
+  summary: 图像分类模型在ImageNet数据集的top1 acc已经由原来的56.5(... 目前timm和torchvision中已经实现了mixup,这里以torchvision为例...
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 2
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9GME7IP3W7dkMbZdRHielGJzR_yuDOA7HCYw-FEpBrO_BhHPziczRh9taaqTq-v1PhXi7bDyH56n933KmLyWBEODaTQwr7nWZnS78a9yuIoUWXohXU4QlsA0Ff-Q0GJEH6bRSYM1TDqBU8TawJM85ONL0lzmC4Qp55bqXaS0RKZ254z_tGSZTqA..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzU0NjgzMDIxMQ==&mid=2247609368&idx=5
+  canonical_id: wechat:MzU0NjgzMDIxMQ==:2247609368:5
+  status: archived
+  local_path: 20230817_图像分类训练技巧之数据增强总结/原文.md
+  content_hash: sha256:f6273d2e65a094a1f14edd9ad7887035da7cc084ca3e3d336b132d7c32df063c
+  last_error: ''
+- id: 62
+  title: 使用MicroNet实现图像分类|实战(二)
+  account: 学姐带你玩AI
+  publish_date: '2022-12-13'
+  summary: 来源:投稿 作者:AI浩编辑:学姐上周我们说到了MicroNet实战:使用MicroNet实现图像分类(一),完成了前期的准备工作今天第二...
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 3
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9f5nF4PAm7wqRdv6WcSzXS_2W4HyeKHLOO22HnG2WBaDO2m-lpXSHOHVedFpSg2IhkY9lIWWqKwhtdNRV2_gvNkcXsRwsCBxoBDrLys8uVC1uuEjhJC46cm4106MgM_vZSvXKZ_TDS14stEyd9z3M-7pnC21hx7e3EA3biggF56h5Nu7CnoSqqg..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 63
+  title: 深入浅出 | 图像分类之数据增强全梳理
+  account: 机器学习与AI生成创作
+  publish_date: '2022-04-14'
+  summary: 图像分类模型在ImageNet数据集的top1 acc已经由原来的56.5(... 目前timm和torchvision中已经实现了mixup,这里以torchvision为例...
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 4
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9PNWKNY0FnMPRlTP-FQ57ppQk-wTZmRnYZIfGgsACibNZ0I1dQ4U6rXuvb_IQCRWMLvTS6VkkddalEO693tqUqLGC98s8Vv0imvuPqEX5amXb8vGfdGIXIIb2cpOCSttbfgMGqv2GFqIEH4-C6mV5nq6mt0nrYSEe2tMaM_0kin2E8RsmObDbtQ..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 64
+  title: 使用MicroNet实现图像分类(一)
+  account: 学姐带你玩AI
+  publish_date: '2022-12-06'
+  summary: 学姐MicroNet实战摘要安装包安装timm2.安装yacs数据增强Cutout... 生成数据集我们整理还的图像分类的数据集结构是这样的data├─...
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 5
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9f5nF4PAm7wqRdv6WcSzXS_2W4HyeKHLOO22HnG2WBaDO2m-lpXSHOAyDfVdnl3YsGgXlAOmBFK1oNqJ9zSCoWS7WutKOS3flL-OJMQQKRid3s-_Krb5bhPXx8dAjOAdix_S_LcDWF4rTyUJKT8sWoU_m-HfZLegP6JriuNiAW345eBgmN3LoYQ..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 65
+  title: 这 16 个 CV 知识干货资源包或许能拯救你的期末|极市年末干货汇总限时下载!
+  account: 极市平台
+  publish_date: '2022-11-24'
+  summary: timm库使用方法和最新代码解读- 实用教程详解:用OpenCV的... 图像分类相关优质开源数据集汇总(附下载链接)- 图像分割开源...
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 6
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9wWzFTDqb8FmDLB09ggb7SHjF1WoQdqX-jL0C8byz8RJ09ulXCbWH6jfiBKOgiKrTPHCyCj1g1DV3xlkt9k3-6Ynjo6r64v9Vq1yahxKfflaGlxPpFFnBVQ1xpesQYgelH9WXFCbbA07YruJAQmoAiMCjz5jw7s4eAkYGjG6VSZ-TJmCU1UgHwQ..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 66
+  title: ResNet 的性能不够好?ResNet 听了直摇头并强势反击:是你的训练策略不行吧!
+  account: AI有道
+  publish_date: '2023-02-12'
+  summary: 性能(来自 timm 作者,DeiT 一作)1 RSB ResNet 论文解读1.1 ... 在过去的十年中,我们见证了图像分类领域的重大进步.简单地说...
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 7
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9ZrJHGQ6cjKjX1bcs_2s9exz0ElzazkdRQMVcK5KjRwVSDT00bxd33z-1KqN8-Ej-cKrHPcjCkrOGfNeJtm6fQVqAsDuCBuChVjgsvZpQeWi_kjnRWuhTGt-i6q8cnM9tCKFoGVPAsTSoPLeEmHqy-HuGoTl0gS4g6q_xcCV_I6QGX_iHL9MadA..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzIwOTc2MTUyMg==&mid=2247546984&idx=2
+  canonical_id: wechat:MzIwOTc2MTUyMg==:2247546984:2
+  status: archived
+  local_path: 20230212_ResNet 的性能不够好？ResNet 听了直摇头并强势反击：是你的训练策略不行吧！/原文.md
+  content_hash: sha256:d10e08acf632c19ec877f86b424dcd5b25456404740266dda359e8d2828b77ca
+  last_error: ''
+- id: 67
+  title: PyTorch 2.0发布:一行代码实现训练加速
+  account: 机器学习算法工程师
+  publish_date: '2022-12-03'
+  summary: 我们精心构建了这个基准,以包括图像分类、对象检测、图像生成... 46 个模型TIMM 的 61 个模型:Ross Wightman 最先进的
+    PyTorch ...
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 8
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9dQEbzvZR911QL4hKrD-c5DPqamjWJsyu27rvFTF1m7V6Dr8OqcIWGBFFWDIaLCcbLHixR08pPThCx8yoGHYZnVD8AJu4dGJ0jwQudnkf-3T4UHnKyY88g9ispwPS85PuIWHuAiVUWBOmML2m1BAjN_PUs9VB0HuH8AQjuxPHJnMCYioxHkzTmA..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 68
+  title: 200+机器学习竞赛最全分析:超550万美元总奖金,人人都用PyTorch,2070也能夺冠!
+  account: 机器人大讲堂
+  publish_date: '2023-03-14'
+  summary: 图像分类,如Kaggle的竞赛,要求从数字病理图像中对中风类型进... 可以通过timm库访问,这样的话,加载几十个不同的计算机视觉模...
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 9
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9mGhRx9ErSg1cQ7RtrkiP0icONRolHpLTVaXv9evLeoaP3zaRlnRm9QBTUXPsyNMJRVwd9iFN-6rLJJIKoqof2rzjH1La0fqCsyGD0TjsB2oSEXdp9TzEedooBVAallSkd68jUY--ZzhLQ5kT-eor_6BTkl4370Qyg3bGZC6-RD95LU3lqtPw9g..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 69
+  title: respect恺明 | 手撸MAE,无缝嵌入mm系列框架(分类/检测/分割)
+  account: 机器学习与AI生成创作
+  publish_date: '2022-02-23'
+  summary: '|《TensorFlow 2.0 深度学习算法实战》附下载 |《计算机视觉中的... 《零样本图像分类综述: 十年进展》《基于深度神经网络的少样本...'
+  queries:
+  - timm 图像分类 实战
+  rank_history:
+  - query: timm 图像分类 实战
+    rank: 10
+    searched_at: '2026-08-03T11:55:17+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9PNWKNY0FnMPRlTP-FQ57ppQk-wTZmRnYZIfGgsACibNZ0I1dQ4U6rRAzj7EjcyX7j4ZVhQGx__nUgJXd3jkGES03nLyAxKuBtIpiuCkRYlrjgxhdvDVBzr_B_Bl1a777FgbQ-U7yoTQbZdTA-5tsPqk9KTaFfd5dPy1pg8ZGh7p6VKrzu_4XKA..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 70
+  title: 人工智能,计算机视觉,机器学习, 图像和视频处理论文速递--(2026-02-04)
+  account: 阿武的大学秘籍
+  publish_date: '2026-02-04'
+  summary: eess.IV图像和视频处理8篇本文只展示部分论文,全部详情,AI总... group-normalized advantages to amplify
+    rare successes on $q^{+}...
+  queries:
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 1
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9QjOQKPkf3ngvKVNvdzUFVBlHDNrBr2JOh8I9J1NoB86mlvRIMfhK0ovlzlZpBYweeQrfTvsYlREzVYKlskztG1QgZ-vT0DnESmCZ8xI5hdDlcDsFWh0itNgSGr8-w7sS3EisuWeOSBQ9lZ1ApwZ4z6HUICrnn2bUO4iJhlzogo3FcvUoAZZH7Q..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 71
+  title: 计算机视觉学术速递[7.29]
+  account: arXiv每日学术速递
+  publish_date: '2021-07-29'
+  summary: 尽管卷积神经网络(CNN)广泛应用于图像分类,但它容易受到噪... 在训练每个子网络之后,音频和视频流中的信息在两个不同的阶段...
+  queries:
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 3
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9yEpqcBTS-PlMoa1V-Is64tHL2N0M4jxuE9WFjUwBP1eemo43aZZ1y8MzlHIcLFeNz0vWIBwOTm6jnTHB3EHeJ1yGIr-fwkYw4Cxx5dAztfq4VEOsNMkNL7J8TB6INxyfG0ZKwyNLJCTAXJMzRTw1PtVBQL_D3TdZxk72xUEVRcPm0CtGSSkZQQ..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 72
+  title: 喜讯 | 港中大(深圳)数据科学学院师生26篇论文被顶会NeurIPS 2023接收
+  account: 香港中文大学深圳数据科学学院
+  publish_date: '2023-10-13'
+  summary: 香港中文大学(深圳)数据科学学院师生共26篇论文被机器学习和计算神经科学领域的顶级国际会议NeurIPS (Conference on Neural
+    ...
+  queries:
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 4
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9AZz4829qOvVqyo2TGtOgWzk2iuErObDYC2T1npTC_XMpyH1Wg6BDmSBWt3zQ9rw1IGBa5kgqQUblQ06bTmfStSv35roFJ4K_7bvAgjyh1UsjetNWu7-mdxioh8_ojW0G3bo03eK7hDlJURYgxDiOL1BdOmmBQUCseyzwSG-ZR-YY-UZGbO56rA..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 73
+  title: 图像分类:来自Kaggle中13个项目的Tips和Tricks
+  account: AI干货知识库
+  publish_date: '2020-11-23'
+  summary: 机器学习和图像分类也不例外,工程师们可以通过参加像Kaggle这... -kfold-with-tfrecordsColour jitter:https://www.kaggle.com/nroman/...
+  queries:
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 5
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9znRmsX2YMTGx3twBCQBh-oeGosTmbNs_J3Ysx7vr7nH4r9Clz8s8x0PVntThMwfKLZzLJEyZptphok4Exg269xOK7OhAeGPDeBYF6NHIqdT5qnSCeX_skYydnqTUyeiiYiJmo695_nFcXohDJgSvUoUTsArMvgIWiGKH6zelAQFS6t2rFt2rnA..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 74
+  title: DeepMind视频行为分类竞赛,百度IDL获第一,新算法披露
+  account: 新智元
+  publish_date: '2017-08-21'
+  summary: 冠军团队使用的是VLADNET算法,这是一种优化过的传统视频分类算法.本次Genome团队在ActivityNet中使用的Multi-Group
+    Shifting ...
+  queries:
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 6
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9BKtL-FmkrG5_5H1rc8XEtLeunGTc0PDMRX5RC8CNzK3Oxo7HvjwgRebDrZZ9Ev4CsfLUqyhviC4W4eCOovFvJGgWV7VA7Wf5zJpH1vPd4p5a1GLLPYU4g7OshZJxa7qXG2z3Fjcx_NuKhuEUTYMvpuruoGwnwIM-YeL-bDfz95wtPujwwRB2Pw..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 75
+  title: 图像分类:13个Kaggle项目的经验总结
+  account: Datawhale
+  publish_date: '2020-11-26'
+  summary: 方向:图像分类,编辑:数据派THU本文约2800字,建议阅读9分... -kfold-with-tfrecordsColour jitter:https://www.kaggle.com/nroman/...
+  queries:
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 7
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9KNJlJkTOW1o0R_9ERRLCV7xWn96KeK-wWKZlJDN3jFEByMFjHjS8KABAGdbVmWq9ZUuOu1ZewgotJmVUEb5vaWVxubXyVU9D706V_guu8JTJaf2Ne2idQ_TqX-fNEzAMQaPYBeX3v2pieUE_y5gOeFl34rhlU1dlepHaxa0DW-zP28temKTOwg..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 76
+  title: 【视频讲解】数据挖掘实战:Python金融贷款模型分类潜在贷款客户|数据分享
+  account: 拓端数据部落
+  publish_date: '2026-02-26'
+  summary: 讲解视频这里的 “合意” 由我们预先定义,可以涵盖诸如风险、... 在这个项目中,我们对如何使用分类模型来分辨客户是否会贷款进...
+  queries:
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 8
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9Z16bvcOGiGUhuk8_rRHuO0M3-qyXJsIhqSkeE-Hormi8UyB26Zy0S28tgXkiBHNOt8w_xqmGF8a9ZfxFUMOCsUKxH4YQO8B6BDdHvInqPHhz-OjUQ4NcKbCSxObUttHD6U7S6G4R9Rbjfq4yuPlVsiSdG2eBmRDbI_aKY-er8FdQL0Hr9Gyd3Q..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 77
+  title: 3.21-2|多模态理解与3D视频生成:事件链增强视频事件预测;视频世界模型混合空间记忆;MLLM微调时空能力权衡;3D语义分词
+  account: AI研究前瞻
+  publish_date: '2026-03-21'
+  summary: Alibaba Group|83http://arxiv.org/abs/2603.14935v1https://... 将图像与视频处理统一到同一架构已成为主流趋势.研究者们普遍...
+  queries:
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 9
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9gwWm3AlrXVwwnnIAhHV6rsFvChxPwGxdWTJXBcr5EpIeQERc2fxOLAYzEEE_ov6tGFkPOG956WmcvZ47gOyXKWPenapLulSyUNeGMFxboGxCEEeSIgNpV7oz_v_5sUHPl-uDqu4_ehV_2GiY6Ke4x-GRxler1lncT45S9UPDJ3NhWLv6O878UA..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 78
+  title: 什么是视频中的I帧,P帧,B帧?
+  account: 关尔硬件
+  publish_date: '2026-03-25'
+  summary: GOP结构GOP(Group of Pictures,图像组)是视频编码中的基本组织单元,定义了I帧、P帧、B帧的排列顺序和重复周期.GOP长度指...
+  queries:
+  - 视频帧 泄漏 Group KFold 图像分类
+  rank_history:
+  - query: 视频帧 泄漏 Group KFold 图像分类
+    rank: 10
+    searched_at: '2026-08-03T11:55:19+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7PJKgYrNloNBzehD43LDFz1qXa8Fplpd9rkyfEyOZbOqxwOL7d0ovIYUmHSsOAAxCwTfh5cEZuJsoe8gx-3C1rXxyun5yF5mmUvvZeZydBT0Ic_QENi0s8nyzp-4cN7r_y21RkFVyz80kPv7qRu135SUokMx73CEkhM6X2QYiQhmKZp16QUx2cNDoW7Wc0-a6DGl7Ui4gJDYC2Qmj7RgGwQ..&type=2&query=%E8%A7%86%E9%A2%91%E5%B8%A7%20%E6%B3%84%E6%BC%8F%20Group%20KFold%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB&token=EBBCBA06307D76E13F396623BF3E8D063F285D056A701128
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 79
+  title: GeoAI遥感深度学习高级研修班场景分类·语义分割·目标检测·变化检测四大任务,从CNN、Transformer到空间基础模型与AI Agent全流程技术应用
+  account: 技术科研吧
+  publish_date: '2026-07-24'
+  summary: 场景分类项目需求、类别体系与高分辨率数据适配 4.2 ResNet预训... 遥感检测数据配置、预训练权重加载与短周期微调 8.5 批量推理、...
+  queries:
+  - 遥感预训练 权重 场景分类
+  rank_history:
+  - query: 遥感预训练 权重 场景分类
+    rank: 2
+    searched_at: '2026-08-03T11:59:07+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7_7MA7nglutNzehD43LDFz1qXa8Fplpd9TJsPASc50PnRJTF_Zk-QD98sVmQgHKYxTDVuZggkj9UpB2fHfo_N_irUVIZeu3rBSIlPMO1rl2C5azGjtlvc-Nkhx53V8LVw6IRG8LGxK5JTvDBDlqfnISz3NfEQT9bDx8odhGZF-v5Wvpt2XIGIC9DQE2A3GHSZkDXwlJlcmFeFW6cwuUnkdA..&type=2&query=%E9%81%A5%E6%84%9F%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB&token=EBC2011C307D76E13F396623BF3E8D063F285D056A70120B
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 80
+  title: 首个面向跨模态遥感数据的生成式预训练大模型
+  account: 智绘科服
+  publish_date: '2022-08-25'
+  summary: 大多数现有的深度神经网络模型是利用自然场景图像预训练的权重... 为了提升遥感预训练模型的特征表达能力,“空天•灵眸”模型的...
+  queries:
+  - 遥感预训练 权重 场景分类
+  rank_history:
+  - query: 遥感预训练 权重 场景分类
+    rank: 3
+    searched_at: '2026-08-03T11:59:07+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7_7MA7nglutNzehD43LDFz1qXa8Fplpd9yhCZE9m_BJ0r3oPX5iVfvp7E4HqOk6t2tr92GwL4LB9htVOy6Bx6NTzN1-cIcbzze9nNFXlmGBCrO-nwbNQZp8bUkKHXUlSn4XLAor0fOxpjvmpw-yy5jGHauNQzKS6mp_qs19sxjEy3bBcc82709K0Rj-AB7B9rUaS9eBt0rTAO8fIRwtipOg..&type=2&query=%E9%81%A5%E6%84%9F%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB&token=EBC2011C307D76E13F396623BF3E8D063F285D056A70120B
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 81
+  title: 测绘学报 | 施慧慧, 徐雁南, 滕文秀, 等:高分辨率遥感影像深度迁移可变形卷积的场景分类法
+  account: 智绘科服
+  publish_date: '2021-07-12'
+  summary: 所得压缩特征与全连接层所定义权重参数相乘,将输入图像分类为... 本文利用预训练模型提取遥感场景的深度特征,将该深度特征作为...
+  queries:
+  - 遥感预训练 权重 场景分类
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: 遥感预训练 权重 场景分类
+    rank: 4
+    searched_at: '2026-08-03T11:59:07+08:00'
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 3
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9yhCZE9m_BJ0r3oPX5iVfvp7E4HqOk6t2tr92GwL4LB9htVOy6Bx6NbdDmXSDXTR9hmOLUZ-1Ep8NVibktuvlu5mi39qL9DXyzJukePG5wrsUkmpzYkFLQ54W_WPYIiWjnbWqZx7lJ2v-TjakvKHIO4kSSgyJ1rkA7A2oun-IIlvFcvUoAZZH7Q..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 82
+  title: 遥感论文 | Arxiv | GeRSP:一种新颖的通用知识增强遥感预训练框架,用于场景分类、目标检测、语义分割等下游任务!
+  account: GISer阿兴
+  publish_date: '2024-01-11'
+  summary: 中获得的预训练权重进行初始化.然而,遥感图像与自然图像(例... 场景分类目标检测DIOR数据集:DOTA数据集:语义分割α的取值...
+  queries:
+  - 遥感预训练 权重 场景分类
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: 遥感预训练 权重 场景分类
+    rank: 5
+    searched_at: '2026-08-03T11:59:07+08:00'
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 9
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9gCcoDecJPFxANiEaI4-sftGFWmV0YiKE8MtHJDKZJJKbaMnu5AArJal-Cue4G5Vg0CagxhtWoWLBf2ncEAIdDCW7Bpzn-_w7u73O9wSDaAygtFN5NlBE0XSKpxCewgC4j3RpMLabr2KUhkCc4XdVTHUxFMJ3ZdY2_qWNcatlpyY89kyxDwoXvg..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzkyMTYwMDc0MQ==&mid=2247484530&idx=1
+  canonical_id: wechat:MzkyMTYwMDc0MQ==:2247484530:1
+  status: archived
+  local_path: 20240111_遥感论文 _ Arxiv _ GeRSP：一种新颖的通用知识增强遥感预训练框架，用于场景分类、目标检测、语义分割等下游任务！/原文.md
+  content_hash: sha256:85648406c96755a1affd98773cf089352219e797f59357205e5ade11d1bdb59f
+  last_error: ''
+- id: 83
+  title: 张良培,等. 遥感大模型:进展与前瞻
+  account: 测绘学术资讯
+  publish_date: '2023-10-03'
+  summary: 场景分类和变化检测等遥感视觉任务是实际应用的基本前提.自遥... 因此,基于自然图像数据集的预训练权重限制了遥感预训练基础模...
+  queries:
+  - 遥感预训练 权重 场景分类
+  rank_history:
+  - query: 遥感预训练 权重 场景分类
+    rank: 6
+    searched_at: '2026-08-03T11:59:07+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7_7MA7nglutNzehD43LDFz1qXa8Fplpd9z975IewHYkrzTB4q6WcOwCnZVc854DRXVctXG61xl1CvYhHy2-2ubk6-XdiiJVnZ9D51RQexSWbn3sTWkjbnRjbu7OTeZuTshKzNw_D2-28-NL3vCIXWqAPW5-D4kwhqWZq7SkIG9MeVa0hB84254nx-IACLJS-PNlSvyRYqWU0CYioxHkzTmA..&type=2&query=%E9%81%A5%E6%84%9F%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB&token=EBC2011C307D76E13F396623BF3E8D063F285D056A70120B
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 84
+  title: '顶刊GRSM|东南大学洪丹枫等最新遥感基础模型综述: 从单模态到多模态演进'
+  account: 遥感与深度学习
+  publish_date: '2026-03-09'
+  summary: 支持场景分类与图文检索;DiffusionSat将元数据(地理位置等)... 重点关注框架版本兼容性与预训练权重的正确存储路径.模型加载...
+  queries:
+  - 遥感预训练 权重 场景分类
+  rank_history:
+  - query: 遥感预训练 权重 场景分类
+    rank: 7
+    searched_at: '2026-08-03T11:59:07+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7_7MA7nglutNzehD43LDFz1qXa8Fplpd9GcxP9MqIIzx7a3KejcSg2cG6uxFHcqe-9K8CACZ-SE2pkaXwo80hUYjYtPLqkwchND6OctdBYVxLGuVwjaQf-TIPPHOKylXgO_tZHBImfaCOucmxqwWsorqHjXgi5BHtnTQdcMtvTKpOlkv47R9l_Rc23TqJijaYEE1sFQfV2UtOJBjQH7pCxQ..&type=2&query=%E9%81%A5%E6%84%9F%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB&token=EBC2011C307D76E13F396623BF3E8D063F285D056A70120B
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 85
+  title: 卫星遥感大数据行业周报(2022.08.22--2022.08.28)
+  account: 卫星遥感大数据
+  publish_date: '2022-08-29'
+  summary: 大多数现有的深度神经网络模型是利用自然场景图像预训练的权重... 为了提升遥感预训练模型的特征表达能力,“空天·灵眸”模型的...
+  queries:
+  - 遥感预训练 权重 场景分类
+  rank_history:
+  - query: 遥感预训练 权重 场景分类
+    rank: 8
+    searched_at: '2026-08-03T11:59:07+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7_7MA7nglutNzehD43LDFz1qXa8Fplpd9nAxak5Z-xCWJ7zjBsRaUL4WtO8NVLedl1t2o_mD2HfDF0J8DQCbRHCh0oirHwdenakWi6wGKS3u5kPQJv2YpbG-JHRWJATDnRJcVQ7C1auYJJGwlGF3yRDkQ4Fl5NHnQyYf4sSZUYrDr2hIZGDgAW-uJT7wyyQ5KaqjBGzz4M3cY-UZGbO56rA..&type=2&query=%E9%81%A5%E6%84%9F%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB&token=EBC2011C307D76E13F396623BF3E8D063F285D056A70120B
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 86
+  title: 【Arxiv-20260325】遥感相关论文速递
+  account: 遥感Agent
+  publish_date: '2026-03-25'
+  summary: 通过从预训练转向权重生成,GeoSANE开创了一种全新的框架,... 少样本遥感图像场景分类(FS-RSISC)旨在仅利用少量标注样本...
+  queries:
+  - 遥感预训练 权重 场景分类
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: 遥感预训练 权重 场景分类
+    rank: 9
+    searched_at: '2026-08-03T11:59:07+08:00'
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 7
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9PMwDcFzESOWwYzYSP4dkJRa_cJYf1w2dqygLlu5E5mNyFaJbEoz_5wpujT8Ciga7YLByiZpcFm3WCubgbhqjiMBAKRaKM1jQ-6en4JuwpZ8HnjsbnXjU2Bq_lr2s_8rhm0EPwcjOeN3khCZ-2R43nb39Kkt3QW4cPRolTbvNZP7yPfCoem7FzA..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 87
+  title: 基于PyTorch的小样本学习,图像分类
+  account: 江大白
+  publish_date: '2023-10-05'
+  summary: CV领域非常重要的算法,本文简要总结了四种小样本学习图像分类算法的方法,并使用pytorch实现了一个简单的分类模型,附有操作...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 1
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9Lv_0aBUqNG0vQVirjFfvdGr7OmHBdNFH9Kpj75HXgInLNoIPZA_eSytEPzOzx__uiPChShfqSW62jMhWIOWhNZAlbFTJczfXxHIsuYlqEBUNlmBuTExF21wMK3CTkApQweT_4gDYdGfQfs9SqECgK9oRH1wuOLG7fJJXOb5SxfN5LU3lqtPw9g..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: https://mp.weixin.qq.com/s?__biz=Mzg5NzgyNTU2Mg==&mid=2247518866&idx=2
+  canonical_id: wechat:Mzg5NzgyNTU2Mg==:2247518866:2
+  status: archived
+  local_path: 20231005_基于PyTorch的小样本学习，图像分类/原文.md
+  content_hash: sha256:61377fcadd56b1478eee67187e6f95b9d0861e21cf9aed18f51543083676a2f9
+  last_error: ''
+- id: 88
+  title: 第740期 大豆玉米西红柿多类别病害图像分类YOLO数据集(附YOLO26源码及数据集地址)
+  account: 猫脸码客
+  publish_date: '2026-03-29'
+  summary: 兼顾样本的丰富性、场景的覆盖性与应用的通用性.它包含海量标... YOLO目标检测图像分类实战系列猫脸儿臻享项目猫脸儿项目猫脸...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 2
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9RQ9UK3xy972awWQtjj60UD4XYOtdEw9JHASPnVrLIWz4VP_qhcOXbMUkP2_a62H_mvD20qZ-saz-DrglwypSpnUOBgp4e9gj_4_4mw-fhbVNwbJh1MAhvtCDg0BgzRKjffzFe5DBCMB5Vr2Rt9-7h0RrD9-ZEBwMsU8n4kZx30F5LU3lqtPw9g..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 89
+  title: 第713期 多类别肺炎胸部X光影像图像分类YOLO数据集(附YOLO26源码及数据集地址)
+  account: 猫脸码客
+  publish_date: '2026-03-02'
+  summary: 光影像图像分类是呼吸系统疾病精准诊疗体系升级、临床影像诊断... YOLO(r＂yolo26n-cls.yaml＂) model.load(＂yolo26n-cls.pt＂)
+    ...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 3
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9RQ9UK3xy972awWQtjj60UD4XYOtdEw9JHASPnVrLIWz4VP_qhcOXbF9-8FBVqBvlp-RcOwZASovVqe23d2uOsjpl8NuvJ8xDrEJ9BAtbLIJ9wINdNzNh_8jovtfOAhWtNo4l9bjsMojTSw9xLfKfapnM8l_L0PaBco-JINrRjt5e0WC6Sbi7DA..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 90
+  title: YOLO算法最全综述:从YOLOv1到YOLOv5
+  account: 机器学习实验室
+  publish_date: '2020-10-02'
+  summary: 所以YOLO v1使用ImageNet的图像分类样本采用 224*224 作为输入,来训练CNN卷积层.然后在训练对象检测时,检测用的图像样本...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 4
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9BRXtSCmh4HHR10GvwqVOzz2C0qFqDTC4HXn8hcg_iAXz-PxeLki5Kw4JzSDpBsBHNfLPrm7fpUooILwPNbJrLOLc8BfpJovtw51stweeGHX47CQBNJr16DVWCMZLz-q1qDTdO8srtOyG1_iEmsh8UDsFSKXZnfDH23bO0IQp1sYHpHkoPMgL3A..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 91
+  title: YOLOv4详细分析 | 细数当前最佳检测框架小细节(附论文及源码下载)
+  account: 计算机视觉研究院
+  publish_date: '2021-04-25'
+  summary: 为了提升泛化能力,我们可以使用不同的图像大小训练模型.(YOLO 中的多尺度训练.)用于检测器的 Bag of Specials(BoS)用于
+    ...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 5
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9sKBw1qfTEkoxAJsVvNNLwYXGGAEe--MenLZDm-44MaBbKmMPXzRgCIApMDKdCMVQLDjbNVZat7w9aoFnI-uM2TfzxD3hCQ5S97lmOTtfX0b9Qbi0wcLW8bZpIzXgLad51lfkQjS-ZCV70WJpOSE2huKzC7f0ydBpetFBsHMrJ0xhlgeRt7bSzA..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 92
+  title: 一种航拍图像目标检测方法,基于改进YOLOV5模型的嵌入式端
+  account: 测绘学术资讯
+  publish_date: '2024-01-13'
+  summary: 以此增加模型对小样本提取能力.黄文斌等[11]提出对YOLOV3 模... YOLO系列算法综合指标分析2.3 结果分析及检测效果展示本文提出...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 6
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9z975IewHYkrzTB4q6WcOwCnZVc854DRXVctXG61xl1CvYhHy2-2ubkbwWwdbgaePU2QQT7Ks9--YjwuBeVbIBAjFXjT6rt2CqByFz0CpLQgOm0Lm2ODWxo2IXE86qQ5Ra-mF_x89rG9X4DXJX7jEo1gMEPczq8mGdagyMbDj0yz2CsG6-xMgzQ..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 93
+  title: 【本刊原创】优化 YOLO 算法在多模态医学图像融合检测与分析中的应用
+  account: 智能物联技术
+  publish_date: '2026-02-07'
+  summary: 杨涛等[6]证实了 YOLO 系列算法在医学影像检测中的适配性,但未... 6 所示,展示了典型血细胞样本的检测效果.图像清晰标注出红细...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 7
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9peP7HpnPyHSk4bF6BZW2xDX85tTpJXYE-6rRIgcPWtdcS0ba8kCDbo-SjQIIfKty0f72r3WyZl4S-hRv8xWArJZrlMUe_tPLL1_OqTEqF50u7NTGXz3_XDlsVrj_Vv-18nRJUiYyWT7GVDQnrBVlxflpCVoRo81iuK8qFD6FgJs89kyxDwoXvg..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 94
+  title: 一文看尽目标检测:从 YOLO v1 到 v3 的进化之路
+  account: AI有道
+  publish_date: '2019-05-07'
+  summary: 计算误差,而对于分类样本,只计算分类误差.在预测时,YOLO v2 给出的置信度就是 ,同时会给出边界框位置以及一个树状概率图...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 8
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9ZrJHGQ6cjKjX1bcs_2s9exz0ElzazkdRQMVcK5KjRwVSDT00bxd334WqJSgzX-a91LUqB_5dRWKRonnql_nMB4DMG_9oresaixVDrR1AUPKoGXpuuHLa2unpVpA4w_OHjEt6BiGnSX6SAkQeriHSZBILS88q38hmtSuBDsdJtNxAe0f8bRARvQ..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 95
+  title: YOLO26最新创新改进系列:YOLO26 损失改进 CADLoss,改进真实类别与相似负类别之间的判别边界不足问题,有效涨点!
+  account: Ai计算机视觉
+  publish_date: '2026-07-23'
+  summary: YOLO26最新创新改进系列:YOLO26 损失改进 CADLoss,改进... 在小样本三类检测任务中同步提升.引入训练进度调度策略,使 ...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 9
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9zNYQh_A5nqpVl28FOxsNhRe9t3epCzBqPIYeYPmNr1qW-yxyyYr4jEGzksZe5F1ZZY687lQKeNYrjtP57FgxsYae8MncHV2hgToKHtwbv-0FvEPJfpwjpjmdGqfJiq-2IfaQuVe34KgEvruvb3buwllk80G4-oS4bu7-01z9-sDP28temKTOwg..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 96
+  title: 第282期 基于YOLO26的合成孔径雷达配准图像目标检测研究 (附数据集地址)
+  account: 深读CV
+  publish_date: '2026-03-20'
+  summary: YOLO26模型适配与优化YOLO26作为新一代全任务融合目标检测... 目标尺度变换、样本均衡扩充等数据增强策略,扩充SAR配准图像...
+  queries:
+  - YOLO 图像分类 小样本
+  rank_history:
+  - query: YOLO 图像分类 小样本
+    rank: 10
+    searched_at: '2026-08-03T14:49:16+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7WThTW14ZuVxzehD43LDFz1qXa8Fplpd9JR0ql7-SbrBtxVn1ZRnZa31qcK4-qA3Zbr2pQT5_D0PDlLqaZWPtDw3W5GtsLNpFOoQBL_GmensYYyUQdhVc2sSN7MDWtMof2NdZQ-PUapNLparE5PYVUH7wkaPabhJhIVDZwcRPSpD23lLNifOYN701VO0dCmVfg8_-UNAMCWMHpHkoPMgL3A..&type=2&query=YOLO%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%B0%8F%E6%A0%B7%E6%9C%AC&token=ECA8A6EBC48B8117C9CF91D7261DEF61CA29808F6A7039EC
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 97
+  title: 一区直接写!TF-SimAMNet:时频图像参数自由注意力故障诊断网络 ,让小样本故障诊断精度再上一个台阶
+  account: 建模先锋
+  publish_date: '2026-07-23'
+  summary: Weighted F1 上均取得明显提升,尤其是 Macro F1 的提升说明模... 该模型适用于:小样本故障诊断;长尾分布故障分类;CWRU轴承...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 1
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd9ptLe64xUAraLKRD8fUXOReU757nYxbmcLsfOcZWkhUrxMRBVOmRKCYCHBum9twCRG-yLSMQXA8EI3HmelNH7PhL0EIxC7mOY_oe2PJL9C_ygvenNlXNVrDvDhsBaz8brNPdqQ4HAcaUQAnze4iFaUg5bqBILN8bePgDTPW4__3x6VKrzu_4XKA..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 98
+  title: CVPR 2019提前看:少样本学习专题
+  account: 机器之心
+  publish_date: '2019-06-14'
+  summary: 这部分文章涉及图像检索,人脸反欺诈,长尾数据分类等任务,... 的训练策略来更新 EGNN 的权重.接下来我们会从少样本分类学...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 2
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd9NYk6ffPpzwe8IBcXR_wCY3HG4QCUWmnZmHyqNDTitvDzO1pbC2ER3YSqdQobZpxWArA5uh8IhaNzP8yPoA0dnU48jE7s2yFPQyHg-X3-h4hGyZX4CEx8GT0jfmJkBVTjQjIgsorpH9Cv_jLm9bOIQi7ARIePmvhlP6yJ5-0td5MHpHkoPMgL3A..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 99
+  title: CVPR2021竞赛结果出炉,阿里淘系多媒体算法包揽3项国际冠军
+  account: 大淘宝技术
+  publish_date: '2021-07-01'
+  summary: 数据集的样本分布不均衡,存在长尾分布,样本数目最少的类别仅... 并通过多种数据增强策略训练和多尺度融合推理,提升目标检测的...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 3
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd9KdP29UR-2xKeVZr2NOTUEOSXktpz51AhMS-2-mHDWhhAgoSShZNPDn2Jvnrvriksl6PBI4nIZETDiMV6MWBh6RCZCefJN94HhPsIsdRUEdD9eFJPfKzbVFw7T_3gUl1pMT1LM3h_pDbJ1rzT49S0_qCUeuG_8atUGWebQQ_w75_m0CtGSSkZQQ..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 100
+  title: Meta-Learning 最新进展
+  account: 深度学习这件小事
+  publish_date: '2020-06-06'
+  summary: 不平衡类别的图像分类问题.动机:现有的方法通常根据训练loss... 长尾分布:少数类别占据了大量样本,大量类别只占据了少数样本...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 4
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd9YjY7wBbhApR61DPNAp_8_iIvNbZbmGSV7HENGJMvEii09aqd3wf54yexPAX2RlSnlnqjiZ0pGd30StTbhTYDQaWImvzCiFG1C0CVlQEDwnefCL0ll9VrSECBE6b7ZF1bM8cku0P-7K_HZ9uk0yN49zjfHjsZREoI-5mv_XptdbbuL0unUdKkuw..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 101
+  title: 即插即用!BatchFormer:一种简单有效的探索样本关系通用模块 | CVPR 2022
+  account: CVer
+  publish_date: '2022-08-29'
+  summary: 因此我们提出一种共享分类器的策略,来消除在训练和测试的分布... 比如长尾学习,少样本学习,零样本学习,领域泛化.尽管这样,...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 5
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd9GtMtFb1KKqIu0pzuK606_HSm6liUNNp1KdoNFPqGuY-M24wuydxWP7gDyuaFd1aWStwzOSNS3vdctHQ8HNAbTLJMB0_FsYEPs5PGymtmLlZMHb3wQ9zPQk3LWY8lIniz9JRRLvbzJDV0k19_Xni7lnn_eCKUJC9WTy_Nf3KNek_Yl_Q5RRZQjg..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 102
+  title: arXiv 2026 | 武汉大学团队构建三位一体标注基准!赋予高光谱基础模型细粒度语义能力!
+  account: 遥感图像工坊
+  publish_date: '2026-07-27'
+  summary: 评测指标采用各类别F1值与平均F1值(mF1).实验硬件与训练... 138类中部分极端长尾类别样本量极少,可能影响少样本学习评测...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 6
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd9OJ_ClRuecZA6WdghGn80Q3EN46o7gPtq5RobYgJ9NzWl7AFDjTGYVo8FrxMG47V4f-xUVbwEuojGWCokTpNxIvhAA31TZXDipeouZaDdVH4z1ycVztUfuyUGAqxNWPlP1LUfOvGS0KXP6KxRwBMTjE8CdCxohoA9j2wFHGjn6mdFH6In5Ei3zg..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 103
+  title: CVPR23 最佳论文 | 视觉编程:无需训练的组合视觉推理
+  account: 学姐带你玩AI
+  publish_date: '2023-07-10'
+  summary: F1 分数(指令间平均精度和召回率的调和平均值)总结定位和标... 任务零样本而无需对图像对进行训练,但我们报告了 VILT-NLVR,...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 7
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd9f5nF4PAm7wqRdv6WcSzXS_2W4HyeKHLOO22HnG2WBaDO2m-lpXSHOKwMuR5tX-W4-OawF4sjHPFdS6SYmHn_3KD5jg2lw0veKPZ4NaHzryEy2HWzmr2OR2Wq4icmgrI6mt81Tg3qmaAS9p5FA0d3ifPR_kZfAFSJtvvz8z0xK-f2CsG6-xMgzQ..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 104
+  title: 强化学习+扩散模型的综述
+  account: 算法进阶
+  publish_date: '2023-12-09'
+  summary: 分类器引导.训练一个可微判别模型p(y|x),然后在噪声样本xt上训... 以提高模型处理长尾分布式数据集的能力.一些研究利用检索数据...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 8
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd9flCrxKwKFLOpeWrQFKqyw98O4kJgY0HNtiDNYF9io66YHMmR-Q_kqrt9eGSiNA_7o_AqyYNVby8PDlXCfrl71JOLIDGJWHYcVVE8YEDUSKi2si64gdvOSjjmoUdHFiX9Zkb0D2pNau0wd0Klk_YmK3nPQv-cw8fSLmqfdZpzlNPuL0unUdKkuw..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 105
+  title: 异常检测|AI破解工业质量检测难题:零样本异常识别新模型WinCLIP问世
+  account: 森林工坊
+  publish_date: '2024-03-10'
+  summary: 从零样本扩展到少样本:利用正常图像的互补信息WinCLIP+的设... 每区域重叠(PRO)分数和类似于异常分类评估的像素级F1-max...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 9
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd9WtcE-6hag_SRZrsEysbEBcsch2sLnesMHLkbxnD7Dk4PALlDZpvYnQQvujX1niuHNCFjiqO8d07exrICnPgaBOHjuP-INs5cuhpKxZMP6vyXmVj2sftzaEIRe189N4P6D1M43Ytw9GEzWJFMuwBRDZ_x2A_ya3J73-meJ8RGur_zAjcIGepUqA..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 106
+  title: 阿里最新研究试用因果推理方法让视觉AI更智能,入选CVPR 2021
+  account: 深度学习技术前沿
+  publish_date: '2021-05-10'
+  summary: 只是在测试的时候会有训练未见过类别的样本,分类器除了正确识... (蓝色曲线末尾)F1 基本没有下降,体现了较强的鲁棒性.结 语...
+  queries:
+  - 图像分类 长尾 F1 少样本 训练策略
+  rank_history:
+  - query: 图像分类 长尾 F1 少样本 训练策略
+    rank: 10
+    searched_at: '2026-08-03T14:49:37+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7GlPgU74eAT5zehD43LDFz1qXa8Fplpd980V55_lBhkKqc56-4Vp4HfJ4LIh3QvJlUR5NliMjQsirxXvDFZoh1OZLYwM5iNK5MJyNJ_QIpQkwqzuXIL512guuH6qJs6mznNYMMEzQfxPShKqIHSHesa_S0Vrew9Xp_JN2G-POiodv8mGQiv9cZHn0kXNOD2SLYxXGl26dlXE5eBgmN3LoYQ..&type=2&query=%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%95%BF%E5%B0%BE%20F1%20%E5%B0%91%E6%A0%B7%E6%9C%AC%20%E8%AE%AD%E7%BB%83%E7%AD%96%E7%95%A5&token=ECA919E2C48B8117C9CF91D7261DEF61CA29808F6A703A01
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 107
+  title: 91.3%!首个将Transformer解码器应用于多标签图像分类的方法Query2Label
+  account: 极市平台
+  publish_date: '2022-02-19'
+  summary: 2021年timm团队提出的训练策略可以将ResNet50模型的分类准确... 我先对多标签图像分类做一个简单的回顾.首先,多标签分类(...
+  queries:
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 1
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9wWzFTDqb8FmDLB09ggb7SHjF1WoQdqX-jL0C8byz8RJ09ulXCbWH6rnz75NoUCvh4NLmiYn_JwiL6X7SkPNJtVgqxju_p0lUBMtFEJk1Fhnh9VVfBxPJGH8mCMfhEQ4TrQqcc_s6T_citzveQFbHbPgfrmcU4GajGNEoSLji3yg5eBgmN3LoYQ..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 108
+  title: ACCV2020国际细粒度网络图像识别亚军方案总结
+  account: 极市平台
+  publish_date: '2020-12-30'
+  summary: 作者为ACCV2020细粒度图像分类分析竞赛第二名,本文分享了比... 细粒度比赛中有人提出ns的预训练参数更好[2][3]timm模型库...
+  queries:
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 3
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9wWzFTDqb8FmDLB09ggb7SHjF1WoQdqX-jL0C8byz8RJ09ulXCbWH6sLw2cmnFd7ETs2MWaufghenonFgL1R62dYz-f3rQ29FrPFFlBejAIbGu3l3STd2X-kBlCHtbxPd87WKq5w_W1-4yLuZuDYhFVmId437ulYWSJRY9VI8vWhflztgI7RZ1g..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 109
+  title: Kaggle知识点:timm预训练模型
+  account: Coggle数据科学
+  publish_date: '2021-04-06'
+  summary: 在Kaggle比赛中CNN预训练模型是最常见的技术,可以用于计算... timm介绍timm 是包含众多图像模型、层、优化器、训练技巧、数...
+  queries:
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 4
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9EoWPzd7wLnPLe9bwSYgq6H9hkiYnS-_YLviODoblddLn3Dls6sxcrepZ0A-fRAkMLxQFoYDpubGML_L70KUWfF-1qL2180MqDWmU5j0Gg0w4_gj_iG5B6oo03PhoJAhUBW-nhuFGAFXWYyS5XB9TeQC9UTeaBAU1T8X_3SmaqSM5eBgmN3LoYQ..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzIwNDA5NDYzNA==&mid=2247490697&idx=1
+  canonical_id: wechat:MzIwNDA5NDYzNA==:2247490697:1
+  status: archived
+  local_path: 20210406_Kaggle知识点：timm预训练模型/原文.md
+  content_hash: sha256:601e94717395f70586125e6c083da74da2c943a046cf14b203bf99215f3a87e0
+  last_error: ''
+- id: 110
+  title: 解锁图像识别新境界:深入探索PyTorch Image Models(TIMM)
+  account: pytorch玩转深度学习
+  publish_date: '2024-01-04'
+  summary: TIMM提供了多种预训练模型,覆盖了从基础到高级的各种需求.... 我们以一个经典图像分类问题为例:在CIFAR-10数据集上进行车...
+  queries:
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 5
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9SVuDh0H7fqGy6d7jg823pIDYjeTLX_gXZKJvBNEi45UT7geL_ZRAi_Tlvn99hYmMwzwvfSMdkkNr0sOdIrhXL3gfCrOFsMz8c14CYz711gcT3yyll8XH5nCDBb7xScycCo1_M-hSBe_XzW2qLnSu9dyGc5HykUyQitZQ_y5LA6nS-e4Yz84xMA..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: https://mp.weixin.qq.com/s?__biz=Mzg2NTQ1Njc3OQ==&mid=2247490613&idx=1
+  canonical_id: wechat:Mzg2NTQ1Njc3OQ==:2247490613:1
+  status: archived
+  local_path: 20240104_解锁图像识别新境界：深入探索PyTorch Image Models（TIMM）/原文.md
+  content_hash: sha256:a0fbfe48344e55bcf22071ea2ecbadfe4287daaeaadf66d7528ea86a9ded71ff
+  last_error: ''
+- id: 111
+  title: 在CVPR2022 - Pet Biometric Challenge上的多种方法尝试(大量干货预警)
+  account: limzero带你打数据科学竞赛
+  publish_date: '2022-05-30'
+  summary: 送给网络进行2分类,这里使用ImageNet预训练权重的时候,可以将权重也复制为6份. 将两张输入RGB图像分别送给网络进行2分类...
+  queries:
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 6
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9t_pzK5joXgSrh5gRNXSr1pC_belncpih8T_FkS2bdgpEAlQRjIThuCGiPrx80RZb6u1_tr95DGVAiv7_x9lLjR1XvPsAD28cPXAwaLgDRqnry-pctks_RDiukB0N8pCUSMvKD78MOiupT7DfhF7tQ9TFMrGINfCyMnD98Y275DnuL0unUdKkuw..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 112
+  title: PyTorch 2.0 实操,模型训练提速!
+  account: 机器学习AI算法工程
+  publish_date: '2023-02-03'
+  summary: 包括图像分类、目标检测、图像生成等、NLP 任务,如语言建模、... TIMM 的预训练模型:https://github.com/huggingface/transformers
+    ...
+  queries:
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 7
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd938TGBy0j_-MReXqTJsD-wwKcIMbETQHYsFc3nnOU-wqtLa7FA9W2VhV7qo9l1WgIpg8rDCFr9SM7mRzNPTlg6ncoPUdk1lhPVSUYZQU9EwofJdPbH1gR2d3Mp5iwJUoRFOZO3ruLIwlkDUNh3CkZ-coXwr15-QK9DkJ74weRiCd535pjGOOjYg..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 113
+  title: 重磅!新增 13 种 Transformer 方法,火速收藏
+  account: OpenMMLab
+  publish_date: '2021-08-25'
+  summary: 在图片分类领域的应用.实验结果表明,视觉领域并不一定要依赖... MMClassification、timm 等仓库的预训练权重. SETRhttps://...
+  queries:
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 8
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9yRy__ZBsNpFHAEX8hX7TuJvqutyRhv_RpnHnIrAhSmqRzTJ5ZRvoDSXaxXoamFh03zbDuLfjP1414FgT2KncP7voA5e7pLwXCummlWBPagOVbQCHtdQ2HrphXPMrbjMeX7FPKUINRAtVGtlM7XuvX1HKi16HpwyexOfd3E6AGKl535pjGOOjYg..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 114
+  title: 【文献】一种基于预训练的Transformer模型的光学字符识别方法
+  account: AILab笔记
+  publish_date: '2023-03-15'
+  summary: 相似,作者保留了通常用于图像分类任务的特殊标记[CLS].[CLS]... DeiT模型由代码和来自timm库(Wightman 2019)的预训练模型来...
+  queries:
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 9
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9PSD91L40CuMpz6DWo2l2qWGhZhUOrzsT1PXl9ycC7WXI1uaC6dtO75gFrAt1XSuwb4qTDeyfzm1sYCQvRRncOcHCsAI6WOBJGvr37EDPnh5rCc5RzmTlV3Vn8w0bkmhDI5lneGn7TKlmnIyA1Rg6YPXhrlMVSbQXigy3lPhJdWoYJSSFPgfogQ..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 115
+  title: 医学图像语义分割最佳方法的全面比较:UNet和UNet++
+  account: 小白学视觉
+  publish_date: '2021-07-05'
+  summary: 接下来是使用一个训练好的编码器.考虑图像分类的问题,我们试... = 'timm-regnety_004'model = smp.UnetPlusPlus(encoder,
+    classes=...
+  queries:
+  - timm 图像分类 预训练 训练技巧
+  rank_history:
+  - query: timm 图像分类 预训练 训练技巧
+    rank: 10
+    searched_at: '2026-08-03T14:49:41+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9GME7IP3W7dkMbZdRHielGJzR_yuDOA7HCYw-FEpBrO_BhHPziczRh_aUaRL1UNrqcSHWGU5WzwpylnD5RQPqRvrfOwEw5i8Hx-rubfK7Kx8Z4B0hUdAj6UWJ-TIosDdBniO1piRxjqLdmj65zBG6hUvSVT0qBaR362s_cFLY3prYl_Q5RRZQjg..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 116
+  title: GeoAI遥感深度学习 场景分类·语义分割·目标检测·变化检测四大任务,从CNN、Transformer到空间基础模型与AI Agent全流程实战技术应用
+  account: 科研技术平台
+  publish_date: '2026-07-23'
+  summary: 场景分类·语义分割·目标检测·变化检测四大任务,从CNN、... 遥感检测数据配置、预训练权重加载与短周期微调 8.5 批量推理、...
+  queries:
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 1
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9sBG1QtY4xvJYW5T1zNdubb4tKbKZUwOPGAyA9-wO7fLD_4Dr7XAkFelUPwwj3cmWxEzmM0WVNHte6TjnPVNZIH61-2BkULZCL0LlNz8NpfNYbyO7QNPpGBj0rIdNycMllhZjsxhfhmEIrj5eOU46BaG6K9irm8iuClTCy2thdZHvzHZXxeLdyg..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 117
+  title: 基于LDCNN的SVM高分辨率遥感影像场景分类
+  account: 遥感加油站
+  publish_date: '2021-09-21'
+  summary: 深层次特征进行多核SVM分类的场景分类方法.首先将预训练的卷... 且能够有效解决遥感影像场景分类中标签数据匮乏的问题,因此模...
+  queries:
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 2
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd93m_lHQNOazJIYA87RNDFI9sLGFYMapmt-fabwaeJ9JgVdS-x_Z6epi404H0prtKm3WB2DRWz76YgSVMsD6m9H0UrbH7RLmJHxAlffPj6JU2lzqrMmdPi90k6Ll6MLzLzn-yq06Y6tD6OBu1RAdoqOps7ZB4kDCYFNovwo9p1OX4O8fIRwtipOg..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 118
+  title: 测绘学报 | 杨秋莲:高分影像场景分类的半监督深度卷积神经网络学习方法
+  account: 智绘科服
+  publish_date: '2021-09-14'
+  summary: 极大地提高了分类精度[4-6].遥感场景是由语义目标以某种空间分... λ(t)为未标记数据样本参与训练的权重,其定义如式(6) (6)在本文方...
+  queries:
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 4
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9yhCZE9m_BJ0r3oPX5iVfvp7E4HqOk6t2tr92GwL4LB9htVOy6Bx6NZiwBxfpfEKe6XMOPF_hnawI8MeWMMBEl73wMR1VNW9cyyUsNm6aFZkYDvCzhV96uQRB0m38sQOseJSOJG4vrj7E0QauKdPgCpZD3Ve9Iez5EuSiv7hTITrf3q8uRDTfkw..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: https://mp.weixin.qq.com/s?__biz=MzA5ODA1MjkxOQ==&mid=2649923284&idx=2
+  canonical_id: wechat:MzA5ODA1MjkxOQ==:2649923284:2
+  status: archived
+  local_path: 20210914_测绘学报 _ 杨秋莲：高分影像场景分类的半监督深度卷积神经网络学习方法/原文.md
+  content_hash: sha256:3365214f405cfb92be23b9416dde8028979311939e04d8f7fb4938e41413dd37
+  last_error: ''
+- id: 119
+  title: 一等奖方案|2020 CCF BDCI《遥感影像地块分割》
+  account: DataFountain
+  publish_date: '2021-01-28'
+  summary: 现有的遥感影像地块分割数据处理方法局限于特定的场景和特定的... 弱分类器的“弱”也是指特殊类别上弱,融合权重根据准确率与连...
+  queries:
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 6
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9Lu7NIkyAeUEFBDH4FCPKKO8u_VqRqUKQrCXHpHwWEPw9L3AsxOIUX2BNEdmveuOHJFfF81pK6t5P2IsRwF6e1KnBP-bGcX0OuEkGgiJWkR339j-ZkbKsEuhMkkls7GaRlWnVklfH6Q39K-NovGWr7xE0v6QOu3JRDkF6IEgL3XLdrgozfSg6bw..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''
+- id: 120
+  title: 顶刊解读 TGRS | FusDreamer:用于多模态数据分类的标签高效型遥感世界模型
+  account: CVPaper
+  publish_date: '2026-03-09'
+  summary: 模块,该模块集成了自分类和差异化的物理提示表示.预训练的开... 利用遥感场景中土地覆盖类别的先验知识,为每个类别精心制作自...
+  queries:
+  - 遥感 场景分类 预训练 权重 分类
+  rank_history:
+  - query: 遥感 场景分类 预训练 权重 分类
+    rank: 10
+    searched_at: '2026-08-03T14:49:45+08:00'
+  sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7Lb9a4a7lmjdzehD43LDFz1qXa8Fplpd9GzoDZDlHFxUFcWn8vLD4isUESgqfmqnCFbRlEsmTKKZULRh11O-vyPBYsQOYoyRnZfHv1V5BmfiuKQ8-r04QGDjAs4ErnDW0WoQ7ehQr1Xq0XoWnGs4Kceaj1VkNcIt9y_00GMjm65JrY2tTjw5YkUZowrebpeVIVtcTAJjzVazI3OTRHYU2og..&type=2&query=%E9%81%A5%E6%84%9F%20%E5%9C%BA%E6%99%AF%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E6%9D%83%E9%87%8D%20%E5%88%86%E7%B1%BB&token=ECA948CBC48B8117C9CF91D7261DEF61CA29808F6A703A09
+  canonical_url: ''
+  canonical_id: ''
+  status: discovered
+  local_path: ''
+  content_hash: ''
+  last_error: ''

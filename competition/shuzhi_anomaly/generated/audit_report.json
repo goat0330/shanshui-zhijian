@@ -1,11 +1,11 @@
 {
   "source_root": "D:\\研究生作业\\人工智能实践比赛\\水域综合异常识别_训练集+验证集",
   "labels_json": "D:\\研究生作业\\人工智能实践比赛\\水域综合异常识别_训练集+验证集\\train.json",
-  "image_count": 1835,
+  "image_count": 1839,
   "labeled_image_count": 1144,
   "label_count_in_json": 1144,
   "missing_images_for_labels": [],
-  "unlabeled_image_count": 691,
+  "unlabeled_image_count": 695,
   "unlabeled_image_preview": [
     "00062.jpg",
     "00167.jpg",
@@ -29,7 +29,7 @@
     "00251.jpg"
   ],
   "split_counts": {
-    "test": 691,
+    "test": 695,
     "train": 1144
   },
   "label_counts": {
@@ -51,10 +51,19 @@
   },
   "exact_duplicate_override_count": 0,
   "near_duplicate_candidate_pair_count": 169,
+  "near_duplicate_group_count": 82,
   "train_rows": 1144,
   "train_rows_enabled": 1139,
   "label_review_candidate_count": 241,
   "validation_ready": false,
-  "provisional_sequence_count": 9,
-  "sequence_id_method": "filename contiguous blocks only; low-confidence review field, not final Group Fold"
+  "provisional_sequence_count": 8,
+  "sequence_id_method": "filename contiguous blocks only; low-confidence review field, not final Group Fold",
+  "supported_image_extensions": [
+    ".jpeg",
+    ".jpg",
+    ".png"
+  ],
+  "test_jpg_count": 691,
+  "test_supported_image_count": 695,
+  "test_non_jpg_count": 4
 }
