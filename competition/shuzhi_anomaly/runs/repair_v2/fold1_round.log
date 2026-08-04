@@ -1,0 +1,28 @@
+model=hf-hub:timm/convnext_tiny.fb_in22k_ft_in1k_384 freeze_mode=head trainable=6,150/27,824,742
+epoch=001 train_loss=0.7211 val_loss=0.3181 weighted_f1=0.8647 macro_f1=0.1807 mIoU=0.1629
+epoch=002 train_loss=0.2836 val_loss=0.2078 weighted_f1=0.9066 macro_f1=0.3321 mIoU=0.2605
+epoch=003 train_loss=0.2003 val_loss=0.1570 weighted_f1=0.9419 macro_f1=0.4907 mIoU=0.4093
+epoch=004 train_loss=0.1589 val_loss=0.1386 weighted_f1=0.9552 macro_f1=0.5643 mIoU=0.4994
+epoch=005 train_loss=0.1322 val_loss=0.1260 weighted_f1=0.9595 macro_f1=0.5737 mIoU=0.5111
+epoch=006 train_loss=0.1101 val_loss=0.1133 weighted_f1=0.9713 macro_f1=0.5978 mIoU=0.5462
+epoch=007 train_loss=0.0957 val_loss=0.0996 weighted_f1=0.9749 macro_f1=0.6047 mIoU=0.5580
+epoch=008 train_loss=0.0835 val_loss=0.0935 weighted_f1=0.9749 macro_f1=0.6047 mIoU=0.5580
+epoch=009 train_loss=0.0728 val_loss=0.0914 weighted_f1=0.9749 macro_f1=0.6047 mIoU=0.5580
+epoch=010 train_loss=0.0683 val_loss=0.0869 weighted_f1=0.9749 macro_f1=0.6047 mIoU=0.5580
+epoch=011 train_loss=0.0630 val_loss=0.0868 weighted_f1=0.9749 macro_f1=0.6047 mIoU=0.5580
+epoch=012 train_loss=0.0611 val_loss=0.0839 weighted_f1=0.9749 macro_f1=0.6047 mIoU=0.5580
+epoch=013 train_loss=0.0567 val_loss=0.0817 weighted_f1=0.9749 macro_f1=0.6047 mIoU=0.5580
+early_stop epoch=13 best_epoch=7 best_weighted_f1=0.974925
+best_weighted_f1=0.974925 best_epoch=7 checkpoint=D:\研究生作业\人工智能实践比赛\competition\shuzhi_anomaly\runs\repair_v2\fold1_head\best.pt
+model=hf-hub:timm/convnext_tiny.fb_in22k_ft_in1k_384 freeze_mode=last_stage trainable=15,476,742/27,824,742
+epoch=001 train_loss=0.0799 val_loss=0.0844 weighted_f1=0.9749 macro_f1=0.6132 mIoU=0.5746
+epoch=002 train_loss=0.0400 val_loss=0.0606 weighted_f1=0.9860 macro_f1=0.6451 mIoU=0.6265
+epoch=003 train_loss=0.0187 val_loss=0.0495 weighted_f1=0.9896 macro_f1=0.6606 mIoU=0.6549
+epoch=004 train_loss=0.0087 val_loss=0.0494 weighted_f1=0.9896 macro_f1=0.6606 mIoU=0.6549
+epoch=005 train_loss=0.0035 val_loss=0.0461 weighted_f1=0.9896 macro_f1=0.6606 mIoU=0.6549
+epoch=006 train_loss=0.0012 val_loss=0.0490 weighted_f1=0.9896 macro_f1=0.6606 mIoU=0.6549
+epoch=007 train_loss=0.0011 val_loss=0.0488 weighted_f1=0.9896 macro_f1=0.6606 mIoU=0.6549
+epoch=008 train_loss=0.0007 val_loss=0.0485 weighted_f1=0.9896 macro_f1=0.6606 mIoU=0.6549
+epoch=009 train_loss=0.0005 val_loss=0.0501 weighted_f1=0.9896 macro_f1=0.6606 mIoU=0.6549
+early_stop epoch=9 best_epoch=3 best_weighted_f1=0.989647
+best_weighted_f1=0.989647 best_epoch=3 checkpoint=D:\研究生作业\人工智能实践比赛\competition\shuzhi_anomaly\runs\repair_v2\fold1_last_stage\best.pt

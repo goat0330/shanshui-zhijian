@@ -1,0 +1,30 @@
+[
+  {
+    "fold": 0,
+    "current": "2977766e2f9cf0debf124579f7b8d766f2ae496cf8ef33599ea48b5553b7c2da",
+    "backup": "2977766e2f9cf0debf124579f7b8d766f2ae496cf8ef33599ea48b5553b7c2da",
+    "match": true,
+    "bytes": 111370950
+  },
+  {
+    "fold": 1,
+    "current": "fc27905ad7336ec4cf793c51a215ef12bf8e6a3be03964d3949daedf49fafee7",
+    "backup": "fc27905ad7336ec4cf793c51a215ef12bf8e6a3be03964d3949daedf49fafee7",
+    "match": true,
+    "bytes": 111370950
+  },
+  {
+    "fold": 2,
+    "current": "b8f23da0a37b64ce55dd651f9481ae4de768a431bcaa4b491a628b82d59dd13b",
+    "backup": "b8f23da0a37b64ce55dd651f9481ae4de768a431bcaa4b491a628b82d59dd13b",
+    "match": true,
+    "bytes": 111370950
+  },
+  {
+    "fold": 3,
+    "current": "0285ff8baac2eaabd14692d96b4fa00c42b7db41c40eafc8288cc306e745e401",
+    "backup": "0285ff8baac2eaabd14692d96b4fa00c42b7db41c40eafc8288cc306e745e401",
+    "match": true,
+    "bytes": 111370950
+  }
+]

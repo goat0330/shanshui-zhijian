@@ -1,0 +1,48 @@
+{
+  "run": "overnight_20260804",
+  "git": "24368ce2faf5342167d47dcef8dc00c211239e38",
+  "python": "3.11.5",
+  "torch": "2.6.0+cu118",
+  "timm": "1.0.28",
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 2070 with Max-Q Design",
+    "memory_mib": 8192,
+    "driver": "592.82",
+    "cuda_toolkit_reported": "11.8",
+    "cuda_runtime_reported": "13.1",
+    "peak_temp_seen_c": 56
+  },
+  "champion_checkpoints_intact": {
+    "fold0": true,
+    "fold1": true,
+    "fold2": true,
+    "fold3": true
+  },
+  "stages_completed": [
+    "00_preflight",
+    "01_reviewed_v2_4fold",
+    "02_scene_holdout_block0005",
+    "03_resolution448_fold",
+    "04_oof_compare",
+    "05_test_inference",
+    "06_final_report"
+  ],
+  "stages_failed": [],
+  "candidate_selection": {
+    "A_raw_v1": "mainline retained",
+    "B_reviewed_v2": "PASS gate (wf1 0.982875 >= 0.979403), test inference done",
+    "C_448": "diagnostic only, extension recommended"
+  },
+  "constraints": {
+    "single_cuda_process": true,
+    "champion_preserved": true,
+    "no_class_sequence": true,
+    "no_full_balance": true,
+    "no_focal": true,
+    "no_logit_adjustment": true,
+    "no_moss_vl": true,
+    "no_yolo": true,
+    "no_test_pseudo_labels": true,
+    "raw_data_unchanged": true
+  }
+}

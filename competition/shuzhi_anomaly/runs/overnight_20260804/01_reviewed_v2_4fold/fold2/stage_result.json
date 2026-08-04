@@ -1,0 +1,13 @@
+{
+  "stage": "01_reviewed_v2_4fold/fold2",
+  "completed": true,
+  "early_stopped_at_epoch": 4,
+  "best_epoch": 1,
+  "weighted_f1": 0.980900,
+  "champion_weighted_f1": 0.970707,
+  "weighted_f1_delta": 0.010193,
+  "error_count": 4,
+  "relabeled_rescued": ["00033.jpg 正常->有漂浮物 correct", "02111.jpg 正常->乱堆 correct"],
+  "errors": ["00064.jpg 正常->有漂浮物", "02044.jpg 乱占->有漂浮物", "02487.jpg 乱建->有漂浮物", "02488.jpg 乱建->有漂浮物"],
+  "status": "PASS (improved: relabel rescue)"
+}

@@ -1,0 +1,8 @@
+model=hf-hub:timm/convnext_tiny.fb_in22k_ft_in1k_384 freeze_mode=head trainable=6,150/27,824,742
+sampler counts: {'乱采': 17.0, '乱建': 4.0, '乱堆': 16.0, '乱占': 46.0, '有漂浮物': 770.0, '正常': 6.0} alpha: 0.25 num_samples: 859
+epoch=001 train_loss=0.0296 val_loss=0.0883 weighted_f1=0.9840 macro_f1=0.6356 mIoU=0.7316
+epoch=002 train_loss=0.0295 val_loss=0.0758 weighted_f1=0.9840 macro_f1=0.6356 mIoU=0.7316
+epoch=003 train_loss=0.0115 val_loss=0.0757 weighted_f1=0.9840 macro_f1=0.6356 mIoU=0.7316
+epoch=004 train_loss=0.0126 val_loss=0.0756 weighted_f1=0.9840 macro_f1=0.6356 mIoU=0.7316
+early_stop epoch=4 best_epoch=1 best_weighted_f1=0.983987
+best_weighted_f1=0.983987 best_epoch=1 checkpoint=D:\研究生作业\人工智能实践比赛\competition\shuzhi_anomaly\runs\repair_v2\fold0_crt_power025\best.pt

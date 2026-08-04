@@ -1,0 +1,51 @@
+{
+  "folds": 4,
+  "seed": 42,
+  "group_mode": "duplicate_near",
+  "group_count": 1067,
+  "row_count": 1139,
+  "fold_class_counts": {
+    "0": {
+      "有漂浮物": 251,
+      "正常": 1,
+      "乱占": 14,
+      "乱采": 7,
+      "乱堆": 7
+    },
+    "1": {
+      "有漂浮物": 260,
+      "正常": 1,
+      "乱占": 14,
+      "乱采": 6,
+      "乱堆": 6,
+      "乱建": 1
+    },
+    "2": {
+      "有漂浮物": 257,
+      "正常": 3,
+      "乱占": 16,
+      "乱采": 6,
+      "乱堆": 4,
+      "乱建": 2
+    },
+    "3": {
+      "有漂浮物": 253,
+      "正常": 2,
+      "乱占": 16,
+      "乱采": 5,
+      "乱堆": 6,
+      "乱建": 1
+    }
+  },
+  "missing_labels_by_fold": {
+    "0": [
+      "乱建"
+    ],
+    "1": [],
+    "2": [],
+    "3": []
+  },
+  "final_group_fold_ready": false,
+  "note": "exact and near duplicate components are kept together; final Group Fold still requires confirmed visual/source sequence groups.",
+  "output": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\generated\\internal_cv_duplicate_near_4fold.csv"
+}

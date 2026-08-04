@@ -1,0 +1,7 @@
+model=hf-hub:timm/convnext_tiny.fb_in22k_ft_in1k_384 freeze_mode=last_stage trainable=15,476,742/27,824,742
+epoch=001 train_loss=0.0203 val_loss=0.0839 weighted_f1=0.9840 macro_f1=0.6356 mIoU=0.7316
+epoch=002 train_loss=0.0139 val_loss=0.0813 weighted_f1=0.9802 macro_f1=0.6287 mIoU=0.7183
+epoch=003 train_loss=0.0105 val_loss=0.0743 weighted_f1=0.9840 macro_f1=0.6356 mIoU=0.7316
+epoch=004 train_loss=0.0081 val_loss=0.0723 weighted_f1=0.9840 macro_f1=0.6356 mIoU=0.7316
+early_stop epoch=4 best_epoch=1 best_weighted_f1=0.983987
+best_weighted_f1=0.983987 best_epoch=1 checkpoint=D:\研究生作业\人工智能实践比赛\competition\shuzhi_anomaly\runs\overnight_20260804\01_reviewed_v2_4fold\fold0\best.pt

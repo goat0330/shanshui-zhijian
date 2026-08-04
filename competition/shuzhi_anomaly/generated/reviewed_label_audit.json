@@ -1,0 +1,12 @@
+{
+  "dataset_version": "reviewed_v1",
+  "source_train_json": "D:\\研究生作业\\人工智能实践比赛\\水域综合异常识别_训练集+验证集\\train.json",
+  "source_train_json_sha256": "cd554feac844a9ae20b05401b4e137761921becd9f3e6eda35cfb92f14ac18b7",
+  "record_count": 1144,
+  "decision_count": 241,
+  "changed_label_count": 0,
+  "manual_visual_review_count": 0,
+  "policy": "Official labels are retained; no semantic relabeling is performed in P0.",
+  "review_decisions": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\generated\\review_decisions.csv",
+  "train_reviewed": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\generated\\train_reviewed_v1.json"
+}

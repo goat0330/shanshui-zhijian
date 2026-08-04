@@ -1,0 +1,28 @@
+title: Kaggle知识点：timm预训练模型
+account: Coggle数据科学
+publish_date: '2021-04-06'
+source_url: https://mp.weixin.qq.com/s?__biz=MzIwNDA5NDYzNA==&mid=2247490697&idx=1
+canonical_id: wechat:MzIwNDA5NDYzNA==:2247490697:1
+archived_at: '2026-08-03T14:50:28+08:00'
+archive_schema_version: 5
+search_id: 109
+sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7gGjaaJepVJ5zehD43LDFz1qXa8Fplpd9EoWPzd7wLnPLe9bwSYgq6H9hkiYnS-_YLviODoblddLn3Dls6sxcrepZ0A-fRAkMLxQFoYDpubGML_L70KUWfF-1qL2180MqDWmU5j0Gg0w4_gj_iG5B6oo03PhoJAhUBW-nhuFGAFXWYyS5XB9TeQC9UTeaBAU1T8X_3SmaqSM5eBgmN3LoYQ..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E9%A2%84%E8%AE%AD%E7%BB%83%20%E8%AE%AD%E7%BB%83%E6%8A%80%E5%B7%A7&token=ECA93027C48B8117C9CF91D7261DEF61CA29808F6A703A05
+resolved_url: https://mp.weixin.qq.com/s?src=11&timestamp=1785739781&ver=6881&signature=q5AEccP5J8V*T8p0CnQcMsIckAOKKh9kx-1unUWUOrIPoGLOmvZxkoSgsqwr2oU3n3uyPb-42n2r5p4jdE38AmdvxlTyMYv4avMHPhrwKDRe3bUi*6pjPcn5GDBOl2uX&new=1
+content_hash: sha256:601e94717395f70586125e6c083da74da2c943a046cf14b203bf99215f3a87e0
+images:
+- order: 1
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/uoTGEibAZUEgQSR1sPSnDtfXna90z5ticq9VicFbLlrFFm2skZ6ZdpVdBFPEfsoIiaoTBt9VyMicrU3IKdibCjDujKEw/640?wx_fmt=png#imgIndex=0
+  original_caption: 加入了之前的社群不需要重复添加~
+  derived_label: 加入了之前的社群不需要重复添加~
+  naming_source: adjacent
+  confidence: medium
+  local_file: 1_加入了之前的社群不需要重复添加~.png
+  sha256: 0c9cd0f0ffc56c2be67af46e211bd58c07927dc975c7302e1351079010eb0f4f
+- order: 2
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/uoTGEibAZUEgjVMpibbLcunLvNOo6YlvekSTegqBSKoMSyrUbWVDkq5jNG5Hf3uwt71tAq11staN0STb2VPxa1CA/640?wx_fmt=png#imgIndex=1
+  original_caption: timm使用案例
+  derived_label: timm使用案例
+  naming_source: heading
+  confidence: medium
+  local_file: 2_timm使用案例.png
+  sha256: 2fdea65092f08dd543460d04795948bdb36c8c2e85f9b27186a19ee36fca7aff

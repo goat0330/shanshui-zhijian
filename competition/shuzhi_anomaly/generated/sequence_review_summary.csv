@@ -1,0 +1,9 @@
+﻿sequence_id,sequence_id_method,confidence,total_count,train_count,val_count,test_count,labels,review_status
+file_block_0000,filename_contiguous_block_provisional,low,1,1,0,0,有漂浮物:1,needs_source_video_or_manual_review
+file_block_0001,filename_contiguous_block_provisional,low,340,230,0,110,有漂浮物:225;正常:5,needs_source_video_or_manual_review
+file_block_0002,filename_contiguous_block_provisional,low,1,0,0,1,,needs_source_video_or_manual_review
+file_block_0003,filename_contiguous_block_provisional,low,2,0,0,2,,needs_source_video_or_manual_review
+file_block_0004,filename_contiguous_block_provisional,low,1,0,0,1,,needs_source_video_or_manual_review
+file_block_0005,filename_contiguous_block_provisional,low,1206,801,0,405,有漂浮物:800;正常:1,needs_source_video_or_manual_review
+file_block_0006,filename_contiguous_block_provisional,low,279,108,0,171,乱占:60;乱堆:23;乱采:24;正常:1,needs_source_video_or_manual_review
+file_block_0007,filename_contiguous_block_provisional,low,9,4,0,5,乱建:4,needs_source_video_or_manual_review

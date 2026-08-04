@@ -1,0 +1,13 @@
+candidate,scope,weighted_f1,macro_f1,mIoU,accuracy,error_count,floating_recall,note
+A_raw_v1_champion,global_oof_4fold,0.9794031475811966,0.6470914485929629,0.6295266494734579,0.9841966637401229,18,0.9980411361410382,mainline retained
+B_reviewed_v2_continuation,global_oof_4fold,0.9828751037091922,0.6522623067967156,0.6391082813955155,0.9868305531167691,15,0.9990215264187867,GATE PASS candidate
+C_448_fold2_diagnostic,fold2_oof,0.984405,0.6657,0.6648,0.9861,3,,448px diagnostic, extension recommended
+champion_fold0,fold0_oof,0.983987,0.635611,0.731557,0.985714,4,0.996016,repair_v2 champion
+champion_fold1,fold1_oof,0.989647,0.6606,0.654917,0.993056,2,1.0,repair_v2 champion
+champion_fold2,fold2_oof,0.970707,0.641166,0.619736,0.979167,4,1.0,repair_v2 champion
+champion_fold3,fold3_oof,0.973410,0.648577,0.633379,0.978799,6,0.996047,repair_v2 champion
+reviewed_v2_fold0,fold0_oof,0.983987,0.635611,0.731557,0.985714,4,0.996016,continuation
+reviewed_v2_fold1,fold1_oof,0.989647,0.6606,0.654917,0.993056,2,1.0,continuation
+reviewed_v2_fold2,fold2_oof,0.980900,0.6600,0.6537,0.9861,4,1.0,continuation +0.010 relabel rescue
+reviewed_v2_fold3,fold3_oof,0.976883,0.6486,0.6334,0.9823,5,0.996047,continuation
+holdout_block0005,strict_scene_holdout,0.996878,0.1664,0.3321,0.996255,3,,99.9% single-class diagnostic only

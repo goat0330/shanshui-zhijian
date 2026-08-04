@@ -1,0 +1,5 @@
+﻿filename,relative_path,extension,jpg_only_scan,all_supported_image_scan,reason,decision
+00437.png,初赛测试集/00437.png,.png,False,True,supported_non_jpg_image_omitted_by_691_scan,include_in_test_manifest_v1
+00438.png,初赛测试集/00438.png,.png,False,True,supported_non_jpg_image_omitted_by_691_scan,include_in_test_manifest_v1
+02485.png,初赛测试集/02485.png,.png,False,True,supported_non_jpg_image_omitted_by_691_scan,include_in_test_manifest_v1
+02491.png,初赛测试集/02491.png,.png,False,True,supported_non_jpg_image_omitted_by_691_scan,include_in_test_manifest_v1

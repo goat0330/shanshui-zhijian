@@ -1,0 +1,100 @@
+title: ResNet 的性能不够好？ResNet 听了直摇头并强势反击：是你的训练策略不行吧！
+account: AI有道
+publish_date: '2023-02-12'
+source_url: https://mp.weixin.qq.com/s?__biz=MzIwOTc2MTUyMg==&mid=2247546984&idx=2
+canonical_id: wechat:MzIwOTc2MTUyMg==:2247546984:2
+archived_at: '2026-08-03T11:57:28+08:00'
+archive_schema_version: 5
+search_id: 66
+sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7b8okv4-jGvFzehD43LDFz1qXa8Fplpd9ZrJHGQ6cjKjX1bcs_2s9exz0ElzazkdRQMVcK5KjRwVSDT00bxd33z-1KqN8-Ej-cKrHPcjCkrOGfNeJtm6fQVqAsDuCBuChVjgsvZpQeWi_kjnRWuhTGt-i6q8cnM9tCKFoGVPAsTSoPLeEmHqy-HuGoTl0gS4g6q_xcCV_I6QGX_iHL9MadA..&type=2&query=timm%20%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB%20%E5%AE%9E%E6%88%98&token=EBBCADFF307D76E13F396623BF3E8D063F285D056A701125
+resolved_url: https://mp.weixin.qq.com/s?src=11&timestamp=1785729318&ver=6881&signature=q87v29RTTx6yY4o7pvPsOqCdQTw290wkphfloc**atwSTau5vGkkFR9sd9*KxVXj7qGmhEC53NdlMCu4qPkO*gRodMRqkzO35eQkBL35s9psOvT4inN7wulWmIp8KmWR&new=1
+content_hash: sha256:d10e08acf632c19ec877f86b424dcd5b25456404740266dda359e8d2828b77ca
+images:
+- order: 1
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/hflWRBRSEZ5icMbfL3olfs5icrAroSxrX6iaEeeECcPJqJo4CVvnFbx6XEDreicEfKhTE1Giaib0MxqQicpM8JaPvK5EQ/640?wx_fmt=png#imgIndex=0
+  original_caption: 作者丨科技猛兽
+  derived_label: 作者丨科技猛兽
+  naming_source: adjacent
+  confidence: medium
+  local_file: 1_作者丨科技猛兽.png
+  sha256: 9f3f6e493f0d81f300dad62ea54420c6205dd6754d8453ba1293f9357bf62c0f
+- order: 2
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/gYUsOT36vfodxLFkciaZaC0RbcdArUN3Rsh6bZPgQNaRWASnnu6gGaiaTYVUs01C980fo0GeyO4SriczKOpmDqC8A/640?wx_fmt=png&random=0.06100059843416128#imgIndex=1
+  original_caption: 1.1 背景和动机
+  derived_label: 1.1 背景和动机
+  naming_source: heading
+  confidence: medium
+  local_file: 2_1.1 背景和动机.png
+  sha256: dd1584dec9ea1a27abb01f60db3280d8250df43e99f53e75aa6057c8b0a18cab
+- order: 3
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/gYUsOT36vfodxLFkciaZaC0RbcdArUN3REPEsEic0gsdkalZ83NJnoKicYOic6wRrnNOOo2ianlLA5iawjJN3exs938g/640?wx_fmt=png&random=0.0032549521170797124#imgIndex=2
+  original_caption: 1.1 背景和动机
+  derived_label: 1.1 背景和动机
+  naming_source: heading
+  confidence: medium
+  local_file: 3_1.1 背景和动机.png
+  sha256: ff6684e43726fbbda96e6dfd1a47825f6731fe95eb5a72becb34c026944613e3
+- order: 4
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfodxLFkciaZaC0RbcdArUN3RsS9HrImxlk2ic4vbjXWiaWnmxkHOhpH7b5VE3cUcSP5taoWxhPUTrNYQ/640?wx_fmt=jpeg&random=0.5775832666924261#imgIndex=3
+  original_caption: 图1：不同训练策略的精度和训练成本
+  derived_label: 1：不同训练策略的精度和训练成本
+  naming_source: figcaption
+  confidence: high
+  local_file: 4_1：不同训练策略的精度和训练成本.jpg
+  sha256: e8c314590991d302040872c06a86332238334b9e4c2b49481ae8172e0116c004
+- order: 5
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfodxLFkciaZaC0RbcdArUN3RbUAJ94eJNp57ZwjYoLqeeqYlEJ2hUiavefVAPG0DAhFoU00Qcxb4BmA/640?wx_fmt=jpeg&random=0.12096137459994716#imgIndex=4
+  original_caption: 图2：训练 ResNet-50 的不同策略
+  derived_label: 2：训练 ResNet-50 的不同策略
+  naming_source: figcaption
+  confidence: high
+  local_file: 5_2：训练 ResNet-50 的不同策略.jpg
+  sha256: 3b2c41f48e40c55b2909f8486dffe81ca95b8a55e884440a62691d731cd74706
+- order: 6
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfodxLFkciaZaC0RbcdArUN3RTPKNIudELu60TXQXdhLiaso8zbEYiaZBsztmv4BnosxTRCYvVIdOgHvw/640?wx_fmt=jpeg&random=0.41833578338883703#imgIndex=5
+  original_caption: 图3：在没有任何超参数自适应的情况下，使用 ResNet-50 策略训练的其他架构之间 ImageNet 精度的比较
+  derived_label: ：在没有任何超参数自适应的情况下
+  naming_source: figcaption
+  confidence: high
+  local_file: 6_：在没有任何超参数自适应的情况下.jpg
+  sha256: 61ed05fd63b8da78bda0676326d50867b70e80502f3cf4a4d0851c5fd7170f56
+- order: 7
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_jpg/gYUsOT36vfodxLFkciaZaC0RbcdArUN3R0Jz1JbbjAVqo17eG8iaaPTujibC7u1sSeDBiakuG4UtzeU360sYiaPy9Ug/640?wx_fmt=jpeg&random=0.07395129231938524#imgIndex=6
+  original_caption: 图4：A1 训练策略训练模型的精度。测量一个 32GB 的 GPU V100 的峰值内存和吞吐量，Batch Size 为128
+  derived_label: ：A训练策略训练模型的精度
+  naming_source: figcaption
+  confidence: high
+  local_file: 7_：A训练策略训练模型的精度.jpg
+  sha256: 84289427a65ca4240d2f97f879f53a028463512cfe49a12cf0c0776aea62401c
+- order: 8
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/gYUsOT36vfodxLFkciaZaC0RbcdArUN3RU6jWcFx8FK12mBHk04qPSkhaIbaobvzW2kX66gxHZicE8MdJYAUu3TQ/640?wx_fmt=png&random=0.4402238173730375#imgIndex=7
+  original_caption: 图5：100个随机种子的 ImageNet-1K 和 ImageNet-V2 性能
+  derived_label: ：随机种子的 ImageNet-K 和 Imag
+  naming_source: figcaption
+  confidence: high
+  local_file: 8_：随机种子的 ImageNet-K 和 Imag.png
+  sha256: 6a7f81a299ce80c37d4e3015901038af498a219b13118356696c8793509b651b
+- order: 9
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/gYUsOT36vfodxLFkciaZaC0RbcdArUN3Rm2cVibZiaibceTicRfYzThricYeUKVzibWiardW8WEHYEO5b5osGSbm4W1l3g/640?wx_fmt=png&random=0.8809427636910876#imgIndex=8
+  original_caption: 图6：A2 策略在 ImageNet-val 上的性能分布
+  derived_label: ：A策略在 ImageNet-val 上的性能分
+  naming_source: figcaption
+  confidence: high
+  local_file: 9_：A策略在 ImageNet-val 上的性能分.png
+  sha256: 81e0f1cb2287b131bad6e96a87aa4757675689d97f1fea398e268cb53bc91246
+- order: 10
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/gYUsOT36vfodxLFkciaZaC0RbcdArUN3RQtyGicJtCgY1Qrsbu4KIDBaAX9LsVD4rJXYlYj8QpDFOYguyWJVj1XQ/640?wx_fmt=png&random=0.41264021051293476#imgIndex=9
+  original_caption: 图8：对比架构和训练策略的案例
+  derived_label: 8：对比架构和训练策略的案例
+  naming_source: figcaption
+  confidence: high
+  local_file: 10_8：对比架构和训练策略的案例.png
+  sha256: f61372f77271c69ee7238b9361bbaed3c66cc4ca53424e9b554e15e7440dcdbd
+- order: 11
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/hflWRBRSEZ7eUnu4mJwDgNtrVWETSicCN3n5RJzygsYk3OkK72szwgWic5xbInPBQ155JL7SeKoQ6FqInvkbYGmg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1&random=0.17689074099822322&random=0.6897568648389611#imgIndex=10
+  original_caption: 总结
+  derived_label: 总结
+  naming_source: heading
+  confidence: medium
+  local_file: 11_总结.png
+  sha256: 798f9c284f8d50787cd0827b8e76381dbaf24925b3875d49396928e40019e60c

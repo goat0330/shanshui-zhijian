@@ -1,0 +1,110 @@
+{
+  "cv_manifest": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\generated\\internal_cv_duplicate_near_4fold.csv",
+  "row_count": 1139,
+  "fold_count": 4,
+  "folds": {
+    "0": {
+      "row_count": 280,
+      "class_counts": {
+        "有漂浮物": 251,
+        "正常": 1,
+        "乱占": 14,
+        "乱采": 7,
+        "乱堆": 7
+      },
+      "missing_labels": [
+        "乱建"
+      ],
+      "sequence_group_count": 4,
+      "aspect_ratio_min": 0.7497069167643611,
+      "aspect_ratio_max": 1.7777777777777777
+    },
+    "1": {
+      "row_count": 288,
+      "class_counts": {
+        "有漂浮物": 260,
+        "正常": 1,
+        "乱占": 14,
+        "乱采": 6,
+        "乱堆": 6,
+        "乱建": 1
+      },
+      "missing_labels": [],
+      "sequence_group_count": 4,
+      "aspect_ratio_min": 0.7497069167643611,
+      "aspect_ratio_max": 1.7777777777777777
+    },
+    "2": {
+      "row_count": 288,
+      "class_counts": {
+        "有漂浮物": 257,
+        "正常": 3,
+        "乱占": 16,
+        "乱采": 6,
+        "乱堆": 4,
+        "乱建": 2
+      },
+      "missing_labels": [],
+      "sequence_group_count": 4,
+      "aspect_ratio_min": 0.7502930832356389,
+      "aspect_ratio_max": 1.7777777777777777
+    },
+    "3": {
+      "row_count": 283,
+      "class_counts": {
+        "有漂浮物": 253,
+        "正常": 2,
+        "乱占": 16,
+        "乱采": 5,
+        "乱堆": 6,
+        "乱建": 1
+      },
+      "missing_labels": [],
+      "sequence_group_count": 4,
+      "aspect_ratio_min": 0.7497069167643611,
+      "aspect_ratio_max": 1.7777777777777777
+    }
+  },
+  "exact_duplicate_cross_fold": [],
+  "near_duplicate_cross_fold_count": 0,
+  "near_duplicate_cross_fold_preview": [],
+  "provisional_sequence_cross_fold": [
+    {
+      "group_id": "file_block_0001",
+      "folds": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "group_id": "file_block_0005",
+      "folds": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "group_id": "file_block_0006",
+      "folds": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "group_id": "file_block_0007",
+      "folds": [
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "strict_group_ready": false,
+  "note": "Filename sequence blocks are provisional; source scene/video groups are still required for strict Group-OOD CV."
+}

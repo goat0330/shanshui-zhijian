@@ -1,0 +1,3 @@
+﻿filename,official_label,reviewed_label,model_pred,true_probability,pred_probability,margin,impact_description
+00033.jpg,正常,有漂浮物,有漂浮物,4.424890903464984E-06,0.9998600482940674,0.9997352012578631,"incorrect under official label, correct under reviewed label"
+02111.jpg,正常,乱堆,乱堆,9.33039264054969E-05,0.9976980090141296,0.9962363505037501,"incorrect under official label, correct under reviewed label"

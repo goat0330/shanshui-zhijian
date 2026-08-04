@@ -1,0 +1,41 @@
+{
+  "stage": "03_scene_holdout_block0005",
+  "completed": true,
+  "timestamp": "2026-08-04T03:18:00+08:00",
+  "purpose": "STRICT file_block_0005 scene Holdout diagnostic - RISK ASSESSMENT ONLY (does not replace mainline)",
+  "split": {
+    "val_holdout": 801,
+    "train": 343,
+    "holdout_class_mix": {"有漂浮物": 800, "正常": 1},
+    "constant_baseline_most_frequent": 0.9988
+  },
+  "config": {
+    "init": "runs/repair_v2/fold0_last_stage/best.pt",
+    "model": "convnext_tiny_384",
+    "freeze_mode": "last_stage",
+    "backbone_lr": 5e-06,
+    "head_lr": 5e-05,
+    "epochs_max": 10,
+    "patience": 3,
+    "early_stopped_epoch": 4,
+    "best_epoch": 1,
+    "batch_size": 16,
+    "amp": true,
+    "seed": 42
+  },
+  "metrics": {
+    "weighted_f1": 0.996878,
+    "accuracy": 0.9962546828963795,
+    "macro_f1": 0.1664,
+    "present_class_f1": {"有漂浮物": 0.9981, "正常": 0.0},
+    "prediction_distribution": {"有漂浮物": 799, "乱占": 2, "正常": 0},
+    "high_confidence_errors": [
+      {"filename": "00756.jpg", "true": "有漂浮物", "pred": "乱占"},
+      {"filename": "00757.jpg", "true": "有漂浮物", "pred": "乱占"},
+      {"filename": "01086.jpg", "true": "正常", "pred": "有漂浮物"}
+    ],
+    "error_count": 3
+  },
+  "risk_assessment": "Weighted F1 0.9969 is inflated by the 99.9% single-class holdout (constant baseline 0.9988). The 3 errors are all on the 1 '正常' sample and 2 mis-flagged '乱占'. macro_f1=0.166 shows almost no minority-class skill on this scene block. Per worker C's risk report: this block is NOT representative and NOT safe as primary evaluation; per-fold comparison invalid due to fold overlap. DIAGNOSTIC ONLY - mainline unchanged.",
+  "mainline_untouched": true
+}

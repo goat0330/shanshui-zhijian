@@ -1,0 +1,11 @@
+# Overnight 20260804 checkpoint SHA256
+D177B6E8AF8F37F7129E45DF4D636865DCB82BAB624B7CFC2AA21D1D2C2D3899  runs/overnight_20260804/01_reviewed_v2_4fold/fold0/best.pt
+704D5C28E5A3B87DDEA75E8A51116000124EE4B9E1AA81C4A523038D87564297  runs/overnight_20260804/01_reviewed_v2_4fold/fold1/best.pt
+DE9000C830ABE3606A4A7F4D2C7575F2CC0745C5A7DD417833F10091DAA30664  runs/overnight_20260804/01_reviewed_v2_4fold/fold2/best.pt
+5F32F1AB6BC4CD97F3D72699892D791B88C2346E15767590E6E69514B8AB0C64  runs/overnight_20260804/01_reviewed_v2_4fold/fold3/best.pt
+D32C21A7DA97F697885B30FE9945BF2E3F9EC8778B2D974EC6F7C860FB44D0B3  runs/overnight_20260804/03_resolution448_fold/best.pt
+32C4CF212652119C5D4DB284D6BD9AE82805DF38A92574479C09B18C1373C489  runs/overnight_20260804/02_scene_holdout_block0005/train_holdout/best.pt
+# CHAMPION runs\repair_v2\fold0_last_stage\best.pt intact=True
+# CHAMPION runs\repair_v2\fold1_last_stage\best.pt intact=True
+# CHAMPION runs\repair_v2\fold2_last_stage\best.pt intact=True
+# CHAMPION runs\repair_v2\fold3_last_stage\best.pt intact=True

@@ -1,0 +1,92 @@
+title: 低空应用专题：科技护河-天梭智飞在水域巡检中的应用
+account: 千景大数据
+publish_date: '2026-03-11'
+source_url: https://mp.weixin.qq.com/s?__biz=MzkxMDU2ODAxMA==&mid=2247487104&idx=1
+canonical_id: wechat:MzkxMDU2ODAxMA==:2247487104:1
+archived_at: '2026-08-03T11:56:37+08:00'
+archive_schema_version: 5
+search_id: 31
+sogou_url: https://weixin.sogou.com/link?url=dn9a_-gY295K0Rci_xozVXfdMkSQTLW6cwJThYulHEtVjXrGTiVgSwhaToJG-Lf7uJw3u5JxI1NzehD43LDFz1qXa8Fplpd9wI273slyioUBnXBX6dQ6sLmrGugs4SUWttazFkB_CKerIVQFnklGdu2exjQw_uSXyysrGJTlp5gwwdqQzU7oz59c_8Bv_nXgOWpi0ksVOKg6v211I0TvYWhhvZc6towHa1g6Plfh5g8Z3N3xgoWinOC6XDxdTiDYE83n5z38h9wY-UZGbO56rA..&type=2&query=%E6%B0%B4%E5%9F%9F%E5%BC%82%E5%B8%B8%E8%AF%86%E5%88%AB%20%E6%BC%82%E6%B5%AE%E7%89%A9%20%E4%B9%B1%E9%87%87%20%E4%B9%B1%E5%BB%BA&token=EBBC909B307D76E13F396623BF3E8D063F285D056A701120
+resolved_url: https://mp.weixin.qq.com/s?src=11&timestamp=1785729312&ver=6881&signature=C3PmR*WzlaJce5Ae-Igz0AhZHMJDwnxN9CK8Ykag-NneVYVg8ioKnOTuk4zif2Uhr5QoHl9NKso82LYkhfFMmpGc0RlNx9LPqGtQGyB79fLylGHJtQcsYxrBw1Rb8dek&new=1
+content_hash: sha256:06bac56c3382f5c7799e786c2c79c0898e855489ed337bf88d5c167a7e87c3c2
+images:
+- order: 1
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/mGSXyCU58ryQeZ57RbWPVicQDdG5Xz5UHQV3OXYF6oNu0ibicfXuHEYcibudl43SUnkJ4CsmoM7B68bL6PcrGLTq50X7E5cI2sfaDYrRnhXRTgE/640?wx_fmt=png&from=appmsg&watermark=1#imgIndex=0
+  original_caption: 图片
+  derived_label: 文章首图
+  naming_source: role
+  confidence: low
+  local_file: 1_文章首图.png
+  sha256: 44659a052cac77e47c41deb5874777e64d63598a0d16e1bcbe39d2ecaedf4e9e
+- order: 2
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/mGSXyCU58rzve6SExavjADczxBvA7RVJqrwvv0ibQSibzM2Bfz0gkuTb1fwJp9iaicAdjlqVyKGaexzvM7w7YjATVkzAGLe2eGiagaCcC6QRictlU/640?wx_fmt=png&from=appmsg&watermark=1#imgIndex=1
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 2_正文配图.png
+  sha256: 80e67957122b698c74437a63218a74811b52627ae6a547124e7dbc03d517a700
+- order: 3
+  source_url: https://mmbiz.qpic.cn/mmbiz_jpg/mGSXyCU58rxR6vibob7yYVKcOxhUINZ4nZwZUcSvEHZGmu3dXIL3X0W0fLhyrVLOGgsf1h0xAPqkVL2mtVicu1LG6rZ3tkLKkAeaTCXLGUptk/640?wx_fmt=jpeg&from=appmsg&watermark=1#imgIndex=2
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 3_正文配图.jpg
+  sha256: 29b28f61584066f841cbe44da01e2eb841fd86db992337b0908a59faedac8168
+- order: 4
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/mGSXyCU58rydfN1u52PBjuVC3iby2n45PhDXJxlddfevGscg9mqhmsicIUVQ54kLibY0kVIkZ5pDzb8dcnShvpibiaQCaOQBFoLpSibWBovibZSXUE/640?wx_fmt=png&from=appmsg&watermark=1#imgIndex=3
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 4_正文配图.png
+  sha256: 2e7fbb19ec22d96846fc230fe81827c69f7430485f586d10b80ef65740a40f1f
+- order: 5
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/mGSXyCU58rwUF9BFB5KGu8hD7wNvVCib7enJyF1PiceIuLZAVbTMMNFT6WSfOsKdF9ibphupNHjSpQBredduZrtYI7hxaznPSxv9bAAfcmVEvw/640?wx_fmt=png&from=appmsg&watermark=1#imgIndex=4
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 5_正文配图.png
+  sha256: db272f4979ef050186070f4f445ceb5e4def4541e7918feb86f21ea7fa2f5ec4
+- order: 6
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/mGSXyCU58rxBSgpGtnXTQuvTR683kGbKpoV7TSOZ9GR1rq6g4l4kqGudcalyYCs3owUYyVibDoaa8iaDfeJ86hJk5vyFUVqQSwUPSFe3KxAXk/640?wx_fmt=png&from=appmsg&watermark=1#imgIndex=5
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 6_正文配图.png
+  sha256: ae36c9462bf9498bfe2d8b00b26fd1a94624c3cbea92e075f97fbed6a4e5defc
+- order: 7
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/mGSXyCU58ryAX1jtDadvsAk2YJafEhMYpupItRkgHoTCOpDFnlwQ558LFEs8sbUYrNpoeRYRPuRfAfqOyAOvpLBKIm4Ba1hn5JKEJqNGWro/640?wx_fmt=png&from=appmsg&watermark=1#imgIndex=6
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 7_正文配图.png
+  sha256: 8385257852aa9bdbcb35f70a3d9d5019a88479276e35a6b5ec248966c7029d28
+- order: 8
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/mGSXyCU58rzJgaWDqbibFeLiahYW7zqIAwOT730H9oSkJBERXAwwd2tXicCrdSSOw4Q9JFYZ4FbedEy6gJoQD19hkM9XzyFZIicsLVUjibYTF3js/640?wx_fmt=png&from=appmsg&watermark=1#imgIndex=7
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 8_正文配图.png
+  sha256: 45565006e496568b70897c79f34dc452b0e89f37d37358072be41cc7ac68d236
+- order: 9
+  source_url: https://mmbiz.qpic.cn/sz_mmbiz_png/mGSXyCU58rxnQnXoFQEn2CORhWdC1FRIXKTxbQ5P9djZBWuc2MatsMkMibEwYPOICZrIUzK6QIQ1mAglj56XoT87ibpcdj07jqs78LQmhGLso/640?wx_fmt=png&from=appmsg&watermark=1#imgIndex=8
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 9_正文配图.png
+  sha256: 02b3bce477391a27ccf917f4e2d221571ba6474900fd99e417484c53b42a3298
+- order: 10
+  source_url: https://mmbiz.qpic.cn/mmbiz_png/mGSXyCU58ry01MqrTDBnib1Eicibuia40suj0x3E4YiaZXrpt03db53nk5onRTk4DnEvhUGAD6FTbWZ17UaPlh1CcEUeZO3aI95BQMZiciawGIBPc4/640?wx_fmt=png&from=appmsg&watermark=1#imgIndex=9
+  original_caption: 图片
+  derived_label: 正文配图
+  naming_source: fallback
+  confidence: low
+  local_file: 10_正文配图.png
+  sha256: 9d711df0824fae9475b9ef0359b5160eee8e0159e8163b0dcce995dfa271683a

@@ -1,0 +1,54 @@
+{
+  "folds": 4,
+  "seed": 42,
+  "group_mode": "provisional_sequence",
+  "group_count": 5,
+  "row_count": 1139,
+  "fold_class_counts": {
+    "0": {
+      "有漂浮物": 800,
+      "正常": 1
+    },
+    "1": {
+      "有漂浮物": 1
+    },
+    "2": {
+      "乱建": 4
+    },
+    "3": {
+      "有漂浮物": 220,
+      "正常": 6,
+      "乱占": 60,
+      "乱采": 24,
+      "乱堆": 23
+    }
+  },
+  "missing_labels_by_fold": {
+    "0": [
+      "乱采",
+      "乱建",
+      "乱堆",
+      "乱占"
+    ],
+    "1": [
+      "乱采",
+      "乱建",
+      "乱堆",
+      "乱占",
+      "正常"
+    ],
+    "2": [
+      "乱采",
+      "乱堆",
+      "乱占",
+      "有漂浮物",
+      "正常"
+    ],
+    "3": [
+      "乱建"
+    ]
+  },
+  "final_group_fold_ready": false,
+  "note": "exact and near duplicate components are kept together; final Group Fold still requires confirmed visual/source sequence groups.",
+  "output": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\generated\\internal_cv_provisional_sequence_4fold.csv"
+}

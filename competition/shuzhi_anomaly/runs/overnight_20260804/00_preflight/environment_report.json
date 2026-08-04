@@ -1,0 +1,72 @@
+{
+  "timestamp": "2026-08-04T02:30:00+08:00",
+  "task": "shuzhi-overnight-20260804",
+  "cuda": {
+    "driver": "592.82",
+    "cuda_version": "13.1",
+    "toolkit_reported": "11.8"
+  },
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 2070 with Max-Q Design",
+    "memory_total_mib": 8192,
+    "memory_used_mib": 1130,
+    "memory_free_mib": 6877,
+    "temperature_c": 54,
+    "utilization_percent": 34,
+    "power_draw_w": 10.54,
+    "wddm": true
+  },
+  "python": {
+    "version": "3.11.5",
+    "torch": "2.6.0+cu118",
+    "timm": "1.0.28",
+    "cuda_available": true,
+    "device": "cuda:0"
+  },
+  "disk_free_bytes": {
+    "C": 77806923776,
+    "D": 199630098432,
+    "E": 85256724480
+  },
+  "git": {
+    "commit": "24368ce2faf5342167d47dcef8dc00c211239e38",
+    "message": "feat: add six-class preprocessing and internal CV"
+  },
+  "manifest": {
+    "internal_cv_duplicate_near_4fold.csv": "183F0911AB6C76DBBCABFEEB1608D6C250E0EFEBF27855B91C3074D554A7F310",
+    "train_reviewed_v2.json": "F114C2AEC4E35081F37E4BD15DC385CBFC124B4D9F13E16A6DFAB03EBECA22DA",
+    "review_decisions_v2.csv": "F163550E9529020B28AB0CA8C8E7B7E799A58E4A01A3658DC7474D0F8823ED9F",
+    "train_index.csv": "9FB1C7A2A5F61CC4C176A3B48B7CF9BA654799B51DB593146EE8129F3874C2EF"
+  },
+  "champion_checkpoints": {
+    "fold0_last_stage/best.pt": "2977766E2F9CF0DEBF124579F7B8D766F2AE496CF8EF33599EA48B5553B7C2DA",
+    "fold1_last_stage/best.pt": "FC27905AD7336EC4CF793C51A215EF12BF8E6A3BE03964D3949DAEDF49FAFEE7",
+    "fold2_last_stage/best.pt": "B8F23DA0A37B64CE55DD651F9481AE4DE768A431BCAA4B491A628B82D59DD13B",
+    "fold3_last_stage/best.pt": "0285FF8BAAC2EAABD14692D96B4FA00C42B7DB41C40EAFC8288CC306E745E401"
+  },
+  "champion_global_oof": {
+    "raw_v1": {
+      "accuracy": 0.9841966637401229,
+      "weighted_f1": 0.9794031475811966,
+      "macro_f1": 0.6470914485929629,
+      "mIoU": 0.6295266494734579,
+      "error_count": 18,
+      "support": {"乱采": 24, "乱建": 4, "乱堆": 23, "乱占": 60, "有漂浮物": 1021, "正常": 7}
+    }
+  },
+  "reviewed_v2": {
+    "strict_review_csv_passed": true,
+    "validation_output": "strictly valid completed review CSV: 11 rows; relabels=2",
+    "relabels": [
+      {"filename": "00033.jpg", "from": "正常", "to": "有漂浮物"},
+      {"filename": "02111.jpg", "from": "正常", "to": "乱堆"}
+    ],
+    "decision_count": 11,
+    "changed_label_count": 2
+  },
+  "model": {
+    "alias": "convnext_tiny_384",
+    "resolved": "hf-hub:timm/convnext_tiny.fb_in22k_ft_in1k_384",
+    "image_size": 384
+  }
+}

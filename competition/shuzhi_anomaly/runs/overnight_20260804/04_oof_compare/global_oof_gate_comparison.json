@@ -1,0 +1,36 @@
+{
+  "stage": "02_global_oof_gate_comparison",
+  "completed": true,
+  "timestamp": "2026-08-04T03:10:00+08:00",
+  "raw_v1_champion": {
+    "source": "runs/repair_v2/global_oof/global_oof_metrics.json",
+    "accuracy": 0.9841966637401229,
+    "weighted_f1": 0.9794031475811966,
+    "macro_f1": 0.6470914485929629,
+    "mIoU": 0.6295266494734579,
+    "total_error_count": 18,
+    "luanjian_correct": 0,
+    "zhengchang_correct": 0,
+    "floating_recall": 0.9980411361410382
+  },
+  "reviewed_v2_continuation": {
+    "source": "runs/overnight_20260804/04_oof_compare/new_oof_aggregate/global_oof_metrics.json",
+    "accuracy": 0.9868305531167691,
+    "weighted_f1": 0.9828751037091922,
+    "macro_f1": 0.6522623067967156,
+    "mIoU": 0.6391082813955155,
+    "total_error_count": 15,
+    "luanjian_correct": 0,
+    "zhengchang_correct": 0,
+    "floating_recall": 0.9990215264187867
+  },
+  "gate_rule": "Global Weighted F1 >= 0.979403, OR drop <= 0.001 with 乱建/正常 rescue >= 1",
+  "gate_check": {
+    "weighted_f1_delta": 0.003472,
+    "weighted_f1_pass": true,
+    "error_delta": -3,
+    "luanjian_zhengchang_rescue": "0 乱建 + 0 正常 predicted (unchanged); 2 relabeled files 00033/02111 correctly rescued under reviewed_v2 truth",
+    "verdict": "PASS"
+  },
+  "decision": "reviewed_v2 continuation is a valid candidate (Global Weighted F1 0.982875 >= 0.979403). Champion mainline retained as candidate A; reviewed_v2 continuation added as candidate B."
+}
