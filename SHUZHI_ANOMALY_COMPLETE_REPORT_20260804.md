@@ -2,8 +2,9 @@
 
 更新时间：2026-08-04  
 项目：山水智鉴/赛题三——水域综合异常识别  
-当前交付分支：`feat/platform-inference-v1`  
-推理包代码提交：`af5cc893f72110988a66058168fda5b8d20ab520`  
+当前交付分支：`feat/platform-inference-v1`<br>
+推理包代码提交：`b0243f3b24fca3edb5843befa8804e8ad21b342f`<br>
+OpenChamber 完成事件：`shuzhi-overnight-20260804`，状态 `completed`，canonical artifact 检查通过。<br>
 汇总报告提交：以本分支最新 HEAD 为准。
 
 ## 一、结论先行
@@ -22,6 +23,10 @@
 | 有漂浮物 Recall | 0.998041 | **0.999022** | +0.000980 |
 
 这一结果通过了预设候选门槛：`0.982875 >= 0.979403`。冠军 `repair_v2` 原始权重没有覆盖，仍保留为候选 A；reviewed_v2 作为候选 B 完成测试推理和正式离线包构建。
+
+### OpenChamber 本轮完成态
+
+本轮 CUDA 训练和后续诊断已由 OpenChamber session `ses_037229559ffeXuWP1YVcFSn0Br` 完成。通过 supervisor 的 canonical `event-read` 复核：`status=completed`、`artifacts_ok=true`、`ready_for_next_task=true`。四项关键产物位于 `competition/shuzhi_anomaly/runs/overnight_20260804/`，包括四折 checkpoint、Global OOF gate、695 条候选 JSON 和最终报告。完整吸收记录见 `OPENCHAMBER_COMPLETION_ABSORPTION_20260804.md`。
 
 ## 二、项目边界和比赛契约
 
@@ -217,7 +222,7 @@
 
 - `model_manifest.json`：标签顺序、架构、输入预处理、四折相对路径和权重 SHA256；
 - `validate_runtime.py`：不需要输入图片即可完成依赖、权重哈希和 strict load 自检；
-- `requirements.txt`：torch 2.6.0、torchvision 0.21.0、timm 1.0.28、Pillow 11.3.0；
+- `requirements.txt`：仅列出 timm、Pillow、PyYAML、huggingface-hub、safetensors，不覆盖平台预装的 Torch/CUDA；本机精确版本另记于 `requirements-full-local.txt`；
 - `README.md`：平台调用方式和输出格式；
 - `checksums.sha256`：正式包文件校验值。
 
@@ -308,10 +313,10 @@ python path\to\shuzhi_platform_inference_v1\main.py `
 
 ### 正式平台推理包（含权重）
 
-- 文件：`shuzhi_platform_inference_v1.tar.gz`；
-- 大小：413,611,044 bytes；
-- SHA256：`996443fdd47a4dbbb71ca8e2d1659e2c11c5b988f92ff5b71b2d55c98281c6b6`；
-- 校验文件：`shuzhi_platform_inference_v1.tar.gz.sha256`。
+- 文件：`shuzhi_platform_inference_v1_1.tar.gz`；
+- 大小：413,612,492 bytes；
+- SHA256：`69851bec9c54892f4961ea8e06380cb8af768ef0ac96bd5d98574dbfcd4cc01a`；
+- 校验文件：`shuzhi_platform_inference_v1_1.tar.gz.sha256`。
 
 原 ZIP 仍保留作备用交付，不能与正式 tar.gz 混用时优先使用 tar.gz。
 
@@ -327,6 +332,7 @@ python path\to\shuzhi_platform_inference_v1\main.py `
 ### 审计和结果文件
 
 - `PLATFORM_INFERENCE_AUDIT.md`：正式推理包审计；
+- `OPENCHAMBER_COMPLETION_ABSORPTION_20260804.md`：本轮 OpenChamber 完成态和 canonical artifact 吸收记录；
 - `platform_695_consistency/consistency_report.json`：695 张逐条一致性摘要；
 - `platform_695_consistency/prediction_diff.csv`：空差异表；
 - `SHUZHI_ANOMALY_COMPLETE_REPORT_20260804.md`：本汇总报告。
@@ -354,7 +360,7 @@ python path\to\shuzhi_platform_inference_v1\main.py `
 
 ## 十、推荐操作顺序
 
-1. 上传并解压 `shuzhi_platform_inference_v1.tar.gz` 作为正式离线推理包。
+1. 上传并解压 `shuzhi_platform_inference_v1_1.tar.gz` 作为正式离线推理包。
 2. 用 `.sha256` 文件校验上传文件完整性。
 3. 在平台环境先执行 `validate_runtime.py`。
 4. 用平台给定隐藏图片目录执行 `main.py`，提交生成的四字段 JSON。
