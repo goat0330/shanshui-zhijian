@@ -1,0 +1,42 @@
+{
+  "task": "shuzhi-448-test-inference-20260804",
+  "completed": true,
+  "package": "shuzhi_platform_inference_v1_2",
+  "package_manifest": {
+    "architecture": "convnext_tiny",
+    "input_size": 448,
+    "ensemble": "4-fold equal-weight (0.25) softmax sum + argmax",
+    "checkpoints": [
+      {"fold": 0, "sha256": "1839906f47fcebbd8a2f68505f8ae9c5fe5f6fae8a6099f66b0b9faf7b4f0cf1"},
+      {"fold": 1, "sha256": "5b993f3ce29b42de29b7ff81ecfc107fe4e268c6e463ad6caffe2a27fda332d3"},
+      {"fold": 2, "sha256": "bd70033e30f9f112cf876338d3b5720908adcc13f39563a89b76bb4f358748e6"},
+      {"fold": 3, "sha256": "80c2811c47f3d153dca58d615824ba2546848a8df3dfff66f6b79162193ad3db"}
+    ]
+  },
+  "input_dir": "D:\\研究生作业\\人工智能实践比赛\\水域综合异常识别_训练集+验证集\\初赛测试集",
+  "input_count": 695,
+  "input_jpg": 691,
+  "input_png": 4,
+  "output": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\runs\\overnight_20260804\\05_test_inference\\submission_448_reviewed_v2.json",
+  "output_sha256": "8FFA8D222F24CAF0EA5130260E1D12460AE58F77122781014809B8F35CF2CFCC",
+  "output_bytes": 88554,
+  "device": "cuda",
+  "batch_size": 16,
+  "workers": 0,
+  "total_seconds": 210.734,
+  "peak_cuda_memory_mb": 962.03,
+  "fold_timings_seconds": [46.683, 46.607, 51.681, 65.467],
+  "validation": {
+    "is_list": true,
+    "count": 695,
+    "duplicate_filenames": 0,
+    "filename_set_equal_to_manifest": true,
+    "fields_exactly_filename_width_height_label": true,
+    "dimensions_match_manifest": true,
+    "labels_from_official_six_classes": true,
+    "validate_submission_py": "valid=true count=695"
+  },
+  "label_distribution": {"有漂浮物": 524, "乱占": 135, "乱采": 33, "乱堆": 2, "乱建": 1, "正常": 0},
+  "runtime_log": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\runs\\overnight_20260804\\05_test_inference\\inference_448_v1_2.log",
+  "constraints_honored": "no training; no code/manifest/weight changes; no repackaging; only result JSON + log added"
+}

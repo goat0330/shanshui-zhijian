@@ -52,6 +52,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source-root", type=Path, default=DEFAULT_SOURCE_ROOT)
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--probabilities-output", type=Path, default=None)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--workers", type=int, default=0)
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
@@ -190,6 +191,21 @@ def main() -> int:
         }
         for row, label in zip(rows, labels)
     ]
+    if args.probabilities_output is not None:
+        probability_path = args.probabilities_output.resolve()
+        probability_path.parent.mkdir(parents=True, exist_ok=True)
+        fields = ["filename", *[f"p_{label}" for label in LABELS], "pred_label"]
+        with probability_path.open("w", encoding="utf-8-sig", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fields)
+            writer.writeheader()
+            for row, probability, label in zip(rows, mean_probabilities.tolist(), labels):
+                writer.writerow(
+                    {
+                        "filename": row["filename"],
+                        **{f"p_{class_name}": value for class_name, value in zip(LABELS, probability)},
+                        "pred_label": label,
+                    }
+                )
     args.output.resolve().parent.mkdir(parents=True, exist_ok=True)
     args.output.resolve().write_text(json.dumps(output_rows, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
     print(json.dumps({"output": str(args.output.resolve()), "count": len(output_rows)}, ensure_ascii=False))

@@ -1,0 +1,119 @@
+{
+  "model": "C:\\Users\\WangChi\\.cache\\huggingface\\hub\\models--google--siglip2-base-patch16-224\\snapshots\\75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+  "prompts": [
+    "a river scene with illegal sand mining",
+    "a river scene with illegal construction",
+    "a river scene with a pile of dumped materials or waste",
+    "a river scene with illegal occupation of the water area",
+    "a river scene with floating waste or floating objects",
+    "a normal riverbank or normal water facility"
+  ],
+  "records": 1144,
+  "device": "cuda",
+  "zero_shot_argmax_metrics": {
+    "accuracy": 0.028846153846153848,
+    "weighted_f1": 0.016466424522938766,
+    "macro_f1": 0.009798255052784819,
+    "balanced_accuracy": 0.16812723141837063,
+    "mIoU": 0.00498479382659386,
+    "per_class_precision": {
+      "乱采": 0.0,
+      "乱建": 0.0,
+      "乱堆": 0.021145374449339206,
+      "乱占": 0.0,
+      "有漂浮物": 1.0,
+      "正常": 0.0
+    },
+    "per_class_recall": {
+      "乱采": 0.0,
+      "乱建": 0.0,
+      "乱堆": 1.0,
+      "乱占": 0.0,
+      "有漂浮物": 0.008763388510223954,
+      "正常": 0.0
+    },
+    "per_class_f1": {
+      "乱采": 0.0,
+      "乱建": 0.0,
+      "乱堆": 0.04141501294219154,
+      "乱占": 0.0,
+      "有漂浮物": 0.017374517374517378,
+      "正常": 0.0
+    },
+    "per_class_iou": {
+      "乱采": 0.0,
+      "乱建": 0.0,
+      "乱堆": 0.021145374449339206,
+      "乱占": 0.0,
+      "有漂浮物": 0.008763388510223954,
+      "正常": 0.0
+    },
+    "support": {
+      "乱采": 24,
+      "乱建": 4,
+      "乱堆": 24,
+      "乱占": 60,
+      "有漂浮物": 1027,
+      "正常": 5
+    },
+    "prediction_distribution": {
+      "乱采": 0,
+      "乱建": 0,
+      "乱堆": 1135,
+      "乱占": 0,
+      "有漂浮物": 9,
+      "正常": 0
+    },
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        24,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        4,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        24,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        60,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1018,
+        0,
+        9,
+        0
+      ],
+      [
+        0,
+        0,
+        5,
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "note": "Teacher evidence only; no official labels changed, no test images or pseudo-labels used."
+}

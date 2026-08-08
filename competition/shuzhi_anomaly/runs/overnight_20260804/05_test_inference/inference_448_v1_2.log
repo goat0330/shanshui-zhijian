@@ -1,0 +1,7 @@
+D:\py\Python3\Lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.4.3)/charset_normalizer (3.4.1) doesn't match a supported version!
+  warnings.warn(
+{"fold": 0, "weight": 0.25, "device": "cuda", "count": 695, "seconds": 46.683}
+{"fold": 1, "weight": 0.25, "device": "cuda", "count": 695, "seconds": 46.607}
+{"fold": 2, "weight": 0.25, "device": "cuda", "count": 695, "seconds": 51.681}
+{"fold": 3, "weight": 0.25, "device": "cuda", "count": 695, "seconds": 65.467}
+{"output": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\runs\\overnight_20260804\\05_test_inference\\submission_448_reviewed_v2.json", "count": 695, "device": "cuda", "batch_size": 16, "workers": 0, "total_seconds": 210.734, "images_per_second": 3.298, "folds": [{"fold": 0, "weight": 0.25, "seconds": 46.683}, {"fold": 1, "weight": 0.25, "seconds": 46.607}, {"fold": 2, "weight": 0.25, "seconds": 51.681}, {"fold": 3, "weight": 0.25, "seconds": 65.467}], "peak_cuda_memory_mb": 962.03}

@@ -1,0 +1,13 @@
+﻿test_filename,test_camera_group,rank,train_filename,train_camera_group,train_label,thumbnail_cosine,sift_good,homography_inliers,homography_inlier_ratio
+00243.jpg,camera_group_v2_0183,1,00144.jpg,camera_group_v2_0100,有漂浮物,0.761177,2,0,0.0000
+00246.jpg,camera_group_v2_0182,1,00898.jpg,camera_group_v2_0321,有漂浮物,0.722191,8,5,0.6250
+01245.jpg,camera_group_v2_0370,1,01235.jpg,camera_group_v2_0370,有漂浮物,0.929343,118,73,0.6186
+01246.jpg,camera_group_v2_0370,1,01235.jpg,camera_group_v2_0370,有漂浮物,0.926529,107,61,0.5701
+01247.jpg,camera_group_v2_0370,1,01233.jpg,camera_group_v2_0370,有漂浮物,0.779952,80,47,0.5875
+01248.jpg,camera_group_v2_0370,1,01235.jpg,camera_group_v2_0370,有漂浮物,0.903568,109,67,0.6147
+02151.jpg,camera_group_v2_0458,1,02150.jpg,camera_group_v2_0458,乱堆,0.830399,158,149,0.9430
+02152.jpg,camera_group_v2_0458,1,02150.jpg,camera_group_v2_0458,乱堆,0.860891,138,121,0.8768
+02153.jpg,camera_group_v2_0458,1,02150.jpg,camera_group_v2_0458,乱堆,0.829625,107,95,0.8879
+02154.jpg,camera_group_v2_0458,1,02150.jpg,camera_group_v2_0458,乱堆,0.769878,112,105,0.9375
+02155.jpg,camera_group_v2_0458,1,02150.jpg,camera_group_v2_0458,乱堆,0.725823,47,38,0.8085
+02156.jpg,camera_group_v2_0458,1,02150.jpg,camera_group_v2_0458,乱堆,0.736553,81,73,0.9012

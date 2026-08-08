@@ -1,0 +1,11 @@
+{
+  "full_rows": 1839,
+  "cv_rows": 1834,
+  "active_train_rows": 1139,
+  "test_rows": 695,
+  "v1_groups": 533,
+  "v2_groups": 508,
+  "manual_merged_components": 10,
+  "source": "D:\\研究生作业\\人工智能实践比赛\\competition\\shuzhi_anomaly\\generated\\camera_groups_v1_gap30\\camera_group_manifest.csv",
+  "review": "D:\\Edge Downloads\\critical_findings.csv"
+}

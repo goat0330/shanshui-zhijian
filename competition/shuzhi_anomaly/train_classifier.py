@@ -73,6 +73,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--cache-dir", type=Path, default=Path("weights/timm"))
     parser.add_argument("--init-checkpoint", type=Path, default=None)
+    parser.add_argument("--copy-paste-manifest", type=Path, default=None)
+    parser.add_argument("--copy-paste-root", type=Path, default=None)
     parser.add_argument("--image-size", type=int, default=384)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--epochs", type=int, default=20)
@@ -93,9 +95,16 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--sampler",
-        choices=("standard", "power_balanced", "class_balanced_legacy", "class_sequence_legacy"),
+        choices=(
+            "standard",
+            "power_balanced",
+            "scene_group_equal",
+            "class_balanced_legacy",
+            "class_sequence_legacy",
+        ),
         default="standard",
     )
+    parser.add_argument("--scene-group-manifest", type=Path, default=None)
     parser.add_argument(
         "--sampling-alpha",
         type=float,
@@ -114,6 +123,58 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pretrained", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     return parser.parse_args()
+
+
+def load_copy_paste_records(
+    manifest_path: Path,
+    image_root: Path,
+    cv_map: dict[str, dict[str, str]],
+    fold: int,
+) -> list[dict[str, object]]:
+    with manifest_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    records: list[dict[str, object]] = []
+    skipped = 0
+    for row in rows:
+        foreground = row["foreground"]
+        background = row["background"]
+        if foreground not in cv_map or background not in cv_map:
+            raise ValueError(f"copy-paste source is absent from CV manifest: {row['id']}")
+        if int(cv_map[foreground]["fold"]) == fold or int(cv_map[background]["fold"]) == fold:
+            skipped += 1
+            continue
+        path = image_root / "images" / f"{row['id']}.jpg"
+        if not path.exists():
+            raise FileNotFoundError(f"copy-paste image missing: {path}")
+        records.append(
+            {
+                "filename": f"copy_paste/{row['id']}.jpg",
+                "path": path,
+                "label": "乱堆",
+                "label_id": LABELS.index("乱堆"),
+                "sequence_id": f"copy_paste_{row['foreground']}",
+            }
+        )
+    print(
+        f"copy_paste candidates: added={len(records)} skipped_for_fold={skipped} "
+        f"fold={fold} manifest={manifest_path}"
+    )
+    return records
+
+
+def load_scene_group_map(manifest_path: Path) -> dict[str, str]:
+    with manifest_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    mapping: dict[str, str] = {}
+    for row in rows:
+        filename = row["filename"]
+        scene_group = row.get("scene_group", "").strip()
+        if not filename or not scene_group:
+            raise ValueError(f"scene_group is empty for {filename or '<unknown>'}")
+        mapping[filename] = scene_group
+    if not mapping:
+        raise ValueError(f"scene_group manifest is empty: {manifest_path}")
+    return mapping
 
 
 class BalancedSoftmaxLoss(nn.Module):
@@ -153,7 +214,11 @@ def resolve_train_json(args: argparse.Namespace) -> Path:
     ).resolve()
 
 
-def build_sampler(args: argparse.Namespace, records: list[dict[str, object]]):
+def build_sampler(
+    args: argparse.Namespace,
+    records: list[dict[str, object]],
+    scene_group_map: dict[str, str] | None = None,
+):
     if args.sampler == "standard":
         return None
     if args.sampler == "class_sequence_legacy":
@@ -162,6 +227,41 @@ def build_sampler(args: argparse.Namespace, records: list[dict[str, object]]):
             "sets every class budget to the rarest-class capacity and discarded nearly "
             "all training rows. Use standard or power_balanced."
         )
+    if args.sampler == "scene_group_equal":
+        if scene_group_map is None:
+            raise ValueError("scene_group_equal requires --scene-group-manifest")
+        dump_id = LABELS.index("乱堆")
+        dump_indices = [
+            index
+            for index, row in enumerate(records)
+            if int(row["label_id"]) == dump_id
+        ]
+        if not dump_indices:
+            raise ValueError("scene_group_equal found no 乱堆 training records")
+        group_by_index: dict[int, str] = {}
+        group_counts: dict[str, int] = {}
+        for index in dump_indices:
+            filename = str(records[index]["filename"])
+            if filename not in scene_group_map:
+                raise ValueError(f"missing scene_group for 乱堆 record: {filename}")
+            group = scene_group_map[filename]
+            group_by_index[index] = group
+            group_counts[group] = group_counts.get(group, 0) + 1
+        weights = torch.ones(len(records), dtype=torch.double)
+        dump_total = len(dump_indices)
+        group_total = len(group_counts)
+        for index, group in group_by_index.items():
+            weights[index] = dump_total / (group_total * group_counts[group])
+        num_samples = args.samples_per_epoch or len(records)
+        print(
+            "scene_group sampler:",
+            group_counts,
+            "dump_total:",
+            dump_total,
+            "num_samples:",
+            num_samples,
+        )
+        return WeightedRandomSampler(weights, num_samples=num_samples, replacement=True)
     labels = torch.tensor([int(row["label_id"]) for row in records])
     counts = torch.bincount(labels, minlength=len(LABELS)).float()
     if args.sampler == "class_balanced_legacy":
@@ -267,7 +367,7 @@ def main() -> int:
     seed_everything(args.seed)
     source_root = args.source_root.resolve()
     train_json = resolve_train_json(args)
-    train_records, val_records, _ = build_cv_records(
+    train_records, val_records, cv_map = build_cv_records(
         source_root=source_root,
         train_json=train_json,
         manifest_path=args.manifest.resolve(),
@@ -275,6 +375,20 @@ def main() -> int:
         cv_manifest_path=args.cv_manifest.resolve(),
         fold=args.fold,
     )
+    if args.copy_paste_manifest is not None:
+        copy_paste_root = (
+            args.copy_paste_root.resolve()
+            if args.copy_paste_root is not None
+            else args.copy_paste_manifest.resolve().parent
+        )
+        train_records.extend(
+            load_copy_paste_records(
+                args.copy_paste_manifest.resolve(),
+                copy_paste_root,
+                cv_map,
+                args.fold,
+            )
+        )
 
     bundle = build_model(
         args.model,
@@ -297,7 +411,12 @@ def main() -> int:
     )
     train_dataset = ClassificationDataset(train_records, train_transform)
     val_dataset = ClassificationDataset(val_records, val_transform)
-    sampler = build_sampler(args, train_records)
+    scene_group_map = (
+        load_scene_group_map(args.scene_group_manifest.resolve())
+        if args.scene_group_manifest is not None
+        else None
+    )
+    sampler = build_sampler(args, train_records, scene_group_map)
     device = torch.device(args.device)
     pin_memory = device.type == "cuda"
     train_loader = DataLoader(
